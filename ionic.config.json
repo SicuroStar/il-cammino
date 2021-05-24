@@ -1,0 +1,8 @@
+{
+  "name": "Il cammino",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "793052ca"
+}
