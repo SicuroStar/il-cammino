@@ -453,12 +453,49 @@ export interface ReasoningForAI {
   /**
    * Structured context for RAG chunking strategy.
    * The AI pipeline splits on these boundaries rather than arbitrary token counts.
+   *
+   * v3.1: each chunk carries embedding metadata so the pipeline can upsert
+   * idempotently — same chunk_id always maps to the same vector slot.
    */
-  rag_chunks: {
-    chunk_id: string;
-    topic: string;
-    content: string;
-  }[];
+  rag_chunks: RAGChunk[];
+}
+
+/**
+ * A single RAG chunk with full embedding lifecycle metadata.
+ *
+ * Embedding lifecycle:
+ *  1. Pipeline reads chunk, checks embedding_valid.
+ *  2. If false (or missing): re-embed → upsert → set embedding_valid=true + last_embedded=now.
+ *  3. If true and content unchanged: skip — no wasted API calls.
+ *  4. When risk_narrative_version changes on the parent document:
+ *     pipeline sets embedding_valid=false on ALL chunks of that document.
+ */
+export interface RAGChunk {
+  chunk_id: string;
+  topic: string;
+  content: string;
+  /**
+   * Stable UUID v4 — the vector store primary key for this chunk.
+   * NEVER regenerate after first creation: changing this orphans the old vector.
+   * Format: "rag-{app_id}-{chunk_id}"
+   */
+  embedding_id: string;
+  /** Model used to produce the current embedding vector */
+  embedding_model: string;
+  /** ISO-8601 timestamp of the last successful embedding upsert */
+  last_embedded: ISOTimestamp | null;
+  /**
+   * False when content has changed since last_embedded.
+   * The pipeline treats false as a mandatory re-embed signal.
+   * Set to false automatically when risk_narrative_version is incremented.
+   */
+  embedding_valid: boolean;
+  /**
+   * SHA-256 of the content string at last_embedded time.
+   * The pipeline compares this to the current content hash to detect
+   * silent content changes (e.g. edits without version bump).
+   */
+  content_hash: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

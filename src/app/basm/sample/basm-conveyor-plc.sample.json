@@ -417,27 +417,52 @@
       {
         "chunk_id": "CHUNK-PLC001-IDENTITY",
         "topic": "Asset Identity & Business Role",
-        "content": "PLC Siemens S7-1500 — Linea A rullo trasportatore. Tier-1-Gold. Processo: Order-to-Cash. Costo downtime: €18.500/ora. RTO: 4h. Revenue at risk per incidente: €74.000."
+        "content": "PLC Siemens S7-1500 — Linea A rullo trasportatore. Tier-1-Gold. Processo: Order-to-Cash. Costo downtime: €18.500/ora. RTO: 4h. Revenue at risk per incidente: €74.000.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-IDENTITY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
       },
       {
         "chunk_id": "CHUNK-PLC001-OT-CONTEXT",
         "topic": "OT/ICS Context",
-        "content": "Purdue Level 1. Air gap: partial (bridge OT/IT attivo per manutenzione fino al 2026-03-15). Firmware 3.12.4 con CVE-2024-43647 mitigata da isolamento rete. IEC 62443 target SL-2. Safety impact: high."
+        "content": "Purdue Level 1. Air gap: partial (bridge OT/IT attivo per manutenzione fino al 2026-03-15). Firmware 3.12.4 con CVE-2024-43647 mitigata da isolamento rete. IEC 62443 target SL-2. Safety impact: high.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-OT-CONTEXT",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
       },
       {
         "chunk_id": "CHUNK-PLC001-CONTROLS",
         "topic": "Security Controls Status",
-        "content": "EDR: green (confidence 0.91, fresh). Network Isolation: yellow (confidence 0.61, stale, eccezione attiva RAF-2026-003). Firmware Audit: green (confidence 0.83, fresh). CCM compliance score: 0.78."
+        "content": "EDR: green (confidence 0.91, fresh). Network Isolation: yellow (confidence 0.61, stale, eccezione attiva RAF-2026-003). Firmware Audit: green (confidence 0.83, fresh). CCM compliance score: 0.78.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-CONTROLS",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
       },
       {
         "chunk_id": "CHUNK-PLC001-GRAPH",
         "topic": "Graph Topology & Blast Radius",
-        "content": "Connesso a: SCADA-MAIN-001 (OPC-UA, Critical), HISTORIAN-AVEVA-001 (OPC-DA, High, unencrypted), ERP-SAP-001 (REST/HTTPS, High). Blast radius: 3 nodi. Revenue at risk totale: €245.000. Lateral movement paths: 2 identificate verso ERP-SAP-001 via T1210."
+        "content": "Connesso a: SCADA-MAIN-001 (OPC-UA, Critical), HISTORIAN-AVEVA-001 (OPC-DA, High, unencrypted), ERP-SAP-001 (REST/HTTPS, High). Blast radius: 3 nodi. Revenue at risk totale: €245.000. Lateral movement paths: 2 identificate verso ERP-SAP-001 via T1210.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-GRAPH",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
       },
       {
         "chunk_id": "CHUNK-PLC001-RANSOMWARE-SCENARIO",
         "topic": "Ransomware Attack Scenario",
-        "content": "Scenario più probabile: attacco ransomware entra da ERP-SAP-001 via edge crosses_segment_boundary=true (OPC-DA non cifrato). Raggiunge PLC tramite HISTORIAN. Workaround: modo manuale HMI, throughput 40%, max 4h. Dipendenza critica: HMI-PANEL-LOCAL-001 deve essere operativo e non compromesso."
+        "content": "Scenario più probabile: attacco ransomware entra da ERP-SAP-001 via edge crosses_segment_boundary=true (OPC-DA non cifrato). Raggiunge PLC tramite HISTORIAN. Workaround: modo manuale HMI, throughput 40%, max 4h. Dipendenza critica: HMI-PANEL-LOCAL-001 deve essere operativo e non compromesso.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-RANSOMWARE-SCENARIO",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
       }
     ]
   },
