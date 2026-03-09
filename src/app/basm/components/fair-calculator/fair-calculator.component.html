@@ -1,0 +1,139 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>Calcolatore FAIR — Rischio annualizzato</ion-card-subtitle>
+    <ion-card-title>
+      {{ annualRisk | currency:'EUR':'symbol':'1.0-0' }} / anno
+      <ion-badge [color]="riskColor" class="risk-badge">{{ riskLabel }}</ion-badge>
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <!-- Result bar -->
+    <ion-progress-bar
+      [value]="gaugeValue()"
+      [color]="riskColor"
+      class="result-bar">
+    </ion-progress-bar>
+
+    <form [formGroup]="form" class="fair-form">
+
+      <!-- TEF — Threat Event Frequency -->
+      <div class="field-block">
+        <ion-label class="field-label">
+          <strong>Frequenza eventi minaccia (TEF)</strong>
+          <ion-text color="medium">
+            <small> — attacchi rilevanti per anno</small>
+          </ion-text>
+        </ion-label>
+        <div class="range-row">
+          <ion-range
+            formControlName="threat_event_frequency"
+            [min]="0" [max]="5" [step]="0.05"
+            color="primary" pin="true">
+            <ion-label slot="start">0</ion-label>
+            <ion-label slot="end">5×</ion-label>
+          </ion-range>
+          <ion-input
+            type="number" formControlName="threat_event_frequency"
+            class="numeric-input" min="0">
+          </ion-input>
+        </div>
+        <ion-note>{{ freqLabel(form.get('threat_event_frequency').value) }}</ion-note>
+      </div>
+
+      <!-- VP — Vulnerability Probability -->
+      <div class="field-block">
+        <ion-label class="field-label">
+          <strong>Probabilità vulnerabilità (VP)</strong>
+          <ion-text color="medium">
+            <small> — prob. che un attacco superi le difese (0–1)</small>
+          </ion-text>
+        </ion-label>
+        <div class="range-row">
+          <ion-range
+            formControlName="vulnerability_probability"
+            [min]="0" [max]="1" [step]="0.01"
+            color="warning" pin="true">
+            <ion-label slot="start">0%</ion-label>
+            <ion-label slot="end">100%</ion-label>
+          </ion-range>
+          <ion-input
+            type="number" formControlName="vulnerability_probability"
+            class="numeric-input" min="0" max="1" step="0.01">
+          </ion-input>
+        </div>
+        <ion-note>
+          {{ (form.get('vulnerability_probability').value * 100) | number:'1.0-0' }}%
+        </ion-note>
+      </div>
+
+      <!-- PLM — Primary Loss Magnitude -->
+      <div class="field-block">
+        <ion-label class="field-label">
+          <strong>Perdita primaria stimata (PLM)</strong>
+          <ion-text color="medium">
+            <small> — EUR per compromissione riuscita</small>
+          </ion-text>
+        </ion-label>
+        <div class="range-row">
+          <ion-range
+            formControlName="primary_loss_magnitude"
+            [min]="0" [max]="5000000" [step]="5000"
+            color="danger" pin="true">
+            <ion-label slot="start">0 €</ion-label>
+            <ion-label slot="end">5M €</ion-label>
+          </ion-range>
+          <ion-input
+            type="number" formControlName="primary_loss_magnitude"
+            class="numeric-input" min="0">
+          </ion-input>
+        </div>
+        <ion-note>
+          {{ form.get('primary_loss_magnitude').value | currency:'EUR':'symbol':'1.0-0' }}
+        </ion-note>
+      </div>
+
+      <!-- FAIR formula display -->
+      <div class="formula-box">
+        <ion-text color="medium">
+          <small>
+            <strong>Rischio</strong> =
+            TEF ({{ form.get('threat_event_frequency').value | number:'1.2-2' }})
+            × VP ({{ (form.get('vulnerability_probability').value * 100) | number:'1.0-0' }}%)
+            × PLM ({{ form.get('primary_loss_magnitude').value | currency:'EUR':'symbol':'1.0-0' }})
+            = <strong [style.color]="riskColor === 'danger' ? '#eb445a' : riskColor === 'warning' ? '#ffc409' : '#2dd36f'">
+                {{ annualRisk | currency:'EUR':'symbol':'1.0-0' }}/anno
+              </strong>
+          </small>
+        </ion-text>
+      </div>
+
+      <!-- Secondary fields -->
+      <ion-item>
+        <ion-label>Confidenza stima</ion-label>
+        <ion-range slot="end" style="width:120px"
+                   formControlName="confidence_level"
+                   [min]="0" [max]="1" [step]="0.05" color="tertiary">
+        </ion-range>
+        <ion-note slot="end">
+          {{ (form.get('confidence_level').value * 100) | number:'1.0-0' }}%
+        </ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Metodologia</ion-label>
+        <ion-select formControlName="methodology" interface="popover">
+          <ion-select-option *ngFor="let m of methodologies" [value]="m">{{ m }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Ultima revisione di</ion-label>
+        <ion-input formControlName="last_reviewed_by" placeholder="nome / ruolo"></ion-input>
+      </ion-item>
+
+    </form>
+
+  </ion-card-content>
+</ion-card>

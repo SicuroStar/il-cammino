@@ -1,10 +1,10 @@
 /**
- * BasmStoreService — in-memory AppRegistry + localStorage persistence.
+ * BasmStoreService — in-memory AppRegistry + unified persistence.
  *
- * Persistence strategy:
- *  - Web (default): localStorage, key = `basm_doc_${appId}`
- *  - Mobile (Capacitor): detected via Capacitor.isNativePlatform()
- *    → delegates to CapacitorFilesystemAdapter (added in Sprint 5)
+ * Persistence strategy (Sprint 5):
+ *  - Web (default): localStorage
+ *  - Mobile (Capacitor): CapacitorFilesystemAdapter, detected via Capacitor.isNativePlatform()
+ *    → stores JSON files in APP_DATA/basm/<key>.json
  *
  * The service auto-loads all saved documents on construction.
  */
@@ -15,9 +15,10 @@ import { BehaviorSubject } from 'rxjs';
 import { BASMDocument } from '../types/basm.types';
 import { BasmEngineService } from './basm-engine.service';
 import { BasmValidatorService } from './basm-validator.service';
+import { CapacitorFilesystemAdapter } from './capacitor-filesystem.adapter';
 
-const STORAGE_PREFIX = 'basm_doc_';
-const DRAFT_PREFIX   = 'basm_draft_';
+export const STORAGE_PREFIX = 'basm_doc_';
+export const DRAFT_PREFIX   = 'basm_draft_';
 
 @Injectable({ providedIn: 'root' })
 export class BasmStoreService {
@@ -30,6 +31,7 @@ export class BasmStoreService {
   constructor(
     private engine: BasmEngineService,
     private validator: BasmValidatorService,
+    private fs: CapacitorFilesystemAdapter,
   ) {
     this.loadAll();
   }
@@ -50,7 +52,7 @@ export class BasmStoreService {
    * Saves or updates a BASM document:
    * 1. Validates schema basics
    * 2. Creates a new snapshot event
-   * 3. Persists to localStorage
+   * 3. Persists to localStorage or Capacitor Filesystem (Sprint 5)
    * 4. Emits updated documents$ list
    */
   async upsertDocument(
@@ -69,7 +71,7 @@ export class BasmStoreService {
     );
 
     this.registry.set(withSnapshot.identity_context.app_id, withSnapshot);
-    this.persist(withSnapshot);
+    await this.persist(withSnapshot);
     this.emit();
 
     return withSnapshot;
@@ -77,7 +79,7 @@ export class BasmStoreService {
 
   deleteDocument(appId: string): void {
     this.registry.delete(appId);
-    localStorage.removeItem(STORAGE_PREFIX + appId);
+    this.fs.removeItem(STORAGE_PREFIX + appId);
     this.emit();
   }
 
@@ -85,9 +87,9 @@ export class BasmStoreService {
 
   saveDraft(appId: string, partial: Partial<BASMDocument>): void {
     try {
-      localStorage.setItem(DRAFT_PREFIX + appId, JSON.stringify(partial));
+      this.fs.writeItem(DRAFT_PREFIX + appId, JSON.stringify(partial));
     } catch {
-      console.warn('[BasmStore] Draft save failed (storage full?)');
+      console.warn('[BasmStore] Draft save failed');
     }
   }
 
@@ -101,15 +103,11 @@ export class BasmStoreService {
   }
 
   clearDraft(appId: string): void {
-    localStorage.removeItem(DRAFT_PREFIX + appId);
+    this.fs.removeItem(DRAFT_PREFIX + appId);
   }
 
   // ─── Import / Export ───────────────────────────────────────────────────────
 
-  /**
-   * Imports a BASM document from a JSON string (e.g. from file upload).
-   * Returns the doc if valid, null otherwise.
-   */
   importFromJson(jsonString: string): BASMDocument | null {
     try {
       const doc = JSON.parse(jsonString) as BASMDocument;
@@ -128,9 +126,6 @@ export class BasmStoreService {
     }
   }
 
-  /**
-   * Triggers a browser file download of a single BASM document as JSON.
-   */
   exportToFile(appId: string): void {
     const doc = this.registry.get(appId);
     if (!doc) return;
@@ -148,7 +143,8 @@ export class BasmStoreService {
 
   // ─── Internal ──────────────────────────────────────────────────────────────
 
-  private loadAll(): void {
+  private async loadAll(): Promise<void> {
+    // Web: scan localStorage
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (!key?.startsWith(STORAGE_PREFIX)) continue;
@@ -162,17 +158,35 @@ export class BasmStoreService {
         console.warn(`[BasmStore] Failed to parse stored doc at key: ${key}`);
       }
     }
+
+    // Native: scan Capacitor Filesystem for docs not already in localStorage
+    if (await this.fs.isAvailable()) {
+      try {
+        const keys = await this.fs.listKeys(STORAGE_PREFIX);
+        for (const key of keys) {
+          const appId = key.replace(STORAGE_PREFIX, '');
+          if (this.registry.has(appId)) continue;
+
+          const raw = await this.fs.readItem(key);
+          if (!raw) continue;
+          const doc = JSON.parse(raw) as BASMDocument;
+          this.registry.set(doc.identity_context.app_id, doc);
+        }
+      } catch (e) {
+        console.warn('[BasmStore] Capacitor FS scan failed', e);
+      }
+    }
+
     this.emit();
   }
 
-  private persist(doc: BASMDocument): void {
+  private async persist(doc: BASMDocument): Promise<void> {
+    const key = STORAGE_PREFIX + doc.identity_context.app_id;
+    const value = JSON.stringify(doc);
     try {
-      localStorage.setItem(
-        STORAGE_PREFIX + doc.identity_context.app_id,
-        JSON.stringify(doc)
-      );
+      await this.fs.writeItem(key, value);
     } catch {
-      console.error('[BasmStore] localStorage full — cannot persist document');
+      console.error('[BasmStore] persist failed');
     }
   }
 

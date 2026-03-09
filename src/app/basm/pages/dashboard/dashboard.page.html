@@ -107,6 +107,13 @@
                 </div>
               </div>
 
+              <!-- History sparkline (Sprint 6) -->
+              <basm-history-sparkline
+                *ngIf="card.doc.snapshot_history?.length > 1"
+                [snapshots]="card.doc.snapshot_history"
+                [width]="200" [height]="48">
+              </basm-history-sparkline>
+
             </ion-card-content>
 
             <!-- Card actions -->

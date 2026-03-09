@@ -25,6 +25,10 @@ import { RiskGaugeComponent } from './components/risk-gauge/risk-gauge.component
 import { GraphTopologyComponent } from './components/graph-topology/graph-topology.component';
 import { JsonExportModalComponent } from './components/json-export-modal/json-export-modal.component';
 
+// Components — Sprint 6
+import { FairCalculatorComponent } from './components/fair-calculator/fair-calculator.component';
+import { HistorySparklineComponent } from './components/history-sparkline/history-sparkline.component';
+
 // Services (providedIn: 'root' — declared here for documentation purposes only)
 import { BasmStoreService } from './services/basm-store.service';
 import { BasmEngineService } from './services/basm-engine.service';
@@ -42,6 +46,9 @@ import { BasmValidatorService } from './services/basm-validator.service';
     RiskGaugeComponent,
     GraphTopologyComponent,
     JsonExportModalComponent,
+    // Sprint 6 components
+    FairCalculatorComponent,
+    HistorySparklineComponent,
   ],
   entryComponents: [
     JsonExportModalComponent,

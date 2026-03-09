@@ -173,6 +173,22 @@
         [appName]="doc.identity_context.name">
       </basm-risk-gauge>
 
+      <!-- FAIR Calculator (Sprint 6 component) -->
+      <basm-fair-calculator
+        [initialRq]="doc.risk_quantification"
+        (rqChange)="onRqChange($event)">
+      </basm-fair-calculator>
+
+      <!-- Save FAIR button — appears only when user changed something -->
+      <div *ngIf="pendingRq" class="ion-padding-horizontal ion-padding-bottom">
+        <ion-button expand="block" color="primary"
+                    [disabled]="savingRq"
+                    (click)="saveRq()">
+          <ion-icon slot="start" name="save-outline"></ion-icon>
+          {{ savingRq ? 'Salvataggio…' : 'Salva rischio FAIR' }}
+        </ion-button>
+      </div>
+
       <!-- Threat actors -->
       <ion-card *ngIf="doc.threat_model?.threat_actors?.length">
         <ion-card-header>
@@ -213,6 +229,21 @@
 
     <!-- ═══ HISTORY TAB ═════════════════════════════════════════════════════ -->
     <div *ngIf="activeTab === 'history'">
+
+      <!-- Trend sparkline (Sprint 6 component) -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Trend Maturity Score</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <basm-history-sparkline
+            [snapshots]="doc.snapshot_history"
+            [width]="320" [height]="80"
+            [showLabels]="true">
+          </basm-history-sparkline>
+        </ion-card-content>
+      </ion-card>
+
       <ion-card>
         <ion-card-header>
           <ion-card-subtitle>Snapshot history</ion-card-subtitle>
