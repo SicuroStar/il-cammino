@@ -1,0 +1,647 @@
+{
+  "_interview_guide": "Compila questo JSON usando le risposte del file interview-scada.md. ATTENZIONE: Blocco F (OT/Safety) è OBBLIGATORIO per sistemi SCADA — non è opzionale come nel template MES.",
+
+  "basm_metadata": {
+    "schema_version": "3.0-DIGITAL-TWIN",
+    "last_update": "__COMPILATO_AUTOMATICAMENTE__",
+    "maturity_tier_logic": "Level-5-Optimized",
+    "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "document_hash": "__COMPILATO_AUTOMATICAMENTE__"
+  },
+
+  "identity_context": {
+    "_source": "Blocco A",
+    "app_id": "__A1__ es: SCADA-LINEA-A-001 | SCADA-SORTING-001",
+    "name": "__A1__ es: Siemens WinCC 7.5 — SCADA Linea Confezionamento A",
+    "business_owner": {
+      "name": "__A2__ Nome Plant Manager o Responsabile Automazione",
+      "department": "__A2__ es: Plant Operations | Automazione Industriale",
+      "contact": "__A2__ email@azienda.it"
+    },
+    "technical_lead": "__A3__ Nome Automation Engineer o OT System Integrator",
+    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver"
+  },
+
+  "ot_context": {
+    "_source": "Blocco C + Blocco F — OBBLIGATORIO per SCADA",
+    "asset_type": "OT",
+    "purdue_level": "__C2__ 2 (HMI/SCADA supervisione locale) | 3 (SCADA centralizzato con MES)",
+    "air_gap_status": "__C3__ verified | assumed | partial | none",
+    "air_gap_last_verified": "__C3__ ISO-8601 — data ultima verifica separazione OT/IT",
+    "firmware": {
+      "current_version": "__A1__+__F1__ es: WinCC 7.5 SP2 | Ignition 8.1.25",
+      "vendor": "__A1__ es: Siemens | AVEVA | Rockwell | Inductive Automation",
+      "release_date": "__F1__ ISO-8601 data versione corrente",
+      "known_cves": ["__F3__ CVE noti su versione SCADA o PLC — es: CVE-2024-XXXXX o []"],
+      "patch_requires_downtime": "__D4__ true — quasi sempre true per SCADA in produzione",
+      "last_patched": "__D4__ ISO-8601 ultima patch applicata",
+      "update_policy": "__D4__ vendor_driven | frozen | quarterly",
+      "compensating_control_ref": "__F3__ es: CTRL-SCADA-NETISO — isolamento rete come compensazione"
+    },
+    "allowed_protocols": ["__C4__ es: OPC-UA/4840", "OPC-DA/135", "Modbus-TCP/502", "Profinet/102", "S7/102", "HTTPS/443"],
+    "degraded_mode_max_minutes": "__E1__ minuti massimi in modalità manuale operatori",
+    "degraded_mode_throughput_ratio": "__E1__ es: 0.3 = 30% capacità; 0.0 = stop totale senza SCADA",
+    "safety_impact": "__F2__ none | low | medium | high | catastrophic",
+    "iec62443_target_sl": "__B5__ SL-1 | SL-2 | SL-3 | SL-4"
+  },
+
+  "business_impact_analysis": {
+    "_source": "Blocco B",
+    "process_chain": "__B1__ es: Controllo processo produzione — Sorter automatico / Linea confezionamento / Reparto verniciatura",
+    "hourly_downtime_cost": "__B2__ numero intero in euro — produzione persa + operatori inattivi",
+    "annual_revenue_at_risk": "__CALCOLATO__",
+    "cyber_insurance_coverage": "__B4__ massimale polizza, es: 1000000",
+    "net_financial_exposure": "__CALCOLATO__",
+    "legal_implications": [
+      "__B5__ NIS2 Essential o Important — settore manifatturiero",
+      "__B5__ IEC 62443 — Security Level target",
+      "__B5__ IEC 61511 / IEC 62061 — Safety Instrumented Systems (se SIL applicabile)",
+      "__B5__ Requisiti cliente su OT security (se applicabile)"
+    ],
+    "recovery_objectives": {
+      "rto_hours": "__B6__ es: 4 — obiettivo ripristino SCADA",
+      "rpo_hours": "__B6__ es: 0.5 — dati storici/trend perdibili in ore",
+      "last_bcp_drill": "__B7__ ISO-8601 o null",
+      "bcp_drill_result": "__B7__ passed | failed | partial | never_tested"
+    },
+    "board_notification_threshold": "__B8__ es: 0.5"
+  },
+
+  "security_controls": [
+    {
+      "_source": "Blocco D — D1 Application Whitelisting / OT Security Monitoring",
+      "control_id": "CTRL-SCADA-001-WHITELISTING",
+      "name": "Application Whitelisting e OT Network Monitoring Passivo",
+      "status": {
+        "indicator": "__D1__ green | yellow | red | gray",
+        "current_value": "__D1__ es: Claroty attivo su rete OT; whitelisting applicazioni su HMI",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D1__ Automated | Manual",
+        "source": "__D1__ es: Claroty API | Nozomi Networks | Dragos | manuale",
+        "confidence_score": "__D1__ 0.0–1.0",
+        "last_verified": "__D1__ ISO-8601",
+        "ttl_days": "__D1__ 1 se automated, 30 se manual",
+        "lineage": {
+          "source_system": "__D1__ es: Claroty Platform | Nozomi Networks",
+          "ingestion_method": "__D1__ API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D1__ ISO-8601",
+          "verified_by_human": "__D1__ true | false",
+          "verified_by": "__D1__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.07,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.7",
+        "nis2": "Art. 21.2(e)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0040",
+            "tactic_name": "Impact",
+            "technique_id": "T1489",
+            "technique_name": "Service Stop",
+            "sub_technique_id": null,
+            "control_coverage": "__D1__ full | partial | none | compensating"
+          }
+        ],
+        "iec62443": "SR 3.3"
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Isolare segmento OT compromesso; attivare modalità manuale operatori; contattare vendor SCADA",
+        "business_workaround": "__E1__ Operatori gestiscono processo con pannelli locali e valvole manuali",
+        "workaround_dependencies": ["__E2__ Alimentazione elettrica", "Istruzioni operative cartacee"],
+        "workaround_last_tested": "__B7__ ISO-8601 o null",
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-OT-INCIDENT-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D2 Autenticazione SCADA/HMI",
+      "control_id": "CTRL-SCADA-001-MFA",
+      "name": "Autenticazione Individuale Operatori e Accesso Remoto Vendor",
+      "status": {
+        "indicator": "__D2__ green | yellow | red | gray",
+        "current_value": "__D2__ es: Account nominali per operatori; accesso vendor via jump server tracciato",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D2__ Automated | Manual",
+        "source": "__D2__ es: SCADA audit log | revisione manuale",
+        "confidence_score": "__D2__ 0.0–1.0",
+        "last_verified": "__D2__ ISO-8601",
+        "ttl_days": 30,
+        "lineage": {
+          "source_system": "__D2__ es: SCADA built-in audit log",
+          "ingestion_method": "__D2__ Manual | API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D2__ ISO-8601",
+          "verified_by_human": true,
+          "verified_by": "__D2__ ot-admin@azienda.it",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.06,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.9.4.2",
+        "nis2": "Art. 21.2(i)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0006",
+            "tactic_name": "Credential Access",
+            "technique_id": "T1078",
+            "technique_name": "Valid Accounts",
+            "sub_technique_id": "T1078.003",
+            "control_coverage": "__D2__ partial | none"
+          }
+        ],
+        "iec62443": "SR 1.1"
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Bloccare accessi remoti vendor; revocare credenziali sospette; notificare OT Security",
+        "business_workaround": "__E1__ Break-glass account locale su HMI; operatori autorizzati con accesso fisico",
+        "workaround_dependencies": ["__E2__ Accesso fisico alla sala controllo"],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ ID playbook"
+      },
+      "exception": {
+        "is_active": "__D2__ true se esistono account condivisi (es. 'operatore' usato da tutti i turni)",
+        "reason": "__D2__ es: Sistema legacy non supporta account individuali",
+        "approved_by": "__D2__ OT Manager / CISO o null",
+        "expiry_date": "__D2__ ISO-8601 o null",
+        "risk_acceptance_ref": "__D2__ RAF-OT-SHAREDACCOUNT-001 o null"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D3 Backup configurazione SCADA e PLC",
+      "control_id": "CTRL-SCADA-001-BACKUP",
+      "name": "Backup Configurazione SCADA, Logica PLC e Recipe",
+      "status": {
+        "indicator": "__D3__ green | yellow | red | gray",
+        "current_value": "__D3__ es: Backup progetto SCADA settimanale su NAS OT; logica PLC versionata su USB offline",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D3__ Automated | Manual",
+        "source": "__D3__ es: Verifica manuale backup SCADA project file",
+        "confidence_score": "__D3__ 0.0–1.0",
+        "last_verified": "__D3__ ISO-8601",
+        "ttl_days": 7,
+        "lineage": {
+          "source_system": "__D3__ es: NAS OT / USB offline storage",
+          "ingestion_method": "Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D3__ ISO-8601",
+          "verified_by_human": true,
+          "verified_by": "__D3__ automation-engineer@azienda.it",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.10,
+          "downstream_dependents": [],
+          "alert_threshold": 0.45,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.13",
+        "nis2": "Art. 21.2(c)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0040",
+            "tactic_name": "Impact",
+            "technique_id": "T1490",
+            "technique_name": "Inhibit System Recovery",
+            "sub_technique_id": null,
+            "control_coverage": "__D3__ full | partial"
+          }
+        ],
+        "iec62443": "SR 7.3"
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Ripristinare progetto SCADA da backup; ricaricare logica PLC",
+        "business_workaround": "__E1__ Modalità manuale durante ripristino SCADA",
+        "workaround_dependencies": ["__E2__ Accesso a storage backup OT", "PC di engineering con software SCADA installato"],
+        "workaround_last_tested": "__D3__ data ultimo restore test",
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-OT-RESTORE-SCADA-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D4 Patch SCADA (vendor-driven)",
+      "control_id": "CTRL-SCADA-001-PATCH",
+      "name": "Patch Management SCADA e OS — Processo Vendor-Driven",
+      "status": {
+        "indicator": "__D4__ green | yellow | red | gray",
+        "current_value": "__D4__ es: Patch applicata 2025-Q4; OS Windows Embedded fuori mainstream support — compensato da isolamento rete",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D4__ Manual",
+        "source": "__D4__ es: Revisione manuale versione SCADA e OS; advisory vendor",
+        "confidence_score": "__D4__ 0.4 — tipicamente basso per OT frozen",
+        "last_verified": "__D4__ ISO-8601",
+        "ttl_days": 90,
+        "lineage": {
+          "source_system": "__D4__ es: Fornitore SCADA advisory email | manuale",
+          "ingestion_method": "Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D4__ ISO-8601",
+          "verified_by_human": true,
+          "verified_by": "__D4__ ot-admin@azienda.it",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.04,
+          "downstream_dependents": [],
+          "alert_threshold": 0.4,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.8",
+        "nis2": "Art. 21.2(e)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0001",
+            "tactic_name": "Initial Access",
+            "technique_id": "T1190",
+            "technique_name": "Exploit Public-Facing Application",
+            "sub_technique_id": null,
+            "control_coverage": "__D4__ compensating — isolamento rete"
+          }
+        ],
+        "iec62443": "SR 7.6"
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Isolare sistema vulnerabile; contattare vendor per hotfix; attivare controllo compensativo",
+        "business_workaround": "__E1__ Isolamento fisico del sistema fino a patch disponibile",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ ID playbook"
+      },
+      "exception": {
+        "is_active": "__D4__ true se OS fuori supporto o patch critiche in sospeso > 90gg",
+        "reason": "__D4__ es: Windows Embedded 2009 EOL — vendor non supporta aggiornamento OS senza sostituzione hardware",
+        "approved_by": "__D4__ Plant Manager / CISO",
+        "expiry_date": "__D4__ es: data prevista sostituzione hardware",
+        "risk_acceptance_ref": "__D4__ RAF-OT-EOL-001"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D5 Log OT + D6 Segmentazione + accesso remoto vendor",
+      "control_id": "CTRL-SCADA-001-NETISO-LOG",
+      "name": "Segmentazione Rete OT/IT, Log Operatori e Controllo Accesso Remoto Vendor",
+      "status": {
+        "indicator": "__D5__ green | yellow | red | gray",
+        "current_value": "__D5__ es: Firewall OT/IT attivo; log operatori conservati 90gg; accesso vendor via jump server registrato",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D5__ Automated | Manual | Hybrid",
+        "source": "__D5__ es: Firewall log | Claroty | revisione manuale",
+        "confidence_score": "__D5__ 0.0–1.0",
+        "last_verified": "__D5__ ISO-8601",
+        "ttl_days": 30,
+        "lineage": {
+          "source_system": "__D5__ es: OT Firewall / Jump Server log",
+          "ingestion_method": "__D5__ Manual | API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D5__ ISO-8601",
+          "verified_by_human": "__D5__ true | false",
+          "verified_by": "__D5__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.05,
+          "downstream_dependents": [],
+          "alert_threshold": 0.4,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.22",
+        "nis2": "Art. 21.2(g)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0008",
+            "tactic_name": "Lateral Movement",
+            "technique_id": "T1021",
+            "technique_name": "Remote Services",
+            "sub_technique_id": null,
+            "control_coverage": "__D5__ full | partial | none"
+          }
+        ],
+        "iec62443": "SR 5.1"
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Bloccare tutto il traffico IT→OT; isolare segmento OT; audit accessi remoti recenti",
+        "business_workaround": "__E1__ Operazioni OT continuano in isolamento; nessun dato verso IT durante incidente",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ ID playbook"
+      },
+      "exception": {
+        "is_active": "__D7__ true se esistono modem 4G non documentati o PC dual-homed OT/IT",
+        "reason": "__D7__ es: Modem 4G su PLC linea X per accesso diretto vendor — non gestito dall'IT",
+        "approved_by": "__D7__ null — da sanare",
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    }
+  ],
+
+  "graph_edges": [
+    {
+      "_source": "Blocco C — C4 PLC di campo (Purdue L1)",
+      "edge_id": "EDGE-SCADA001-PLC-001",
+      "type": "CONTROLS",
+      "source_app_id": "__A1__ SCADA app_id",
+      "target_app_id": "__C4__ es: OT-PLC-LINE-A-001",
+      "direction": "Bidirectional",
+      "protocol": "__C4__ es: S7/102 | OPC-DA/135 | Profinet | Modbus-TCP/502",
+      "port": "__C4__ es: 102 (S7) | 502 (Modbus) | 4840 (OPC-UA)",
+      "criticality": "Critical",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0040",
+          "tactic_name": "Impact",
+          "technique_id": "T1489",
+          "technique_name": "Service Stop",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C6__ PLC non riceve setpoint — linea si ferma in sicurezza (fail-safe) o continua con ultimo valore",
+      "encrypted": false,
+      "mutually_authenticated": false,
+      "crosses_segment_boundary": false,
+      "last_validated": "__C4__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C4 Historian (Purdue L3)",
+      "edge_id": "EDGE-SCADA001-HISTORIAN-001",
+      "type": "FEEDS_DATA_TO",
+      "source_app_id": "__A1__ SCADA app_id",
+      "target_app_id": "__C4__ es: OT-HISTORIAN-001 | AVEVA-PI-001",
+      "direction": "Outbound",
+      "protocol": "__C4__ es: OPC-UA/4840 | ODBC | proprietario PI",
+      "port": "__C4__ es: 4840 | 5450",
+      "criticality": "Medium",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0009",
+          "tactic_name": "Collection",
+          "technique_id": "T1005",
+          "technique_name": "Data from Local System",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C6__ Perdita dati storici di processo — nessun impatto immediato su produzione",
+      "encrypted": "__C7__ true | false",
+      "mutually_authenticated": "__C7__ true | false",
+      "crosses_segment_boundary": false,
+      "last_validated": "__C4__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C4 MES (confine OT/IT, Purdue L3→L4)",
+      "edge_id": "EDGE-SCADA001-MES-001",
+      "type": "FEEDS_DATA_TO",
+      "source_app_id": "__A1__ SCADA app_id",
+      "target_app_id": "__C4__ es: MES-GESTIONALE-PROD-001",
+      "direction": "Outbound",
+      "protocol": "__C4__ es: OPC-UA | REST/HTTPS | file condiviso",
+      "port": "__C4__ es: 4840 | 443",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0008",
+          "tactic_name": "Lateral Movement",
+          "technique_id": "T1210",
+          "technique_name": "Exploitation of Remote Services",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C6__ MES non riceve dati produzione reale — conta pezzi non aggiornata",
+      "encrypted": "__C7__ true | false",
+      "mutually_authenticated": "__C7__ true | false",
+      "crosses_segment_boundary": true,
+      "last_validated": "__C4__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C5 Accesso remoto vendor / jump server",
+      "edge_id": "EDGE-SCADA001-JUMPSERVER-001",
+      "type": "ACCESSED_VIA",
+      "source_app_id": "__C5__ es: INFRA-JUMPSERVER-OT-001",
+      "target_app_id": "__A1__ SCADA app_id",
+      "direction": "Inbound",
+      "protocol": "__C5__ es: RDP/3389 | VNC | proprietario SCADA vendor",
+      "port": "__C5__ es: 3389 | 5900",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0001",
+          "tactic_name": "Initial Access",
+          "technique_id": "T1133",
+          "technique_name": "External Remote Services",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Nessun impatto operativo — solo accesso manutenzione remota bloccato",
+      "encrypted": "__C7__ true | false",
+      "mutually_authenticated": "__C7__ true | false",
+      "crosses_segment_boundary": true,
+      "last_validated": "__C5__ ISO-8601"
+    },
+    {
+      "_source": "Blocco D — D3 Backup configurazione",
+      "edge_id": "EDGE-SCADA001-BACKUP-001",
+      "type": "BACKUP_OF",
+      "source_app_id": "__D3__ es: NAS-BACKUP-OT-001",
+      "target_app_id": "__A1__ SCADA app_id",
+      "direction": "Inbound",
+      "protocol": "__D3__ es: SMB | NFS | copia manuale USB",
+      "port": null,
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0040",
+          "tactic_name": "Impact",
+          "technique_id": "T1490",
+          "technique_name": "Inhibit System Recovery",
+          "sub_technique_id": null,
+          "control_coverage": "full"
+        }
+      ],
+      "severance_impact": "Impossibile ripristinare progetto SCADA — produzione ferma fino a reinstallazione da zero",
+      "encrypted": "__D3__ true | false",
+      "mutually_authenticated": "__D3__ true | false",
+      "crosses_segment_boundary": false,
+      "last_validated": "__D3__ ISO-8601"
+    }
+  ],
+
+  "graph_node": {
+    "_source": "Calcolato dal graph-analyzer engine",
+    "node_id": "__A1__ SCADA app_id",
+    "semantic_tags": ["__G4__ es: SCADA", "ICS", "OT", "Purdue-L2", "controllo-produzione", "safety-impact", "IEC-62443"],
+    "risk_narrative_version": "v1",
+    "neighborhood_ids": ["__CALCOLATO__ PLC, Historian, MES, Jump Server"],
+    "graph_centrality": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+  },
+
+  "reasoning_for_ai": {
+    "_source": "Blocco G",
+    "logic_inference": "__G1__ perché lo SCADA controlla fisicamente il processo produttivo — impatto produttivo E safety",
+    "failure_cascading_effect": "__G2__ SCADA down → PLC in stato sicuro → linea ferma → MES senza dati → ERP senza conferme → fatturazione bloccata",
+    "training_notes": "__G3__ nessuna USB sui PC OT; nessuna connessione rete uffici dalla workstation engineering; accesso vendor solo via jump server",
+    "semantic_tags": ["__G4__ stessi tag di graph_node.semantic_tags"],
+    "risk_narrative_version": "v1",
+    "rag_chunks": [
+      {
+        "chunk_id": "CHUNK-SCADA001-IDENTITY",
+        "topic": "OT Asset Identity & Process Role",
+        "content": "__B1__+__A4__+__B2__+__C2__ Processo controllato, livello Purdue, costo orario, capacità degradata",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-IDENTITY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-SCADA001-SAFETY",
+        "topic": "Safety Impact & IEC 62443",
+        "content": "__F2__+__B5__+__B3__ Safety impact, SIL, IEC 62443 SL target, scenario manipolazione setpoint",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-SAFETY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-SCADA001-CONTROLS",
+        "topic": "OT Security Controls Status",
+        "content": "__D1__+__D2__+__D3__+__D4__+__D5__ Whitelisting, autenticazione, backup config, patch, segmentazione",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-CONTROLS",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-SCADA001-GRAPH",
+        "topic": "OT Network Topology & Protocol Risk",
+        "content": "__C4__+__C5__+__C3__ Connessioni PLC/Historian/MES, protocolli OT, separazione OT/IT, accesso vendor",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-GRAPH",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-SCADA001-RESILIENCE",
+        "topic": "Modalità Manuale e Disaster Recovery OT",
+        "content": "__E1__+__E2__+__E4__ Capacità operativa manuale, dipendenze, procedura ransomware OT",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-RESILIENCE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-SCADA001-NARRATIVE",
+        "topic": "Risk Narrative — OT Safety & Production (AI Context)",
+        "content": "__G1__+__G2__+__G3__ Narrativa: SCADA come cuore del processo fisico, impatto safety, effetto domino",
+        "embedding_id": "rag-__A1__-CHUNK-SCADA001-NARRATIVE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      }
+    ]
+  },
+
+  "maturity_scoring": {
+    "_note": "Calcolato automaticamente — non compilare manualmente",
+    "data_completeness": 0.0,
+    "automation_ratio": 0.0,
+    "compliance_index": 0.0,
+    "composite_score": 0.0,
+    "maturity_phase": "Initial",
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+  },
+
+  "snapshot_history": [
+    {
+      "sequence": 1,
+      "snapshot_id": "SNAP-__A1__-0001",
+      "timestamp": "__DATA_INTERVISTA__ ISO-8601",
+      "triggered_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+      "document_hash": "__CALCOLATO_AUTOMATICAMENTE__",
+      "maturity_scores": {
+        "data_completeness": 0.0,
+        "automation_ratio": 0.0,
+        "compliance_index": 0.0,
+        "composite_score": 0.0,
+        "maturity_phase": "Initial",
+        "computed_at": "__DATA_INTERVISTA__"
+      },
+      "change_summary": "Creazione iniziale BASM SCADA/ICS da intervista con __A2__ — __DATA_INTERVISTA__"
+    }
+  ],
+
+  "maturity_deltas": []
+}

@@ -1,0 +1,676 @@
+{
+  "_interview_guide": "Compila questo JSON usando le risposte del file interview-plm.md. Il PLM è la crown jewel di proprietà intellettuale: il rischio principale è la DATA EXFILTRATION, non solo il downtime.",
+
+  "basm_metadata": {
+    "schema_version": "3.0-DIGITAL-TWIN",
+    "last_update": "__COMPILATO_AUTOMATICAMENTE__",
+    "maturity_tier_logic": "Level-5-Optimized",
+    "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "document_hash": "__COMPILATO_AUTOMATICAMENTE__"
+  },
+
+  "identity_context": {
+    "_source": "Blocco A",
+    "app_id": "__A1__ es: PLM-WINDCHILL-001 | PLM-TEAMCENTER-001",
+    "name": "__A1__ es: PTC Windchill 13.1 — PLM Sistema di Gestione Prodotto",
+    "business_owner": {
+      "name": "__A2__ Nome VP Engineering | Responsabile R&D | CTO",
+      "department": "__A2__ es: Engineering & R&D | Product Development",
+      "contact": "__A2__ email@azienda.it"
+    },
+    "technical_lead": "__A3__ Nome PLM Administrator o System Integrator PLM",
+    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver"
+  },
+
+  "ot_context": {
+    "_source": "Blocco C",
+    "_note": "PLM è sempre asset_type IT o Cloud. purdue_level = 4. Blocco F usa sezione IP/Compliance dedicata.",
+    "asset_type": "__C1__ IT | Cloud | Hybrid",
+    "purdue_level": 4,
+    "air_gap_status": "__C1__ assumed | verified | none — i server PLM sono isolati da OT?",
+    "air_gap_last_verified": "__C1__ ISO-8601 o null",
+    "firmware": {
+      "_note": "Versione software PLM e OS server",
+      "current_version": "__A1__ es: PTC Windchill 13.1.0.0 | Teamcenter 2312",
+      "vendor": "__A1__ es: PTC | Siemens PLM | Dassault | Autodesk",
+      "release_date": "__A1__ ISO-8601 data rilascio versione",
+      "known_cves": ["__D5__ CVE noti su versione PLM o server app o []"],
+      "patch_requires_downtime": "__D5__ true | false",
+      "last_patched": "__D5__ ISO-8601",
+      "update_policy": "__D5__ quarterly | vendor_driven",
+      "compensating_control_ref": null
+    },
+    "allowed_protocols": ["__C3__ es: HTTPS/443", "LDAPS/636", "JDBC/1521", "SMTP/587"],
+    "degraded_mode_max_minutes": "__E1__ minuti prima che gli ingegneri si blocchino completamente",
+    "degraded_mode_throughput_ratio": "__E1__ es: 0.3 = 30% — lavoro su copie locali per qualche ora",
+    "safety_impact": "none",
+    "iec62443_target_sl": null
+  },
+
+  "business_impact_analysis": {
+    "_source": "Blocco B",
+    "process_chain": "__B1__ es: Design-to-Manufacture / Product Development / BOM Transfer to ERP / Document Release",
+    "hourly_downtime_cost": "__B2__ numero intero in euro — ingegneri bloccati × costo orario + costi delay prodotto",
+    "annual_revenue_at_risk": "__CALCOLATO__",
+    "cyber_insurance_coverage": "__B4__ massimale polizza (include IP theft?), es: 3000000",
+    "net_financial_exposure": "__CALCOLATO__",
+    "legal_implications": [
+      "__B5__ NDA con clienti — obbligo di proteggere dati tecnici ricevuti",
+      "__B5__ Export Control ITAR/EAR (se applicabile — dual use, difesa, aerospazio)",
+      "ISO 9001 — Gestione documenti tecnici (obbligo di controllo revisioni)",
+      "GDPR — solo se PLM contiene dati personali (contatti tecnici, dipendenti)",
+      "__B5__ Requisiti settoriali specifici (automotive IATF, aerospazio AS9100)"
+    ],
+    "recovery_objectives": {
+      "rto_hours": "__B6__ es: 8 — la produzione tipicamente non dipende da PLM real-time",
+      "rpo_hours": "__B6__ es: 4 — ore di modifiche design/approvazioni tollerabili perdere",
+      "last_bcp_drill": "__B7__ ISO-8601 o null",
+      "bcp_drill_result": "__B7__ passed | failed | partial | never_tested"
+    },
+    "board_notification_threshold": "__B8__ es: 0.5"
+  },
+
+  "security_controls": [
+    {
+      "_source": "Blocco D — D1 EDR su server PLM",
+      "control_id": "CTRL-PLM-001-EDR",
+      "name": "EDR / Antivirus — Server PLM e Application Server",
+      "status": {
+        "indicator": "__D1__ green | yellow | red | gray",
+        "current_value": "__D1__ es: Defender for Endpoint attivo su server PLM e database",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D1__ Automated | Manual",
+        "source": "__D1__ es: Microsoft Defender API | CrowdStrike | manuale",
+        "confidence_score": "__D1__ 0.0–1.0",
+        "last_verified": "__D1__ ISO-8601",
+        "ttl_days": 1,
+        "lineage": {
+          "source_system": "__D1__ es: Microsoft Defender for Endpoint",
+          "ingestion_method": "API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D1__ ISO-8601",
+          "verified_by_human": false,
+          "verified_by": null,
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.08,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.7",
+        "nis2": "Art. 21.2(e)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0010",
+            "tactic_name": "Exfiltration",
+            "technique_id": "T1041",
+            "technique_name": "Exfiltration Over C2 Channel",
+            "sub_technique_id": null,
+            "control_coverage": "__D1__ partial | none"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E3__ Isolare server PLM, preservare log per forensics, notificare CISO e Legal",
+        "business_workaround": "__E1__ Ingegneri lavorano su copie locali approvate fino al ripristino",
+        "workaround_dependencies": ["__E2__ Copie locali aggiornate sui PC ingegneri"],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-PLM-INCIDENT-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D2 MFA + Controllo Accessi Granulare PLM",
+      "control_id": "CTRL-PLM-001-MFA-ACCESSCTRL",
+      "name": "MFA e Controllo Accessi per Progetto/Team (Granulare)",
+      "status": {
+        "indicator": "__D2__ green | yellow | red | gray",
+        "current_value": "__D2__ es: MFA attivo per accesso esterno; accesso per team/progetto configurato; fornitori su portale separato",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D2__ Automated | Manual | Hybrid",
+        "source": "__D2__ es: PLM access log | Azure AD | revisione manuale",
+        "confidence_score": "__D2__ 0.0–1.0",
+        "last_verified": "__D2__ ISO-8601",
+        "ttl_days": 30,
+        "lineage": {
+          "source_system": "__D2__ es: PLM built-in access control | Azure AD",
+          "ingestion_method": "__D2__ Manual | API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D2__ ISO-8601",
+          "verified_by_human": "__D2__ true | false",
+          "verified_by": "__D2__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.06,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.9.1.2",
+        "nis2": "Art. 21.2(i)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0009",
+            "tactic_name": "Collection",
+            "technique_id": "T1213",
+            "technique_name": "Data from Information Repositories",
+            "sub_technique_id": null,
+            "control_coverage": "__D2__ partial"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Revocare accessi sospetti; audit download recenti; notificare Legal",
+        "business_workaround": "__E1__ Accesso manuale a repository documentale alternativo",
+        "workaround_dependencies": ["__E2__ DMS alternativo o file server"],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-PLM-DATA-BREACH-001"
+      },
+      "exception": {
+        "is_active": "__D2__ true se esistono utenti con accesso globale a tutti i progetti",
+        "reason": "__D2__ descrizione o null",
+        "approved_by": "__D2__ CTO / CISO o null",
+        "expiry_date": "__D2__ ISO-8601 o null",
+        "risk_acceptance_ref": "__D2__ RAF-PLM-ACCESS-001 o null"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D3 DLP (Data Loss Prevention)",
+      "control_id": "CTRL-PLM-001-DLP",
+      "name": "Data Loss Prevention — File CAD e Documenti Tecnici",
+      "status": {
+        "indicator": "__D3__ green | yellow | red | gray",
+        "current_value": "__D3__ es: Microsoft Purview DLP attivo; alert su download massivi; upload cloud personale bloccato",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D3__ Automated | Manual",
+        "source": "__D3__ es: Microsoft Purview API | Forcepoint DLP | manuale",
+        "confidence_score": "__D3__ 0.0–1.0",
+        "last_verified": "__D3__ ISO-8601",
+        "ttl_days": "__D3__ 1 se automated, 30 se manual",
+        "lineage": {
+          "source_system": "__D3__ es: Microsoft Purview / Forcepoint",
+          "ingestion_method": "__D3__ API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D3__ ISO-8601",
+          "verified_by_human": "__D3__ true | false",
+          "verified_by": "__D3__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.07,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.12",
+        "nis2": "Art. 21.2(h)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0010",
+            "tactic_name": "Exfiltration",
+            "technique_id": "T1567",
+            "technique_name": "Exfiltration Over Web Service",
+            "sub_technique_id": null,
+            "control_coverage": "__D3__ full | partial | none"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Verificare log DLP per anomalie; bloccare account sospetto; avviare forensics",
+        "business_workaround": "__E1__ Condivisione file tecnici tramite canale sicuro aziendale approvato",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-PLM-IP-EXFILTRATION-001"
+      },
+      "exception": {
+        "is_active": "__D8__ true se DLP non copre tutti i canali (es. USB non bloccate)",
+        "reason": "__D8__ descrizione o null",
+        "approved_by": "__D8__ CISO o null",
+        "expiry_date": "__D8__ ISO-8601 o null",
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D4 Backup vault PLM",
+      "control_id": "CTRL-PLM-001-BACKUP",
+      "name": "Backup Vault PLM — File CAD, Metadati e Database",
+      "status": {
+        "indicator": "__D4__ green | yellow | red | gray",
+        "current_value": "__D4__ es: Backup giornaliero vault + database PLM su storage separato; ultimo test OK",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D4__ Automated | Manual",
+        "source": "__D4__ es: Veeam | NetBackup | PLM backup utility | manuale",
+        "confidence_score": "__D4__ 0.0–1.0",
+        "last_verified": "__D4__ ISO-8601",
+        "ttl_days": 1,
+        "lineage": {
+          "source_system": "__D4__ es: Veeam Backup & Replication",
+          "ingestion_method": "__D4__ API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D4__ ISO-8601",
+          "verified_by_human": "__D4__ true | false",
+          "verified_by": "__D4__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.10,
+          "downstream_dependents": [],
+          "alert_threshold": 0.45,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.13",
+        "nis2": "Art. 21.2(c)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0040",
+            "tactic_name": "Impact",
+            "technique_id": "T1486",
+            "technique_name": "Data Encrypted for Impact",
+            "sub_technique_id": null,
+            "control_coverage": "__D4__ full | partial"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Avviare ripristino vault PLM; coordinare con PLM vendor per supporto restore",
+        "business_workaround": "__E1__ Ingegneri lavorano su copie locali durante ripristino",
+        "workaround_dependencies": ["__E2__ Storage backup accessibile", "Licenza PLM valida"],
+        "workaround_last_tested": "__D4__ data ultimo restore test",
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-PLM-RESTORE-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D6 Log PLM (audit trail download) + D7 Classificazione dati",
+      "control_id": "CTRL-PLM-001-LOGGING-CLASSIFICATION",
+      "name": "Audit Trail Download File e Classificazione Dati Tecnici",
+      "status": {
+        "indicator": "__D6__ green | yellow | red | gray",
+        "current_value": "__D6__ es: PLM audit log attivo; classificazione IP/Confidential/Export-Controlled applicata ai documenti",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D6__ Automated | Manual",
+        "source": "__D6__ es: PLM audit log nativo | SIEM | revisione manuale",
+        "confidence_score": "__D6__ 0.0–1.0",
+        "last_verified": "__D6__ ISO-8601",
+        "ttl_days": 30,
+        "lineage": {
+          "source_system": "__D6__ es: PLM Audit Log / Splunk",
+          "ingestion_method": "__D6__ Manual | API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D6__ ISO-8601",
+          "verified_by_human": "__D6__ true | false",
+          "verified_by": "__D6__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.05,
+          "downstream_dependents": [],
+          "alert_threshold": 0.4,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.15",
+        "nis2": "Art. 21.2(g)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0009",
+            "tactic_name": "Collection",
+            "technique_id": "T1005",
+            "technique_name": "Data from Local System",
+            "sub_technique_id": null,
+            "control_coverage": "__D6__ partial"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Verificare log per identificare scope di eventuale esfiltrazione dati",
+        "business_workaround": "__E1__ Analisi manuale log PLM nativo se SIEM non disponibile",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ ID playbook"
+      },
+      "exception": {
+        "is_active": "__D7__ true se dati Export-Controlled non segregati o non classificati",
+        "reason": "__D7__ descrizione o null",
+        "approved_by": "__D7__ Legal / Compliance Officer o null",
+        "expiry_date": null,
+        "risk_acceptance_ref": "__D7__ RAF-PLM-EXPORTCTRL-001 o null"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    }
+  ],
+
+  "graph_edges": [
+    {
+      "_source": "Blocco C — C2 Database PLM",
+      "edge_id": "EDGE-PLM001-DB-001",
+      "type": "STORES_DATA_IN",
+      "source_app_id": "__A1__ PLM app_id",
+      "target_app_id": "__C2__ es: DB-PLM-ORACLE-001 | DB-PLM-SQLSERVER-001",
+      "direction": "Outbound",
+      "protocol": "__C2__ es: Oracle Net/1521 | SQL/TDS/1433 | PostgreSQL/5432",
+      "port": "__C2__ es: 1521 | 1433",
+      "criticality": "Critical",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0009",
+          "tactic_name": "Collection",
+          "technique_id": "T1213",
+          "technique_name": "Data from Information Repositories",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ PLM completamente inaccessibile — tutto il vault irraggiungibile",
+      "encrypted": "__C6__ true | false",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": false,
+      "last_validated": "__C2__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C3 CAD Client (SolidWorks, CATIA, NX, Creo)",
+      "edge_id": "EDGE-PLM001-CAD-001",
+      "type": "STORES_DATA_IN",
+      "source_app_id": "__C3__ es: CAD-SOLIDWORKS-CLIENT | CAD-CATIA-CLIENT",
+      "target_app_id": "__A1__ PLM app_id",
+      "direction": "Bidirectional",
+      "protocol": "__C3__ es: PLM Client API / WebDAV / HTTPS",
+      "port": "__C3__ es: 443 | proprietario",
+      "criticality": "Critical",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0010",
+          "tactic_name": "Exfiltration",
+          "technique_id": "T1048",
+          "technique_name": "Exfiltration Over Alternative Protocol",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Ingegneri non possono salvare/recuperare file CAD — lavoro bloccato",
+      "encrypted": "__C6__ true | false",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": false,
+      "last_validated": "__C3__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C3 ERP/SAP (BOM transfer)",
+      "edge_id": "EDGE-PLM001-ERP-001",
+      "type": "FEEDS_DATA_TO",
+      "source_app_id": "__A1__ PLM app_id",
+      "target_app_id": "__C3__ es: ERP-SAP-MAIN-001",
+      "direction": "Outbound",
+      "protocol": "__C3__ es: REST/HTTPS | SOAP | file CSV | middleware ESB",
+      "port": "__C3__ es: 443",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0008",
+          "tactic_name": "Lateral Movement",
+          "technique_id": "T1210",
+          "technique_name": "Exploitation of Remote Services",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ BOM non aggiornata in ERP — nuovi prodotti non pianificabili in produzione",
+      "encrypted": "__C6__ true | false",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": false,
+      "last_validated": "__C3__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C4 Portale fornitori / Extranet",
+      "edge_id": "EDGE-PLM001-SUPPLIER-001",
+      "type": "SHARES_DATA_WITH",
+      "source_app_id": "__A1__ PLM app_id",
+      "target_app_id": "__C4__ es: PORTAL-SUPPLIER-001 | CLOUD-EXTRANET-001",
+      "direction": "Outbound",
+      "protocol": "__C4__ es: HTTPS/443 | portale web",
+      "port": 443,
+      "criticality": "Medium",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0010",
+          "tactic_name": "Exfiltration",
+          "technique_id": "T1567",
+          "technique_name": "Exfiltration Over Web Service",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Fornitori non ricevono specifiche tecniche — ritardi di produzione",
+      "encrypted": true,
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": true,
+      "last_validated": "__C4__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — AD / SSO",
+      "edge_id": "EDGE-PLM001-AD-001",
+      "type": "AUTHENTICATES_VIA",
+      "source_app_id": "__A1__ PLM app_id",
+      "target_app_id": "__C3__ es: INFRA-AD-001",
+      "direction": "Outbound",
+      "protocol": "__C3__ es: LDAPS/636 | SAML | OAuth 2.0",
+      "port": "__C3__ es: 636 | 443",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0006",
+          "tactic_name": "Credential Access",
+          "technique_id": "T1078",
+          "technique_name": "Valid Accounts",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Nessun utente interno può autenticarsi al PLM",
+      "encrypted": true,
+      "mutually_authenticated": false,
+      "crosses_segment_boundary": false,
+      "last_validated": "__C3__ ISO-8601"
+    },
+    {
+      "_source": "Blocco D — D4 Backup vault",
+      "edge_id": "EDGE-PLM001-BACKUP-001",
+      "type": "BACKUP_OF",
+      "source_app_id": "__D4__ es: NAS-BACKUP-PLM-001",
+      "target_app_id": "__A1__ PLM app_id",
+      "direction": "Inbound",
+      "protocol": "__D4__ es: SMB | NFS | Veeam Agent",
+      "port": null,
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0040",
+          "tactic_name": "Impact",
+          "technique_id": "T1490",
+          "technique_name": "Inhibit System Recovery",
+          "sub_technique_id": null,
+          "control_coverage": "full"
+        }
+      ],
+      "severance_impact": "Vault PLM irrecuperabile — perdita di tutta la proprietà intellettuale digitale",
+      "encrypted": "__D4__ true | false",
+      "mutually_authenticated": "__D4__ true | false",
+      "crosses_segment_boundary": true,
+      "last_validated": "__D4__ ISO-8601"
+    }
+  ],
+
+  "graph_node": {
+    "_source": "Calcolato dal graph-analyzer engine",
+    "node_id": "__A1__ PLM app_id",
+    "semantic_tags": ["__G4__ es: PLM", "CAD", "proprietà-intellettuale", "IP-crown-jewel", "BOM", "Design-to-Manufacture", "Export-Control"],
+    "risk_narrative_version": "v1",
+    "neighborhood_ids": ["__CALCOLATO__ DB, CAD clients, ERP, portale fornitori, AD"],
+    "graph_centrality": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+  },
+
+  "reasoning_for_ai": {
+    "_source": "Blocco G",
+    "logic_inference": "__G1__ Il PLM contiene il DNA tecnologico dell'azienda — il furto dei dati vale anni di R&D",
+    "failure_cascading_effect": "__G2__ PLM down → ingegneri bloccati → BOM non aggiornata → produzione non pianificabile → ritardi consegna cliente",
+    "training_notes": "__G3__ nessun file CAD via email personale; nessun Dropbox; fornitori solo dopo NDA; accesso revocato a fine progetto",
+    "semantic_tags": ["__G4__ stessi tag di graph_node.semantic_tags"],
+    "risk_narrative_version": "v1",
+    "rag_chunks": [
+      {
+        "chunk_id": "CHUNK-PLM001-IDENTITY",
+        "topic": "PLM Identity & IP Value",
+        "content": "__B1__+__A4__+__B2__+__F1__ Sistema PLM, processi design, valore IP, costo downtime ingegneri",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-IDENTITY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLM001-IP-RISK",
+        "topic": "Intellectual Property Risk & Export Control",
+        "content": "__F1__+__F2__+__B5__ Valore IP, Export Control applicabile, obblighi NDA, classificazione dati",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-IP-RISK",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLM001-CONTROLS",
+        "topic": "Security Controls — Focus DLP e Access Control",
+        "content": "__D2__+__D3__+__D6__+__D7__ MFA, controllo accessi, DLP, classification, audit trail download",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-CONTROLS",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLM001-GRAPH",
+        "topic": "Graph Topology — CAD, ERP, Fornitori",
+        "content": "__C3__+__C4__+__C5__ Connessioni CAD, BOM verso ERP, portale fornitori, rischio esfiltrazione",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-GRAPH",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLM001-RESILIENCE",
+        "topic": "Resilienza e Data Breach Response",
+        "content": "__E1__+__E4__+__F2__ Workaround ingegneri, risposta data breach IP, forensics plan",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-RESILIENCE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLM001-NARRATIVE",
+        "topic": "Risk Narrative — IP Crown Jewel (AI Context)",
+        "content": "__G1__+__G2__+__G3__ PLM come valore strategico dell'azienda, rischio furto IP, effetto cascata su produzione",
+        "embedding_id": "rag-__A1__-CHUNK-PLM001-NARRATIVE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      }
+    ]
+  },
+
+  "maturity_scoring": {
+    "_note": "Calcolato automaticamente — non compilare manualmente",
+    "data_completeness": 0.0,
+    "automation_ratio": 0.0,
+    "compliance_index": 0.0,
+    "composite_score": 0.0,
+    "maturity_phase": "Initial",
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+  },
+
+  "snapshot_history": [
+    {
+      "sequence": 1,
+      "snapshot_id": "SNAP-__A1__-0001",
+      "timestamp": "__DATA_INTERVISTA__ ISO-8601",
+      "triggered_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+      "document_hash": "__CALCOLATO_AUTOMATICAMENTE__",
+      "maturity_scores": {
+        "data_completeness": 0.0,
+        "automation_ratio": 0.0,
+        "compliance_index": 0.0,
+        "composite_score": 0.0,
+        "maturity_phase": "Initial",
+        "computed_at": "__DATA_INTERVISTA__"
+      },
+      "change_summary": "Creazione iniziale BASM PLM da intervista con __A2__ — __DATA_INTERVISTA__"
+    }
+  ],
+
+  "maturity_deltas": []
+}

@@ -1,0 +1,624 @@
+{
+  "_interview_guide": "Compila questo JSON usando le risposte del file interview-erp-sap.md. Ogni campo ha un commento che indica la domanda corrispondente.",
+
+  "basm_metadata": {
+    "schema_version": "3.0-DIGITAL-TWIN",
+    "last_update": "__COMPILATO_AUTOMATICAMENTE__",
+    "maturity_tier_logic": "Level-5-Optimized",
+    "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "document_hash": "__COMPILATO_AUTOMATICAMENTE__"
+  },
+
+  "identity_context": {
+    "_source": "Blocco A",
+    "app_id": "__A1__ es: ERP-SAP-MAIN-001",
+    "name": "__A1__ es: SAP S/4HANA 2023 — Sistema ERP Principale",
+    "business_owner": {
+      "name": "__A2__ Nome CFO o responsabile finance/operations",
+      "department": "__A2__ es: Finance & Controlling | Operations",
+      "contact": "__A2__ email@azienda.it"
+    },
+    "technical_lead": "__A3__ Nome BASIS Admin o System Integrator",
+    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver | Tier-3-Bronze"
+  },
+
+  "ot_context": {
+    "_source": "Blocco C",
+    "_note": "ERP è sempre asset_type IT o Cloud. purdue_level = 4 (enterprise zone). Blocco F non applicabile (usare sezione finanziaria dedicata).",
+    "asset_type": "__C1__ IT | Cloud | Hybrid",
+    "purdue_level": 4,
+    "air_gap_status": "__C3__ assumed | verified | partial | none",
+    "air_gap_last_verified": "__C3__ ISO-8601 o null",
+    "firmware": {
+      "_note": "Per ERP compilare solo versione e vendor. patch_requires_downtime tipicamente false (rolling update).",
+      "current_version": "__A1__ es: SAP S/4HANA 2023 FPS02",
+      "vendor": "__A1__ es: SAP SE | Microsoft | Oracle",
+      "release_date": "__A1__ ISO-8601 data rilascio versione corrente",
+      "known_cves": ["__D4__ SAP Security Notes critiche aperte — es: CVE-2024-XXXXX oppure []"],
+      "patch_requires_downtime": "__D4__ true | false",
+      "last_patched": "__D4__ ISO-8601 ultimo ciclo SAP Support Package",
+      "update_policy": "__D4__ monthly | quarterly | vendor_driven",
+      "compensating_control_ref": "__D4__ CTRL-ERP-PATCH o null"
+    },
+    "allowed_protocols": ["__C3__ es: HTTPS/443", "RFC/3300", "OData/443", "LDAP/636"],
+    "degraded_mode_max_minutes": "__E1__ minuti massimi senza ERP con workaround manuale",
+    "degraded_mode_throughput_ratio": "__E1__ es: 0.2 = 20% capacità operativa senza ERP",
+    "safety_impact": "none",
+    "iec62443_target_sl": null
+  },
+
+  "business_impact_analysis": {
+    "_source": "Blocco B",
+    "process_chain": "__B1__ es: Order-to-Cash / Procure-to-Pay / Record-to-Report / Plan-to-Produce",
+    "hourly_downtime_cost": "__B2__ numero intero in euro, es: 25000",
+    "annual_revenue_at_risk": "__CALCOLATO__ hourly_cost × incidents_per_year × avg_hours",
+    "cyber_insurance_coverage": "__B4__ massimale polizza in euro, es: 2000000",
+    "net_financial_exposure": "__CALCOLATO__ annual_risk - insurance",
+    "legal_implications": [
+      "__B5__ es: NIS2 Essential",
+      "GDPR — dati anagrafici clienti/dipendenti",
+      "Conservazione fiscale 10 anni (D.Lgs 82/2005)",
+      "e-Fattura SDI (D.M. 17/06/2014)",
+      "__B5__ SOX se applicabile"
+    ],
+    "recovery_objectives": {
+      "rto_hours": "__B6__ ore massime per ripristino, es: 6",
+      "rpo_hours": "__B6__ ore di transazioni tollerabili perdere, es: 1",
+      "last_bcp_drill": "__B7__ ISO-8601 o null se mai testato",
+      "bcp_drill_result": "__B7__ passed | failed | partial | never_tested"
+    },
+    "board_notification_threshold": "__B8__ es: 0.5"
+  },
+
+  "security_controls": [
+    {
+      "_source": "Blocco D — D1 EDR/Antivirus server SAP",
+      "control_id": "CTRL-ERP-001-EDR",
+      "name": "EDR / Antivirus — Server SAP Application e Database",
+      "status": {
+        "indicator": "__D1__ green | yellow | red | gray",
+        "current_value": "__D1__ es: Defender attivo con esclusioni SAP certificate dal vendor",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D1__ Automated | Manual | Hybrid",
+        "source": "__D1__ es: Microsoft Defender for Endpoint API | Symantec | manuale",
+        "confidence_score": "__D1__ 0.0–1.0",
+        "last_verified": "__D1__ ISO-8601",
+        "ttl_days": "__D1__ 1 se automated, 30 se manual",
+        "lineage": {
+          "source_system": "__D1__ es: Microsoft Defender for Endpoint",
+          "ingestion_method": "__D1__ API_Pull | Manual | Webhook_Push",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D1__ ISO-8601",
+          "verified_by_human": "__D1__ true | false",
+          "verified_by": "__D1__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.08,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.7",
+        "nis2": "Art. 21.2(e)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0040",
+            "tactic_name": "Impact",
+            "technique_id": "T1486",
+            "technique_name": "Data Encrypted for Impact",
+            "sub_technique_id": null,
+            "control_coverage": "__D1__ full | partial | none | compensating"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Isolare server SAP, attivare SAP Enterprise Support, contattare CISO",
+        "business_workaround": "__E1__ Fatturazione manuale PDF, ordini via email, pagamenti diretti portale banca",
+        "workaround_dependencies": ["__E2__ Accesso email", "Portale banca online", "File Excel di riserva"],
+        "workaround_last_tested": "__B7__ ISO-8601 o null",
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-ERP-RANSOMWARE-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D2 MFA + Blocco F — F1 SoD",
+      "control_id": "CTRL-ERP-001-MFA-SOD",
+      "name": "Autenticazione Forte (MFA) e Segregazione dei Ruoli (SoD)",
+      "status": {
+        "indicator": "__D2__ green | yellow | red | gray",
+        "current_value": "__D2__ es: MFA attivo per accesso esterno; SoD monitorato via SAP GRC",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D2__ Automated | Manual | Hybrid",
+        "source": "__D2__ es: SAP GRC Access Control | Azure AD | manuale",
+        "confidence_score": "__D2__ 0.0–1.0",
+        "last_verified": "__D2__ ISO-8601",
+        "ttl_days": "__D2__ 1 se GRC automated, 30 se manual",
+        "lineage": {
+          "source_system": "__D2__ es: SAP GRC 12.0 | Azure Active Directory",
+          "ingestion_method": "__D2__ API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D2__ ISO-8601",
+          "verified_by_human": "__D2__ true | false",
+          "verified_by": "__D2__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.06,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.9.4.2",
+        "nis2": "Art. 21.2(i)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0006",
+            "tactic_name": "Credential Access",
+            "technique_id": "T1078",
+            "technique_name": "Valid Accounts",
+            "sub_technique_id": "T1078.003",
+            "control_coverage": "__D2__ full | partial | none"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Bloccare account compromessi, resettare password privilegiati, attivare emergency accounts",
+        "business_workaround": "__E1__ Accesso emergenza con break-glass account documentato",
+        "workaround_dependencies": ["__E2__ Procedura break-glass fuori da SAP", "Telefono per verifica identità"],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-ERP-CRED-COMPROMISE-001"
+      },
+      "exception": {
+        "is_active": "__D2__ true se esistono account SAP_ALL in produzione o SoD violations approvate",
+        "reason": "__D2__ es: Account BASIS con SAP_ALL per manutenzione emergenza",
+        "approved_by": "__D2__ CISO / Audit Director o null",
+        "expiry_date": "__D2__ data scadenza eccezione o null",
+        "risk_acceptance_ref": "__D2__ RAF-ERP-SOD-001 o null"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D3 Backup",
+      "control_id": "CTRL-ERP-001-BACKUP",
+      "name": "Backup Database ERP e Ripristino",
+      "status": {
+        "indicator": "__D3__ green | yellow | red | gray",
+        "current_value": "__D3__ es: HANA Backint giornaliero su storage separato, ultimo test ripristino OK",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D3__ Automated | Manual | Hybrid",
+        "source": "__D3__ es: SAP HANA Backup Catalog | Veeam | manuale",
+        "confidence_score": "__D3__ 0.0–1.0",
+        "last_verified": "__D3__ ISO-8601",
+        "ttl_days": "__D3__ 1 se automated, 7 se manual",
+        "lineage": {
+          "source_system": "__D3__ es: SAP HANA Backint / Veeam / NetBackup",
+          "ingestion_method": "__D3__ API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D3__ ISO-8601",
+          "verified_by_human": "__D3__ true | false",
+          "verified_by": "__D3__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.10,
+          "downstream_dependents": [],
+          "alert_threshold": 0.45,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.13",
+        "nis2": "Art. 21.2(c)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0040",
+            "tactic_name": "Impact",
+            "technique_id": "T1490",
+            "technique_name": "Inhibit System Recovery",
+            "sub_technique_id": null,
+            "control_coverage": "__D3__ full | partial"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Attivare procedura ripristino HANA; contattare BASIS team e SAP Support",
+        "business_workaround": "__E1__ Operazioni manuali durante ripristino ERP (durata stimata: vedi rto_hours)",
+        "workaround_dependencies": ["__E2__ Storage backup accessibile", "Licenze SAP recuperabili", "Sistema di test per validazione pre-produzione"],
+        "workaround_last_tested": "__D3__ data ultimo restore test",
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-ERP-RESTORE-HANA-001"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D4 Patch (SAP Security Notes)",
+      "control_id": "CTRL-ERP-001-PATCH",
+      "name": "Patch Management — SAP Support Package e Security Notes",
+      "status": {
+        "indicator": "__D4__ green | yellow | red | gray",
+        "current_value": "__D4__ es: Ultimo SP applicato 2026-01-15, 0 Security Notes critiche in sospeso",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D4__ Automated | Manual | Hybrid",
+        "source": "__D4__ es: SAP Solution Manager | EarlyWatch Report | manuale",
+        "confidence_score": "__D4__ 0.0–1.0",
+        "last_verified": "__D4__ ISO-8601",
+        "ttl_days": 30,
+        "lineage": {
+          "source_system": "__D4__ es: SAP Solution Manager 7.2 | SAP Launchpad Security Notes",
+          "ingestion_method": "__D4__ Manual | API_Pull",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D4__ ISO-8601",
+          "verified_by_human": true,
+          "verified_by": "__D4__ basis-admin@azienda.it",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.07,
+          "downstream_dependents": [],
+          "alert_threshold": 0.5,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.8",
+        "nis2": "Art. 21.2(e)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0001",
+            "tactic_name": "Initial Access",
+            "technique_id": "T1190",
+            "technique_name": "Exploit Public-Facing Application",
+            "sub_technique_id": null,
+            "control_coverage": "__D4__ full | partial | none"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Applicare Security Note in emergency (SAP Note 000000), isolare sistema se exploit attivo",
+        "business_workaround": "__E1__ Workaround SAP Note (compensating measure documentata nella note stessa)",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ es: PLAYBOOK-ERP-EMERGENCY-PATCH-001"
+      },
+      "exception": {
+        "is_active": "__D4__ true se esistono Security Notes CVSS ≥ 9.0 non applicate",
+        "reason": "__D4__ es: Nota incompatibile con customizing — workaround attivo",
+        "approved_by": "__D4__ CISO / BASIS Lead o null",
+        "expiry_date": "__D4__ ISO-8601 scadenza eccezione",
+        "risk_acceptance_ref": "__D4__ RAF-ERP-PATCH-001 o null"
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    },
+
+    {
+      "_source": "Blocco D — D5 Log (SAP Security Audit Log) + D6 Segmentazione",
+      "control_id": "CTRL-ERP-001-LOGGING",
+      "name": "SAP Security Audit Log, SIEM Integration e Network Segmentation",
+      "status": {
+        "indicator": "__D5__ green | yellow | red | gray",
+        "current_value": "__D5__ es: SM20 attivo con eventi critici; log estratti in Splunk, retention 180gg",
+        "effective_confidence": "__CALCOLATO_DAL_MOTORE__"
+      },
+      "verification": {
+        "method": "__D5__ Automated | Manual | Hybrid",
+        "source": "__D5__ es: Splunk / Microsoft Sentinel | SAP SM20 manuale",
+        "confidence_score": "__D5__ 0.0–1.0",
+        "last_verified": "__D5__ ISO-8601",
+        "ttl_days": "__D5__ 1 se SIEM automated, 30 se manual",
+        "lineage": {
+          "source_system": "__D5__ es: Splunk Enterprise | Microsoft Sentinel",
+          "ingestion_method": "__D5__ Webhook_Push | API_Pull | Manual",
+          "last_ingestion_hash": "sha256:__CALCOLATO__",
+          "source_timestamp": "__D5__ ISO-8601",
+          "verified_by_human": "__D5__ true | false",
+          "verified_by": "__D5__ email o null",
+          "confidence_algorithm": "weighted_source_reliability_v2"
+        },
+        "staleness": {
+          "staleness_status": "__CALCOLATO_DAL_MOTORE__",
+          "next_verification_due": "__CALCOLATO_DAL_MOTORE__",
+          "cascade_decay_rate_per_day": 0.05,
+          "downstream_dependents": [],
+          "alert_threshold": 0.4,
+          "staleness_alert_active": false
+        }
+      },
+      "mapping": {
+        "iso27001": "A.8.15",
+        "nis2": "Art. 21.2(g)",
+        "mitre_attack": [
+          {
+            "tactic_id": "TA0005",
+            "tactic_name": "Defense Evasion",
+            "technique_id": "T1070",
+            "technique_name": "Indicator Removal",
+            "sub_technique_id": null,
+            "control_coverage": "__D5__ full | partial | none"
+          }
+        ],
+        "iec62443": null
+      },
+      "failure_management": {
+        "immediate_action": "__E4__ Verificare integrità log in SIEM; se log assenti sospendere sessioni attive",
+        "business_workaround": "__E1__ Audit manuale di Change Documents SAP (CDHDR/CDPOS) se SIEM non disponibile",
+        "workaround_dependencies": [],
+        "workaround_last_tested": null,
+        "incident_playbook_ref": "__E3__ ID playbook"
+      },
+      "exception": {
+        "is_active": false,
+        "reason": null,
+        "approved_by": null,
+        "expiry_date": null,
+        "risk_acceptance_ref": null
+      },
+      "evidence_artifacts": [],
+      "latest_ccm_result": null
+    }
+  ],
+
+  "graph_edges": [
+    {
+      "_source": "Blocco C — C2 Database ERP",
+      "edge_id": "EDGE-ERP001-DB-001",
+      "type": "STORES_DATA_IN",
+      "source_app_id": "__C2__ app_id ERP es: ERP-SAP-MAIN-001",
+      "target_app_id": "__C2__ es: DB-HANA-001 | DB-ORACLE-001",
+      "direction": "Outbound",
+      "protocol": "__C2__ es: HANA SQL | Oracle Net | SQL/TDS",
+      "port": "__C2__ es: 30015 (HANA) | 1521 (Oracle) | 1433 (SQL Server)",
+      "criticality": "Critical",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0009",
+          "tactic_name": "Collection",
+          "technique_id": "T1213",
+          "technique_name": "Data from Information Repositories",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ ERP completamente inaccessibile senza database — stop totale operazioni",
+      "encrypted": "__C6__ true | false",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": "__D6__ true | false",
+      "last_validated": "__D6__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C3 MES/Gestionale Produzione",
+      "edge_id": "EDGE-ERP001-MES-001",
+      "type": "FEEDS_DATA_TO",
+      "source_app_id": "__C3__ ERP app_id",
+      "target_app_id": "__C3__ es: MES-GESTIONALE-PROD-001",
+      "direction": "Bidirectional",
+      "protocol": "__C3__ es: RFC | IDoc | REST/HTTPS | OData",
+      "port": "__C3__ es: 443 (HTTPS) | 3300 (RFC)",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0008",
+          "tactic_name": "Lateral Movement",
+          "technique_id": "T1210",
+          "technique_name": "Exploitation of Remote Services",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Piani di produzione non aggiornati; ordini di produzione non confermati",
+      "encrypted": "__C6__ true | false",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": "__D6__ false",
+      "last_validated": "__C3__ ISO-8601"
+    },
+    {
+      "_source": "Blocco C — C3 Active Directory / SSO",
+      "edge_id": "EDGE-ERP001-AD-001",
+      "type": "AUTHENTICATES_VIA",
+      "source_app_id": "__C3__ ERP app_id",
+      "target_app_id": "__C3__ es: INFRA-AD-001",
+      "direction": "Outbound",
+      "protocol": "__C3__ es: LDAP | LDAPS | Kerberos | SAML",
+      "port": "__C3__ es: 389 | 636 | 443",
+      "criticality": "High",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0006",
+          "tactic_name": "Credential Access",
+          "technique_id": "T1078",
+          "technique_name": "Valid Accounts",
+          "sub_technique_id": null,
+          "control_coverage": "partial"
+        }
+      ],
+      "severance_impact": "__C5__ Impossibile autenticarsi all'ERP per tutti gli utenti SSO",
+      "encrypted": "__C6__ true se LDAPS",
+      "mutually_authenticated": "__C6__ true | false",
+      "crosses_segment_boundary": "__D6__ false",
+      "last_validated": "__C3__ ISO-8601"
+    },
+    {
+      "_source": "Blocco D — D3 Backup ERP",
+      "edge_id": "EDGE-ERP001-BACKUP-001",
+      "type": "BACKUP_OF",
+      "source_app_id": "__D3__ es: NAS-BACKUP-ERP-001 | Veeam Server",
+      "target_app_id": "__C2__ ERP+DB app_id",
+      "direction": "Inbound",
+      "protocol": "__D3__ es: SAP HANA Backint | SMB | NFS | Veeam Agent",
+      "port": null,
+      "criticality": "Critical",
+      "threat_tactics": [
+        {
+          "tactic_id": "TA0040",
+          "tactic_name": "Impact",
+          "technique_id": "T1490",
+          "technique_name": "Inhibit System Recovery",
+          "sub_technique_id": null,
+          "control_coverage": "full"
+        }
+      ],
+      "severance_impact": "__D3__ Impossibile ripristinare ERP in caso di ransomware — zero recovery",
+      "encrypted": "__D3__ true | false",
+      "mutually_authenticated": "__D3__ true | false",
+      "crosses_segment_boundary": "__D6__ true se backup su storage separato",
+      "last_validated": "__D3__ ISO-8601"
+    }
+  ],
+
+  "graph_node": {
+    "_source": "Calcolato dal graph-analyzer engine dopo inserimento edges",
+    "node_id": "__A1__ stesso valore di identity_context.app_id",
+    "semantic_tags": ["__G4__ es: ERP", "SAP", "Order-to-Cash", "fatturazione", "Purdue-L4", "crown-jewel-finance"],
+    "risk_narrative_version": "v1",
+    "neighborhood_ids": ["__CALCOLATO__ lista app_id connesse"],
+    "graph_centrality": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__",
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+  },
+
+  "reasoning_for_ai": {
+    "_source": "Blocco G",
+    "logic_inference": "__G1__ perché l'ERP è il sistema nervoso finanziario e operativo dell'azienda",
+    "failure_cascading_effect": "__G2__ effetto domino: ordini → produzione → spedizioni → fatturazione → cash",
+    "training_notes": "__G3__ comportamenti rischiosi da evitare sull'ERP",
+    "semantic_tags": ["__G4__ stessi tag di graph_node.semantic_tags"],
+    "risk_narrative_version": "v1",
+    "rag_chunks": [
+      {
+        "chunk_id": "CHUNK-ERP001-IDENTITY",
+        "topic": "Asset Identity & Business Role",
+        "content": "__B1__+__A4__+__B2__ Nome ERP, moduli attivi, processi core, costo orario downtime",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-IDENTITY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-ERP001-FINANCIAL-RISK",
+        "topic": "Financial Risk & SoD Controls",
+        "content": "__F1__+__D2__+__B5__ Conflitti SoD, obblighi fiscali, export control finanziario",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-FINANCIAL-RISK",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-ERP001-CONTROLS",
+        "topic": "Security Controls Status",
+        "content": "__D1__+__D2__+__D3__+__D4__+__D5__ Stato di tutti i controlli ERP",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-CONTROLS",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-ERP001-GRAPH",
+        "topic": "Graph Topology & Blast Radius",
+        "content": "__C3__+__C5__ Connessioni ERP verso MES, AD, DB, banca, e-fattura",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-GRAPH",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-ERP001-RESILIENCE",
+        "topic": "Resilienza e Workaround Operativo",
+        "content": "__E1__+__E2__+__E4__ Workaround finanziario/operativo, dipendenze, procedura ransomware ERP",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-RESILIENCE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-ERP001-NARRATIVE",
+        "topic": "Risk Narrative (AI Context)",
+        "content": "__G1__+__G2__+__G3__ Narrativa libera — valore finanziario, effetto cascata, training",
+        "embedding_id": "rag-__A1__-CHUNK-ERP001-NARRATIVE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      }
+    ]
+  },
+
+  "maturity_scoring": {
+    "_note": "Calcolato automaticamente da computeMaturityScores() — non compilare manualmente",
+    "data_completeness": 0.0,
+    "automation_ratio": 0.0,
+    "compliance_index": 0.0,
+    "composite_score": 0.0,
+    "maturity_phase": "Initial",
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+  },
+
+  "snapshot_history": [
+    {
+      "sequence": 1,
+      "snapshot_id": "SNAP-__A1__-0001",
+      "timestamp": "__DATA_INTERVISTA__ ISO-8601",
+      "triggered_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+      "document_hash": "__CALCOLATO_AUTOMATICAMENTE__",
+      "maturity_scores": {
+        "data_completeness": 0.0,
+        "automation_ratio": 0.0,
+        "compliance_index": 0.0,
+        "composite_score": 0.0,
+        "maturity_phase": "Initial",
+        "computed_at": "__DATA_INTERVISTA__"
+      },
+      "change_summary": "Creazione iniziale BASM ERP/SAP da intervista con __A2__ — __DATA_INTERVISTA__"
+    }
+  ],
+
+  "maturity_deltas": []
+}
