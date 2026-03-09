@@ -1,0 +1,45 @@
+<ion-card *ngIf="rq">
+  <ion-card-header>
+    <ion-card-subtitle>Rischio FAIR annualizzato</ion-card-subtitle>
+    <ion-card-title>
+      {{ annualRisk | currency:'EUR':'symbol':'1.0-0' }} / anno
+      <ion-badge [color]="riskColor" class="risk-badge">{{ riskLabel }}</ion-badge>
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <ion-progress-bar [value]="gaugeValue" [color]="riskColor" class="risk-bar"></ion-progress-bar>
+
+    <ion-list lines="none" class="rq-details">
+      <ion-item>
+        <ion-label>Frequenza eventi minaccia (annua)</ion-label>
+        <ion-note slot="end">{{ rq.threat_event_frequency }}</ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label>Probabilità vulnerabilità</ion-label>
+        <ion-note slot="end">{{ (rq.vulnerability_probability * 100) | number:'1.0-0' }}%</ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label>Perdita primaria stimata</ion-label>
+        <ion-note slot="end">
+          {{ rq.primary_loss_magnitude | currency:'EUR':'symbol':'1.0-0' }}
+        </ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label>Metodologia</ion-label>
+        <ion-note slot="end">{{ rq.methodology }}</ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label>Confidenza stima</ion-label>
+        <ion-note slot="end">{{ (rq.confidence_level * 100) | number:'1.0-0' }}%</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <ion-note>
+      Ultima revisione: {{ rq.last_reviewed_date | date:'dd/MM/yyyy' }}
+      <span *ngIf="rq.last_reviewed_by"> · {{ rq.last_reviewed_by }}</span>
+    </ion-note>
+
+  </ion-card-content>
+</ion-card>

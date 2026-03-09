@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 
 import { BASMDocument } from '../../types/basm.types';
 import { BasmStoreService } from '../../services/basm-store.service';
 import { BasmEngineService, DocumentTruthReport } from '../../services/basm-engine.service';
+import { JsonExportModalComponent } from '../../components/json-export-modal/json-export-modal.component';
 
 @Component({
   selector: 'app-basm-document-detail',
@@ -20,6 +22,7 @@ export class DocumentDetailPage implements OnInit {
     private route: ActivatedRoute,
     private store: BasmStoreService,
     private engine: BasmEngineService,
+    private modalCtrl: ModalController,
   ) {}
 
   ngOnInit(): void {
@@ -60,5 +63,14 @@ export class DocumentDetailPage implements OnInit {
       gray: 'medium',
     };
     return map[indicator] ?? 'medium';
+  }
+
+  async openExportModal(): Promise<void> {
+    if (!this.doc) return;
+    const modal = await this.modalCtrl.create({
+      component: JsonExportModalComponent,
+      componentProps: { doc: this.doc },
+    });
+    await modal.present();
   }
 }

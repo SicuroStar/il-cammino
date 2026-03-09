@@ -17,6 +17,14 @@ import { DashboardPage } from './pages/dashboard/dashboard.page';
 import { DocumentDetailPage } from './pages/document-detail/document-detail.page';
 import { InterviewPage } from './pages/interview/interview.page';
 
+// Components — Sprint 4
+import { StalenessBadgeComponent } from './components/staleness-badge/staleness-badge.component';
+import { ControlStatusRowComponent } from './components/control-status-row/control-status-row.component';
+import { MaturityCardComponent } from './components/maturity-card/maturity-card.component';
+import { RiskGaugeComponent } from './components/risk-gauge/risk-gauge.component';
+import { GraphTopologyComponent } from './components/graph-topology/graph-topology.component';
+import { JsonExportModalComponent } from './components/json-export-modal/json-export-modal.component';
+
 // Services (providedIn: 'root' — declared here for documentation purposes only)
 import { BasmStoreService } from './services/basm-store.service';
 import { BasmEngineService } from './services/basm-engine.service';
@@ -27,6 +35,16 @@ import { BasmValidatorService } from './services/basm-validator.service';
     DashboardPage,
     DocumentDetailPage,
     InterviewPage,
+    // Sprint 4 components
+    StalenessBadgeComponent,
+    ControlStatusRowComponent,
+    MaturityCardComponent,
+    RiskGaugeComponent,
+    GraphTopologyComponent,
+    JsonExportModalComponent,
+  ],
+  entryComponents: [
+    JsonExportModalComponent,
   ],
   imports: [
     CommonModule,

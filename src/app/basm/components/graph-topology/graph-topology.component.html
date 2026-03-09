@@ -1,0 +1,83 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>Topologia del grafo applicativo</ion-card-subtitle>
+    <ion-card-title>{{ appId }}</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <!-- Graph node metadata -->
+    <div *ngIf="graphNode" class="node-meta">
+      <ion-chip color="primary" outline>
+        <ion-icon name="git-network-outline"></ion-icon>
+        <ion-label>Centralità {{ (graphNode.graph_centrality * 100) | number:'1.0-0' }}%</ion-label>
+      </ion-chip>
+      <ion-chip [color]="graphNode.blast_radius_node_count > 5 ? 'danger' : 'warning'" outline>
+        <ion-icon name="nuclear-outline"></ion-icon>
+        <ion-label>Blast radius {{ graphNode.blast_radius_node_count }} nodi</ion-label>
+      </ion-chip>
+      <ion-chip *ngIf="graphNode.blast_radius_revenue_at_risk > 0" color="danger" outline>
+        <ion-icon name="cash-outline"></ion-icon>
+        <ion-label>
+          {{ graphNode.blast_radius_revenue_at_risk | currency:'EUR':'symbol':'1.0-0' }} a rischio
+        </ion-label>
+      </ion-chip>
+      <ion-chip *ngIf="graphNode.mitre_coverage_pct != null" outline
+                [color]="graphNode.mitre_coverage_pct >= 70 ? 'success' : 'warning'">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <ion-label>MITRE {{ graphNode.mitre_coverage_pct | number:'1.0-0' }}%</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Node list -->
+    <div class="node-list" *ngIf="nodes.length > 0">
+      <strong class="section-label">Nodi nel grafo</strong>
+      <div class="node-pills">
+        <ion-chip *ngFor="let n of nodes"
+                  [color]="n.isCurrent ? 'primary' : 'light'"
+                  [outline]="!n.isCurrent">
+          <ion-icon [name]="n.isCurrent ? 'radio-button-on' : 'ellipse-outline'"></ion-icon>
+          <ion-label>{{ n.id }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Edge table -->
+    <div class="edge-section" *ngIf="edgeViews.length > 0">
+      <strong class="section-label">Archi ({{ edgeViews.length }})</strong>
+      <ion-list>
+        <ion-item *ngFor="let ev of edgeViews" lines="full">
+          <ion-icon slot="start"
+                    [name]="directionIcon(ev.edge.direction)"
+                    [color]="ev.critColor">
+          </ion-icon>
+          <ion-label>
+            <h3>
+              {{ ev.edge.source_app_id }}
+              <ion-icon name="arrow-forward-outline" style="font-size:12px"></ion-icon>
+              {{ ev.edge.target_app_id }}
+            </h3>
+            <p>{{ ev.edge.type }} · {{ ev.edge.protocol }}
+              <span *ngIf="ev.edge.port">:{{ ev.edge.port }}</span>
+            </p>
+            <p>
+              <ion-text [color]="ev.edge.encrypted ? 'success' : 'danger'">
+                <ion-icon [name]="ev.edge.encrypted ? 'lock-closed-outline' : 'lock-open-outline'"></ion-icon>
+                {{ ev.edge.encrypted ? 'Cifrato' : 'Non cifrato' }}
+              </ion-text>
+              <span *ngIf="ev.edge.crosses_segment_boundary" style="margin-left:8px">
+                <ion-badge color="warning">Cross-segment</ion-badge>
+              </span>
+            </p>
+          </ion-label>
+          <ion-badge slot="end" [color]="ev.critColor">{{ ev.edge.criticality }}</ion-badge>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <div *ngIf="edgeViews.length === 0" class="ion-text-center">
+      <ion-text color="medium"><p>Nessun arco definito.</p></ion-text>
+    </div>
+
+  </ion-card-content>
+</ion-card>

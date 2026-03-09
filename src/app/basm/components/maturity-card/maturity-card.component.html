@@ -1,0 +1,54 @@
+<ion-card *ngIf="scores">
+  <ion-card-header>
+    <ion-card-subtitle>Maturity Score</ion-card-subtitle>
+    <ion-card-title>
+      {{ compositePercent }}% —
+      <ion-badge [color]="phaseColor">{{ scores.maturity_phase }}</ion-badge>
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <!-- Score ring -->
+    <div class="ring-row">
+      <div class="score-ring" [style.background]="conicGradient">
+        <span class="score-center">{{ compositePercent }}%</span>
+      </div>
+      <div class="score-details">
+        <div class="sub-score">
+          <span>Completezza dati</span>
+          <ion-progress-bar [value]="scores.data_completeness" color="success"></ion-progress-bar>
+          <span class="pct">{{ (scores.data_completeness * 100) | number:'1.0-0' }}%</span>
+        </div>
+        <div class="sub-score">
+          <span>Automazione</span>
+          <ion-progress-bar [value]="scores.automation_ratio" color="tertiary"></ion-progress-bar>
+          <span class="pct">{{ (scores.automation_ratio * 100) | number:'1.0-0' }}%</span>
+        </div>
+        <div class="sub-score">
+          <span>Compliance</span>
+          <ion-progress-bar [value]="scores.compliance_index" color="warning"></ion-progress-bar>
+          <span class="pct">{{ (scores.compliance_index * 100) | number:'1.0-0' }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Industry benchmark -->
+    <div *ngIf="hasBenchmark" class="benchmark-row">
+      <ion-text color="medium">
+        <small>
+          Mediana settore: {{ (scores.industry_benchmark_median * 100) | number:'1.0-0' }}%
+          <span *ngIf="scores.industry_benchmark_top_quartile">
+            · Top quartile: {{ (scores.industry_benchmark_top_quartile * 100) | number:'1.0-0' }}%
+          </span>
+          <span *ngIf="scores.peer_group"> · {{ scores.peer_group }}</span>
+        </small>
+      </ion-text>
+    </div>
+
+    <ion-note>
+      Calcolato: {{ scores.computed_at | date:'dd/MM/yyyy HH:mm' }}
+    </ion-note>
+
+  </ion-card-content>
+</ion-card>
