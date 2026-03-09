@@ -1,0 +1,327 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/basm"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isNew ? 'Nuovo documento BASM' : 'Modifica documento' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-text color="danger" *ngIf="saveError">
+    <p>{{ saveError }}</p>
+  </ion-text>
+
+  <form [formGroup]="form">
+
+    <!-- ─── STEPPER ────────────────────────────────────────────────────── -->
+    <mat-stepper [linear]="false" orientation="horizontal">
+
+      <!-- ══ BLOCCO A — Identity ══════════════════════════════════════════ -->
+      <mat-step label="A — Identità ({{ completionPercent('blockA') }}%)">
+        <div formGroupName="blockA" class="block-form">
+
+          <ion-list>
+            <ion-item>
+              <ion-label position="stacked">App ID *</ion-label>
+              <ion-input formControlName="app_id"
+                         placeholder="es: SAP-ERP-001 | INFRA-AD-001"
+                         [disabled]="!isNew">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Nome applicazione *</ion-label>
+              <ion-input formControlName="name"
+                         placeholder="Nome completo del sistema"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Business Owner</ion-label>
+              <ion-input formControlName="business_owner_name"
+                         placeholder="Nome e cognome"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Dipartimento</ion-label>
+              <ion-input formControlName="business_owner_dept"
+                         placeholder="es: IT Infrastructure | Finance"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Contatto (email)</ion-label>
+              <ion-input formControlName="business_owner_contact"
+                         type="email" placeholder="email@azienda.it"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Technical Lead</ion-label>
+              <ion-input formControlName="technical_lead"
+                         placeholder="Nome responsabile tecnico"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Criticità</ion-label>
+              <ion-select formControlName="criticality_class" slot="end">
+                <ion-select-option value="Tier-1-Gold">Tier-1 Gold</ion-select-option>
+                <ion-select-option value="Tier-2-Silver">Tier-2 Silver</ion-select-option>
+                <ion-select-option value="Tier-3-Bronze">Tier-3 Bronze</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Ambiente</ion-label>
+              <ion-select formControlName="environment" slot="end">
+                <ion-select-option value="production">Production</ion-select-option>
+                <ion-select-option value="staging">Staging</ion-select-option>
+                <ion-select-option value="development">Development</ion-select-option>
+                <ion-select-option value="dr">DR</ion-select-option>
+                <ion-select-option value="test">Test</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Tipo asset</ion-label>
+              <ion-select formControlName="asset_type" slot="end">
+                <ion-select-option value="IT">IT</ion-select-option>
+                <ion-select-option value="OT">OT</ion-select-option>
+                <ion-select-option value="IoT">IoT</ion-select-option>
+                <ion-select-option value="ICS">ICS</ion-select-option>
+                <ion-select-option value="Cloud">Cloud</ion-select-option>
+                <ion-select-option value="Hybrid">Hybrid</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Classificazione dati</ion-label>
+              <ion-select formControlName="data_classification" slot="end">
+                <ion-select-option value="Public">Public</ion-select-option>
+                <ion-select-option value="Internal">Internal</ion-select-option>
+                <ion-select-option value="Confidential">Confidential</ion-select-option>
+                <ion-select-option value="Restricted">Restricted</ion-select-option>
+                <ion-select-option value="Secret">Secret</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Esposto su internet</ion-label>
+              <ion-toggle formControlName="external_facing" slot="end"></ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Utenti approssimativi</ion-label>
+              <ion-input formControlName="user_count_approx"
+                         type="number" min="0"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Vendor</ion-label>
+              <ion-input formControlName="vendor_name"
+                         placeholder="es: Microsoft | SAP | Siemens"></ion-input>
+            </ion-item>
+          </ion-list>
+
+          <div class="step-actions">
+            <button mat-button matStepperNext>Avanti →</button>
+          </div>
+        </div>
+      </mat-step>
+
+      <!-- ══ BLOCCO B — Business Impact ═══════════════════════════════════ -->
+      <mat-step label="B — Business Impact ({{ completionPercent('blockB') }}%)">
+        <div formGroupName="blockB" class="block-form">
+
+          <ion-list>
+            <ion-item>
+              <ion-label position="stacked">Processo produttivo supportato</ion-label>
+              <ion-textarea formControlName="process_chain" rows="3"
+                            placeholder="Descrivere la catena di valore supportata dall'applicazione">
+              </ion-textarea>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Costo orario downtime (EUR)</ion-label>
+              <ion-input formControlName="hourly_downtime_cost"
+                         type="number" min="0"
+                         placeholder="es: 15000"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Ricavo annuo a rischio (EUR)</ion-label>
+              <ion-input formControlName="annual_revenue_at_risk"
+                         type="number" min="0"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Copertura assicurativa (EUR)</ion-label>
+              <ion-input formControlName="insurance_coverage_eur"
+                         type="number" min="0"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">RTO (ore)</ion-label>
+              <ion-input formControlName="rto_hours"
+                         type="number" min="0"
+                         placeholder="Recovery Time Objective"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">RPO (ore)</ion-label>
+              <ion-input formControlName="rpo_hours"
+                         type="number" min="0"
+                         placeholder="Recovery Point Objective"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Risultato ultimo BCP drill</ion-label>
+              <ion-select formControlName="bcp_drill_result" slot="end">
+                <ion-select-option value="passed">Passed</ion-select-option>
+                <ion-select-option value="passed_with_findings">Passed con rilievi</ion-select-option>
+                <ion-select-option value="failed">Failed</ion-select-option>
+                <ion-select-option value="not_tested">Non testato</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>← Indietro</button>
+            <button mat-button matStepperNext>Avanti →</button>
+          </div>
+        </div>
+      </mat-step>
+
+      <!-- ══ BLOCCO D — Security Controls ═════════════════════════════════ -->
+      <mat-step label="D — Controlli ({{ controlsArray.length }})">
+        <div formGroupName="blockD" class="block-form">
+
+          <div formArrayName="controls">
+            <mat-expansion-panel
+              *ngFor="let ctrlGroup of controlsArray.controls; let i = index"
+              [formGroupName]="i"
+              class="ctrl-panel">
+
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <ion-badge [color]="indicatorBadgeColor(ctrlGroup.get('indicator').value)">
+                    {{ ctrlGroup.get('indicator').value | uppercase }}
+                  </ion-badge>
+                  &nbsp;
+                  {{ ctrlGroup.get('name').value || '(controllo ' + (i+1) + ')' }}
+                </mat-panel-title>
+                <mat-panel-description>
+                  conf. {{ (ctrlGroup.get('confidence_score').value * 100 | number:'1.0-0') }}%
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <ion-list>
+                <ion-item>
+                  <ion-label position="stacked">Nome controllo *</ion-label>
+                  <ion-input formControlName="name"
+                             placeholder="es: MFA su account privilegiati"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label>Stato indicatore</ion-label>
+                  <ion-select formControlName="indicator" slot="end">
+                    <ion-select-option value="green">Verde — Conforme</ion-select-option>
+                    <ion-select-option value="yellow">Giallo — Parziale</ion-select-option>
+                    <ion-select-option value="red">Rosso — Non conforme</ion-select-option>
+                    <ion-select-option value="gray">Grigio — Sconosciuto</ion-select-option>
+                  </ion-select>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label>Metodo verifica</ion-label>
+                  <ion-select formControlName="method" slot="end">
+                    <ion-select-option value="Manual">Manual</ion-select-option>
+                    <ion-select-option value="Automated">Automated</ion-select-option>
+                    <ion-select-option value="Hybrid">Hybrid</ion-select-option>
+                    <ion-select-option value="Self-attested">Self-attested</ion-select-option>
+                  </ion-select>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">
+                    Confidence score: {{ (ctrlGroup.get('confidence_score').value * 100 | number:'1.0-0') }}%
+                  </ion-label>
+                  <ion-range formControlName="confidence_score"
+                             min="0" max="1" step="0.05"
+                             snaps="true" color="primary">
+                  </ion-range>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Ultima verifica (ISO date)</ion-label>
+                  <ion-input formControlName="last_verified"
+                             placeholder="es: 2025-01-15T00:00:00Z"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">TTL (giorni)</ion-label>
+                  <ion-input formControlName="ttl_days" type="number" min="1"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Mappatura ISO 27001</ion-label>
+                  <ion-input formControlName="iso27001"
+                             placeholder="es: A.9.4.2 | A.12.6.1"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Mappatura NIS2</ion-label>
+                  <ion-input formControlName="nis2"
+                             placeholder="es: Art.21(2)(a)"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Workaround in caso di fallimento</ion-label>
+                  <ion-textarea formControlName="business_workaround" rows="2"></ion-textarea>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label>Eccezione attiva</ion-label>
+                  <ion-toggle formControlName="exception_active" slot="end" color="danger"></ion-toggle>
+                </ion-item>
+              </ion-list>
+
+              <mat-action-row>
+                <ion-button fill="clear" color="danger" (click)="removeControl(i)">
+                  <ion-icon slot="start" name="trash-outline"></ion-icon>
+                  Rimuovi
+                </ion-button>
+              </mat-action-row>
+
+            </mat-expansion-panel>
+          </div>
+
+          <div class="add-control-row">
+            <ion-button fill="outline" (click)="addControl()">
+              <ion-icon slot="start" name="add"></ion-icon>
+              Aggiungi controllo
+            </ion-button>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>← Indietro</button>
+          </div>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+
+    <!-- ─── Global action bar ─────────────────────────────────────────────── -->
+    <div class="global-actions">
+      <ion-button fill="outline" color="medium" (click)="cancel()">
+        Annulla
+      </ion-button>
+      <ion-button color="primary" [disabled]="isSaving" (click)="save()">
+        <ion-spinner *ngIf="isSaving" name="crescent"></ion-spinner>
+        <ion-icon *ngIf="!isSaving" slot="start" name="save-outline"></ion-icon>
+        {{ isSaving ? 'Salvataggio...' : 'Salva documento' }}
+      </ion-button>
+    </div>
+
+  </form>
+
+</ion-content>

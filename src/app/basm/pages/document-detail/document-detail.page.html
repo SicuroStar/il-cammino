@@ -1,0 +1,292 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/basm"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ doc?.identity_context?.name ?? 'Documento BASM' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/basm', doc?.identity_context?.app_id, 'edit']">
+        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Tab bar -->
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="activeTab" scrollable>
+      <ion-segment-button value="overview">
+        <ion-label>Overview</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="controls">
+        <ion-label>Controlli</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="graph">
+        <ion-label>Grafo</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="risk">
+        <ion-label>Rischio</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="history">
+        <ion-label>Storico</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div *ngIf="!doc">
+    <ion-text color="danger">
+      <p>Documento non trovato.</p>
+    </ion-text>
+    <ion-button routerLink="/basm">Torna alla dashboard</ion-button>
+  </div>
+
+  <ng-container *ngIf="doc">
+
+    <!-- ═══ OVERVIEW TAB ═══════════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'overview'">
+
+      <!-- Identity card -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Identità applicazione</ion-card-subtitle>
+          <ion-card-title>{{ doc.identity_context.name }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-label>App ID</ion-label>
+              <ion-note slot="end">{{ doc.identity_context.app_id }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Criticità</ion-label>
+              <ion-badge slot="end" color="warning">
+                {{ doc.identity_context.criticality_tier }}
+              </ion-badge>
+            </ion-item>
+            <ion-item>
+              <ion-label>Tipo asset</ion-label>
+              <ion-note slot="end">{{ doc.identity_context.asset_type }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Business owner</ion-label>
+              <ion-note slot="end">{{ doc.identity_context.business_owner }}</ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Maturity scores card -->
+      <ion-card *ngIf="maturity">
+        <ion-card-header>
+          <ion-card-subtitle>Maturity Score</ion-card-subtitle>
+          <ion-card-title>
+            {{ compositePercent() | number:'1.0-0' }}% —
+            <ion-badge color="primary">{{ maturity.maturity_phase }}</ion-badge>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="score-row">
+            <span>Completezza dati</span>
+            <ion-progress-bar [value]="maturity.data_completeness" color="success"></ion-progress-bar>
+            <span>{{ (maturity.data_completeness * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="score-row">
+            <span>Automazione</span>
+            <ion-progress-bar [value]="maturity.automation_ratio" color="tertiary"></ion-progress-bar>
+            <span>{{ (maturity.automation_ratio * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="score-row">
+            <span>Compliance index</span>
+            <ion-progress-bar [value]="maturity.compliance_index" color="warning"></ion-progress-bar>
+            <span>{{ (maturity.compliance_index * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Business Impact Analysis -->
+      <ion-card *ngIf="bia">
+        <ion-card-header>
+          <ion-card-subtitle>Business Impact Analysis</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-label>Costo orario downtime</ion-label>
+              <ion-note slot="end">
+                {{ bia.hourly_downtime_cost | currency:'EUR':'symbol':'1.0-0' }}/h
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Ricavo annuo a rischio</ion-label>
+              <ion-note slot="end">
+                {{ bia.annual_revenue_at_risk | currency:'EUR':'symbol':'1.0-0' }}
+              </ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>RTO</ion-label>
+              <ion-note slot="end">{{ bia.recovery_objectives?.rto_hours }}h</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>RPO</ion-label>
+              <ion-note slot="end">{{ bia.recovery_objectives?.rpo_hours }}h</ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- ═══ CONTROLS TAB ════════════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'controls'">
+
+      <!-- Truth score header -->
+      <ion-card *ngIf="truth">
+        <ion-card-content>
+          <div class="truth-header">
+            <span>Truth Score globale</span>
+            <strong>{{ (truth.overall_truth_score * 100) | number:'1.0-0' }}%</strong>
+            <ion-badge [color]="truth.active_alerts > 0 ? 'danger' : 'success'">
+              {{ truth.active_alerts }} alert attivi
+            </ion-badge>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Controls list -->
+      <ion-card *ngFor="let ctrl of controls">
+        <ion-card-header>
+          <div class="ctrl-header">
+            <ion-badge [color]="indicatorColor(ctrl.status?.indicator)">
+              {{ ctrl.status?.indicator | uppercase }}
+            </ion-badge>
+            <ion-card-title>{{ ctrl.name }}</ion-card-title>
+          </div>
+          <ion-card-subtitle>{{ ctrl.control_id }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="score-row">
+            <span>Confidence</span>
+            <ion-progress-bar
+              [value]="ctrl.verification?.confidence_score ?? 0"
+              [color]="(ctrl.verification?.confidence_score ?? 0) > 0.6 ? 'success' : 'warning'">
+            </ion-progress-bar>
+            <span>{{ ((ctrl.verification?.confidence_score ?? 0) * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-label>Metodo verifica</ion-label>
+              <ion-note slot="end">{{ ctrl.verification?.method }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Ultima verifica</ion-label>
+              <ion-note slot="end">{{ ctrl.verification?.last_verified | date:'dd/MM/yyyy' }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>ISO 27001</ion-label>
+              <ion-note slot="end">{{ ctrl.mapping?.iso27001 }}</ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- ═══ GRAPH TAB ════════════════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'graph'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Archi del grafo applicativo</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let edge of edges">
+              <ion-label>
+                <h3>{{ edge.edge_type }}</h3>
+                <p>{{ edge.source_app_id }} → {{ edge.target_app_id }}</p>
+                <p>{{ edge.protocol }} | {{ edge.direction }}</p>
+              </ion-label>
+              <ion-badge slot="end" [color]="edge.criticality === 'Critical' ? 'danger' : edge.criticality === 'High' ? 'warning' : 'medium'">
+                {{ edge.criticality }}
+              </ion-badge>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- ═══ RISK TAB ════════════════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'risk'">
+      <ion-card *ngIf="doc.risk_quantification as rq">
+        <ion-card-header>
+          <ion-card-subtitle>FAIR Risk Quantification</ion-card-subtitle>
+          <ion-card-title>
+            {{ rq.risk_score_annualized_eur | currency:'EUR':'symbol':'1.0-0' }} / anno
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-label>Freq. eventi minaccia (annua)</ion-label>
+              <ion-note slot="end">{{ rq.threat_event_frequency_annual }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Probabilità vulnerabilità</ion-label>
+              <ion-note slot="end">{{ (rq.vulnerability_probability * 100) | number:'1.0-0' }}%</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Perdita primaria stimata</ion-label>
+              <ion-note slot="end">{{ rq.primary_loss_magnitude_eur | currency:'EUR':'symbol':'1.0-0' }}</ion-note>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Threat actors -->
+      <ion-card *ngIf="doc.threat_model?.threat_actors?.length">
+        <ion-card-header>
+          <ion-card-subtitle>Threat actors</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let actor of doc.threat_model.threat_actors">
+              <ion-label>
+                <h3>{{ actor.actor_id }}</h3>
+                <p>{{ actor.type }} — livello {{ actor.capability_level }}/5</p>
+                <p>{{ actor.motivation }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- ═══ HISTORY TAB ═════════════════════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'history'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Snapshot history</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let snap of doc.snapshot_history">
+              <ion-label>
+                <h3>#{{ snap.sequence }} — {{ snap.triggered_by }}</h3>
+                <p>{{ snap.timestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+                <p>{{ snap.change_summary }}</p>
+              </ion-label>
+              <ion-note slot="end">
+                {{ (snap.maturity_scores?.composite_score * 100) | number:'1.0-0' }}%
+              </ion-note>
+            </ion-item>
+          </ion-list>
+          <p *ngIf="!doc.snapshot_history?.length" class="ion-text-center ion-color-medium">
+            Nessuno snapshot disponibile.
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </ng-container>
+</ion-content>

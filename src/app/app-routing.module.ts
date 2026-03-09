@@ -4,8 +4,12 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
+    redirectTo: 'basm',
     pathMatch: 'full'
+  },
+  {
+    path: 'basm',
+    loadChildren: () => import('./basm/basm.module').then(m => m.BasmModule)
   },
   {
     path: 'folder/:id',

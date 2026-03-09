@@ -1,0 +1,39 @@
+.block-form {
+  padding: 16px 0;
+}
+
+mat-expansion-panel.ctrl-panel {
+  margin-bottom: 12px;
+  border-radius: 8px !important;
+
+  mat-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.add-control-row {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.step-actions {
+  display: flex;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.global-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 0;
+  border-top: 1px solid var(--ion-color-light);
+  margin-top: 24px;
+}
+
+ion-range {
+  padding: 0;
+}

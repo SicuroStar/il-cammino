@@ -1,0 +1,142 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>BASM Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onImportClick()">
+        <ion-icon slot="icon-only" name="cloud-upload-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Hidden file input for import -->
+  <input #fileInput type="file" accept=".json" style="display:none"
+         (change)="onFileSelected($event)">
+
+  <!-- Import error toast area -->
+  <ion-text color="danger" *ngIf="importError">
+    <p>{{ importError }}</p>
+  </ion-text>
+
+  <!-- Document cards grid -->
+  <ng-container *ngIf="cards$ | async as cards">
+
+    <div *ngIf="cards.length === 0" class="empty-state">
+      <ion-icon name="shield-outline" size="large"></ion-icon>
+      <h2>Nessun documento BASM</h2>
+      <p>Importa un file JSON o crea un nuovo documento.</p>
+      <ion-button routerLink="/basm/new" fill="solid" color="primary">
+        <ion-icon slot="start" name="add"></ion-icon>
+        Nuovo documento
+      </ion-button>
+    </div>
+
+    <ion-grid *ngIf="cards.length > 0">
+      <ion-row>
+        <ion-col size="12" size-md="6" size-xl="4"
+                 *ngFor="let card of cards">
+          <ion-card [routerLink]="['/basm', card.doc.identity_context.app_id]"
+                    class="basm-card">
+
+            <!-- Card header: app name + tier badge -->
+            <ion-card-header>
+              <ion-card-subtitle>
+                {{ card.doc.identity_context.app_id }}
+              </ion-card-subtitle>
+              <ion-card-title class="card-title-row">
+                <span>{{ card.doc.identity_context.name }}</span>
+                <ion-badge [color]="tierColor(card.doc.identity_context.criticality_tier)">
+                  {{ card.doc.identity_context.criticality_tier }}
+                </ion-badge>
+              </ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+
+              <!-- Composite maturity score ring -->
+              <div class="score-ring-row">
+                <div class="score-ring"
+                     [style.background]="'conic-gradient(var(--ion-color-primary) ' + compositeScore(card.doc) + '%, #e0e0e0 0)'">
+                  <span class="score-center">{{ compositeScore(card.doc) | number:'1.0-0' }}%</span>
+                </div>
+                <div class="score-details">
+                  <div class="sub-score">
+                    <span>Completezza</span>
+                    <ion-progress-bar
+                      [value]="card.doc.maturity_scoring?.data_completeness ?? 0"
+                      color="success">
+                    </ion-progress-bar>
+                  </div>
+                  <div class="sub-score">
+                    <span>Automazione</span>
+                    <ion-progress-bar
+                      [value]="card.doc.maturity_scoring?.automation_ratio ?? 0"
+                      color="tertiary">
+                    </ion-progress-bar>
+                  </div>
+                  <div class="sub-score">
+                    <span>Compliance</span>
+                    <ion-progress-bar
+                      [value]="card.doc.maturity_scoring?.compliance_index ?? 0"
+                      color="warning">
+                    </ion-progress-bar>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPI strip -->
+              <div class="kpi-strip">
+                <div class="kpi" title="Rischio FAIR annualizzato">
+                  <ion-icon name="warning-outline" color="danger"></ion-icon>
+                  <span>{{ riskEur(card.doc) | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="kpi" title="Alert di staleness attivi">
+                  <ion-icon name="time-outline"
+                            [color]="card.truth.active_alerts > 0 ? 'danger' : 'success'">
+                  </ion-icon>
+                  <span>{{ card.truth.active_alerts }} alert</span>
+                </div>
+                <div class="kpi" title="Truth score globale">
+                  <ion-icon name="checkmark-circle-outline" color="primary"></ion-icon>
+                  <span>{{ (card.truth.overall_truth_score * 100) | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+
+            </ion-card-content>
+
+            <!-- Card actions -->
+            <div class="card-actions">
+              <ion-button fill="clear" size="small"
+                          [routerLink]="['/basm', card.doc.identity_context.app_id, 'edit']">
+                <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small"
+                          (click)="exportDoc(card.doc.identity_context.app_id, $event)">
+                <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" color="danger"
+                          (click)="deleteDoc(card.doc.identity_context.app_id, $event)">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </ng-container>
+
+  <!-- FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" routerLink="/basm/new">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>
