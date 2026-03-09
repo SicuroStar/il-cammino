@@ -2,7 +2,7 @@
   "_interview_guide": "Compila questo JSON usando le risposte del file interview-plm.md. Il PLM è la crown jewel di proprietà intellettuale: il rischio principale è la DATA EXFILTRATION, non solo il downtime.",
 
   "basm_metadata": {
-    "schema_version": "3.0-DIGITAL-TWIN",
+    "schema_version": "3.1-DIGITAL-TWIN",
     "last_update": "__COMPILATO_AUTOMATICAMENTE__",
     "maturity_tier_logic": "Level-5-Optimized",
     "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
@@ -19,7 +19,15 @@
       "contact": "__A2__ email@azienda.it"
     },
     "technical_lead": "__A3__ Nome PLM Administrator o System Integrator PLM",
-    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver"
+    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver",
+    "environment": "__A5__ production | staging | development | dr | test",
+    "external_facing": "__A5__ true se portale fornitori esposto, false se solo rete interna",
+    "user_count_approx": "__A5__ numero approssimativo ingegneri/utenti PLM, es: 80",
+    "data_classification": "__A5__ Confidential | Restricted | Secret — PLM contiene IP aziendale",
+    "asset_install_date": "__A5__ ISO-8601 data prima installazione o null se non nota",
+    "asset_eol_date": "__A5__ ISO-8601 data end-of-life prevista o null se non nota",
+    "vendor_name": "__A5__ es: PTC | Siemens PLM | Dassault | Autodesk",
+    "support_contract_expiry": "__A5__ ISO-8601 scadenza contratto supporto vendor o null"
   },
 
   "ot_context": {
@@ -134,7 +142,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "preventive",
+        "annual_capex_eur": "__ANALISTA__ es: 0 se Defender incluso in E5",
+        "annual_opex_eur": "__ANALISTA__ es: 3000 costo personale monitoraggio",
+        "implementation_days": "__ANALISTA__ es: 5",
+        "expected_risk_reduction_pct": "__ANALISTA__ es: 0.20",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__"
+      }
     },
 
     {
@@ -200,7 +218,17 @@
         "risk_acceptance_ref": "__D2__ RAF-PLM-ACCESS-001 o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "preventive",
+        "annual_capex_eur": "__ANALISTA__ es: 8000",
+        "annual_opex_eur": "__ANALISTA__ es: 5000",
+        "implementation_days": "__ANALISTA__ es: 15",
+        "expected_risk_reduction_pct": "__ANALISTA__ es: 0.30 — MFA riduce significativamente accesso non autorizzato",
+        "roi_payback_years": "__CALCOLATO__",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__"
+      }
     },
 
     {
@@ -266,7 +294,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "preventive",
+        "annual_capex_eur": "__ANALISTA__ es: 20000 DLP solution",
+        "annual_opex_eur": "__ANALISTA__ es: 10000",
+        "implementation_days": "__ANALISTA__ es: 20",
+        "expected_risk_reduction_pct": "__ANALISTA__ es: 0.35 — DLP blocca exfiltrazione canali non autorizzati",
+        "roi_payback_years": "__CALCOLATO__",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__"
+      }
     },
 
     {
@@ -332,7 +370,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "corrective",
+        "annual_capex_eur": "__ANALISTA__ es: 5000",
+        "annual_opex_eur": "__ANALISTA__ es: 3000",
+        "implementation_days": "__ANALISTA__ es: 5",
+        "expected_risk_reduction_pct": "__ANALISTA__ es: 0.25 — backup riduce impatto ransomware",
+        "roi_payback_years": "__CALCOLATO__",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__"
+      }
     },
 
     {
@@ -398,7 +446,17 @@
         "risk_acceptance_ref": "__D7__ RAF-PLM-EXPORTCTRL-001 o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "detective",
+        "annual_capex_eur": "__ANALISTA__ es: 3000",
+        "annual_opex_eur": "__ANALISTA__ es: 5000",
+        "implementation_days": "__ANALISTA__ es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ es: 0.20 — audit trail abilita forensics e deterrenza",
+        "roi_payback_years": "__CALCOLATO__",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__"
+      }
     }
   ],
 
@@ -427,7 +485,10 @@
       "encrypted": "__C6__ true | false",
       "mutually_authenticated": "__C6__ true | false",
       "crosses_segment_boundary": false,
-      "last_validated": "__C2__ ISO-8601"
+      "last_validated": "__C2__ ISO-8601",
+      "data_classification_in_transit": "Confidential",
+      "data_volume": "__C7__ es: 10 GB/day — vault files + metadata",
+      "authentication_type": "__C7__ Kerberos | Certificate | API_Key"
     },
     {
       "_source": "Blocco C — C3 CAD Client (SolidWorks, CATIA, NX, Creo)",
@@ -453,7 +514,10 @@
       "encrypted": "__C6__ true | false",
       "mutually_authenticated": "__C6__ true | false",
       "crosses_segment_boundary": false,
-      "last_validated": "__C3__ ISO-8601"
+      "last_validated": "__C3__ ISO-8601",
+      "data_classification_in_transit": "Confidential",
+      "data_volume": "__C7__ es: continuous — CAD files checkout/checkin",
+      "authentication_type": "__C7__ OAuth2 | Certificate | API_Key"
     },
     {
       "_source": "Blocco C — C3 ERP/SAP (BOM transfer)",
@@ -479,7 +543,10 @@
       "encrypted": "__C6__ true | false",
       "mutually_authenticated": "__C6__ true | false",
       "crosses_segment_boundary": false,
-      "last_validated": "__C3__ ISO-8601"
+      "last_validated": "__C3__ ISO-8601",
+      "data_classification_in_transit": "Confidential",
+      "data_volume": "__C7__ es: 500 MB/day — BOM strutturate e metadati prodotto",
+      "authentication_type": "__C7__ OAuth2 | API_Key"
     },
     {
       "_source": "Blocco C — C4 Portale fornitori / Extranet",
@@ -505,7 +572,10 @@
       "encrypted": true,
       "mutually_authenticated": "__C6__ true | false",
       "crosses_segment_boundary": true,
-      "last_validated": "__C4__ ISO-8601"
+      "last_validated": "__C4__ ISO-8601",
+      "data_classification_in_transit": "Confidential",
+      "data_volume": "__C7__ es: low — specifiche selezionate condivise con fornitori NDA",
+      "authentication_type": "MFA"
     },
     {
       "_source": "Blocco C — AD / SSO",
@@ -531,7 +601,10 @@
       "encrypted": true,
       "mutually_authenticated": false,
       "crosses_segment_boundary": false,
-      "last_validated": "__C3__ ISO-8601"
+      "last_validated": "__C3__ ISO-8601",
+      "data_classification_in_transit": "Internal",
+      "data_volume": "__C7__ es: low — solo autenticazione Kerberos/LDAP",
+      "authentication_type": "Kerberos"
     },
     {
       "_source": "Blocco D — D4 Backup vault",
@@ -557,7 +630,10 @@
       "encrypted": "__D4__ true | false",
       "mutually_authenticated": "__D4__ true | false",
       "crosses_segment_boundary": true,
-      "last_validated": "__D4__ ISO-8601"
+      "last_validated": "__D4__ ISO-8601",
+      "data_classification_in_transit": "Confidential",
+      "data_volume": "__C7__ es: 5 GB/day — vault completo PLM",
+      "authentication_type": "Certificate"
     }
   ],
 
@@ -569,7 +645,12 @@
     "neighborhood_ids": ["__CALCOLATO__ DB, CAD clients, ERP, portale fornitori, AD"],
     "graph_centrality": "__CALCOLATO_DAL_MOTORE__",
     "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__",
-    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__",
+    "mitre_tactics_covered": "__CALCOLATO__ numero tattiche MITRE coperte dai controlli attuali",
+    "mitre_tactics_total": "__ANALISTA__ es: 10 — tattiche rilevanti per IP theft (Exfiltration focus)",
+    "mitre_coverage_pct": "__CALCOLATO__ (mitre_tactics_covered / mitre_tactics_total) × 100",
+    "uncovered_critical_tactics": ["TA0010 — Exfiltration", "TA0009 — Collection (bulk download)"],
+    "risk_score": "__CALCOLATO__ da risk_quantification.risk_score_annualized_eur"
   },
 
   "reasoning_for_ai": {
@@ -650,7 +731,10 @@
     "compliance_index": 0.0,
     "composite_score": 0.0,
     "maturity_phase": "Initial",
-    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__",
+    "industry_benchmark_median": "__ANALISTA__ es: 0.50 — mediana settore manifatturiero per PLM/IP",
+    "industry_benchmark_top_quartile": "__ANALISTA__ es: 0.70 — top 25% settore",
+    "peer_group": "__ANALISTA__ es: manufacturing-mid-cap-eu | engineering-intensive-industry"
   },
 
   "snapshot_history": [
@@ -672,5 +756,139 @@
     }
   ],
 
-  "maturity_deltas": []
+  "maturity_deltas": [],
+
+  "risk_quantification": {
+    "_source": "Blocco B + analisi FAIR — compilare con analista sicurezza",
+    "_note": "PLM: primary_loss include valore IP rubato (anni di R&D), non solo downtime. Danno reputazionale e competitivo.",
+    "threat_event_frequency": "__ANALISTA__ es: 0.15 — APT IP theft: meno frequente ma impatto devastante",
+    "vulnerability_probability": "__ANALISTA__ es: 0.45 — PLM ha spesso accesso fornitori e DLP non totale",
+    "primary_loss_magnitude": "__ANALISTA__ valore IP a rischio + downtime + sanzioni Export Control, es: 3.000.000–50.000.000 EUR",
+    "risk_score_annualized_eur": "__CALCOLATO__ threat_event_frequency × vulnerability_probability × primary_loss_magnitude",
+    "confidence_level": "__ANALISTA__ es: 0.30 — IP theft è difficile da quantificare con precisione",
+    "methodology": "Expert-elicitation",
+    "last_reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "last_reviewed_date": "__DATA_INTERVISTA__ ISO-8601"
+  },
+
+  "threat_model": {
+    "_source": "Blocco G + MITRE ATT&CK — compilare con analista sicurezza",
+    "threat_actors": [
+      {
+        "actor_id": "TA-PLM-001-APT-ESPIONAGE",
+        "name": "Nation-State APT — Spionaggio Industriale (IP Theft)",
+        "type": "nation-state",
+        "motivation": "espionage",
+        "capability_level": 5,
+        "mitre_group_id": "__ANALISTA__ es: G0001 (APT1) | G0045 (menuPass) | G0016 (APT41)",
+        "known_ttps": ["T1566", "T1078", "T1213", "T1005", "T1041", "T1567"],
+        "targeting_likelihood": "medium"
+      },
+      {
+        "actor_id": "TA-PLM-002-INSIDER-EXFIL",
+        "name": "Insider Malicious — Ingegnere con intenzione di esfiltrazione IP",
+        "type": "insider",
+        "motivation": "financial",
+        "capability_level": 2,
+        "mitre_group_id": null,
+        "known_ttps": ["T1078", "T1005", "T1567", "T1048"],
+        "targeting_likelihood": "medium"
+      },
+      {
+        "actor_id": "TA-PLM-003-COMPETITOR",
+        "name": "Concorrente — Spionaggio via fornitore/appaltatore con accesso PLM",
+        "type": "competitor",
+        "motivation": "data-theft",
+        "capability_level": 3,
+        "mitre_group_id": null,
+        "known_ttps": ["T1195", "T1078", "T1213"],
+        "targeting_likelihood": "medium"
+      }
+    ],
+    "attack_scenarios": [
+      {
+        "scenario_id": "SCEN-PLM-001-APT-IP-THEFT",
+        "name": "APT spear-phishing ingegnere R&D → accesso PLM → esfiltrazione massiva file CAD e brevetti",
+        "threat_actor_ref": "TA-PLM-001-APT-ESPIONAGE",
+        "kill_chain_steps": [
+          { "step": 1, "tactic": "Initial Access", "technique_id": "T1566", "technique_name": "Phishing ingegnere senior", "blocked_by_control": null },
+          { "step": 2, "tactic": "Collection", "technique_id": "T1213", "technique_name": "Data from PLM Repositories", "blocked_by_control": "CTRL-PLM-001-MFA-ACCESSCTRL" },
+          { "step": 3, "tactic": "Exfiltration", "technique_id": "T1041", "technique_name": "Exfiltration Over C2 Channel", "blocked_by_control": "CTRL-PLM-001-DLP" },
+          { "step": 4, "tactic": "Exfiltration", "technique_id": "T1567", "technique_name": "Exfiltration Over Web Service", "blocked_by_control": "CTRL-PLM-001-DLP" }
+        ],
+        "success_probability": "__ANALISTA__ es: 0.25 senza DLP completo",
+        "estimated_impact_eur": "__ANALISTA__ valore R&D a rischio × anni di sviluppo, es: 5.000.000–20.000.000",
+        "mitigating_controls": ["DLP su tutti i canali (USB, cloud, email)", "UEBA per rilevamento download anomali", "PLM audit trail + alert volume download"]
+      },
+      {
+        "scenario_id": "SCEN-PLM-002-INSIDER-LEAVING",
+        "name": "Dipendente che lascia l'azienda copia file CAD confidenziali prima delle dimissioni",
+        "threat_actor_ref": "TA-PLM-002-INSIDER-EXFIL",
+        "kill_chain_steps": [
+          { "step": 1, "tactic": "Collection", "technique_id": "T1005", "technique_name": "Data from Local System (bulk download)", "blocked_by_control": "CTRL-PLM-001-LOGGING-CLASSIFICATION" },
+          { "step": 2, "tactic": "Exfiltration", "technique_id": "T1048", "technique_name": "Exfiltration Over Alternative Protocol (USB/cloud personale)", "blocked_by_control": "CTRL-PLM-001-DLP" }
+        ],
+        "success_probability": "__ANALISTA__ es: 0.35 senza DLP USB completo",
+        "estimated_impact_eur": "__ANALISTA__ valore disegni specifici copiati",
+        "mitigating_controls": ["USB blocking via endpoint policy", "Alert su volume download > soglia", "Offboarding checklist con revoca immediata accessi"]
+      }
+    ],
+    "primary_attack_vector": "email",
+    "last_threat_model_review": "__DATA_INTERVISTA__ ISO-8601",
+    "reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__"
+  },
+
+  "recommended_controls": [
+    {
+      "recommendation_id": "REC-PLM-001-UEBA",
+      "name": "User and Entity Behavior Analytics (UEBA) — Rilevamento download anomali PLM",
+      "rationale": "Identifica comportamenti anomali (download massiccio file, accesso fuori orario, accesso a progetti non propri) prima che avvenga l'esfiltrazione",
+      "implementation_effort": "medium",
+      "estimated_capex_eur": 15000,
+      "estimated_opex_eur": 10000,
+      "expected_risk_reduction_pct": 0.30,
+      "roi_payback_years_estimated": "__CALCOLATO__",
+      "priority_rank": 1,
+      "compliance_gaps_addressed": ["NIS2 Art. 21.2(b)", "ISO 27001 A.8.15"],
+      "mitre_tactics_addressed": ["TA0009", "TA0010"],
+      "status": "proposed",
+      "target_implementation_date": "__ROADMAP__ ISO-8601"
+    },
+    {
+      "recommendation_id": "REC-PLM-002-USB-BLOCKING",
+      "name": "USB Device Control Policy — Blocco storage rimovibili su PC ingegneri",
+      "rationale": "USB è il canale di esfiltrazione preferito per insider. DLP via software non è sufficiente senza blocco hardware-level.",
+      "implementation_effort": "low",
+      "estimated_capex_eur": 5000,
+      "estimated_opex_eur": 2000,
+      "expected_risk_reduction_pct": 0.25,
+      "roi_payback_years_estimated": "__CALCOLATO__",
+      "priority_rank": 2,
+      "compliance_gaps_addressed": ["NIS2 Art. 21.2(h)", "ISO 27001 A.8.12"],
+      "mitre_tactics_addressed": ["TA0010"],
+      "status": "proposed",
+      "target_implementation_date": "__ROADMAP__ ISO-8601"
+    }
+  ],
+
+  "incident_history": [
+    {
+      "_note": "Compilare se si conoscono incidenti passati di IP theft o accessi anomali. Omettere o svuotare array se nessun incidente noto.",
+      "_example_structure": {
+        "incident_id": "INC-PLM-001",
+        "detected_date": "__DATA__ ISO-8601",
+        "resolved_date": "__DATA__ ISO-8601",
+        "type": "data-breach | unauthorized-access | insider-threat | other",
+        "description": "__DESCRIZIONE senza PII — es: ex-dipendente copiato file CAD prima delle dimissioni__",
+        "mitre_techniques_observed": ["T1078", "T1005", "T1048"],
+        "total_financial_impact_eur": 0,
+        "downtime_hours": 0,
+        "root_cause": "missing-control | insider | supply-chain | unknown",
+        "failed_control_ref": "CTRL-PLM-001-DLP o null",
+        "remediation_applied": ["descrizione misure adottate post-incidente"],
+        "regulatory_disclosure_required": false,
+        "regulatory_disclosure_ref": null
+      }
+    }
+  ]
 }

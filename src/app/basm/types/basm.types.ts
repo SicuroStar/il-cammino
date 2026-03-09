@@ -1,6 +1,6 @@
 /**
  * BASM — Business Application Security Model
- * TypeScript type definitions — v3.0-DIGITAL-TWIN
+ * TypeScript type definitions — v3.1-DIGITAL-TWIN
  *
  * Coverage roadmap:
  *  v2.1  Truth Decay Engine      — DataLineage, StalenessCascade
@@ -8,6 +8,8 @@
  *  v2.3  OT/ICS Layer            — OTContext, PurdueLevel
  *  v2.4  Evidence Artifacts      — EvidenceArtifact, CCMResult
  *  v3.0  Graph-Native Schema     — TypedEdge, GraphNode
+ *  v3.1  Risk Intelligence       — RiskQuantification, ThreatModel, RecommendedControl,
+ *                                  SecurityIncident, ControlEconomics, MITRE coverage
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,7 +51,12 @@ export type EdgeType =
   | 'MONITORED_BY'
   | 'FEEDS_DATA_TO'
   | 'TRIGGERS'
-  | 'BACKUP_OF';
+  | 'BACKUP_OF'
+  | 'ACCESSES'
+  | 'ACCESSED_VIA'
+  | 'SYNCS_WITH'
+  | 'CONTROLS'
+  | 'SHARES_DATA_WITH';
 
 export type MaturityPhase =
   | 'Initial'
@@ -57,6 +64,22 @@ export type MaturityPhase =
   | 'Defined'
   | 'Managed'
   | 'Optimizing';
+
+/** v3.1 — Data classification levels, aligned with ISO 27001 Annex A */
+export type DataClassification =
+  | 'Public'
+  | 'Internal'
+  | 'Confidential'
+  | 'Restricted'
+  | 'Secret';
+
+/** v3.1 — Deployment environment type */
+export type EnvironmentType =
+  | 'production'
+  | 'staging'
+  | 'development'
+  | 'dr'
+  | 'test';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // v2.1 — Truth Decay Engine
@@ -177,6 +200,12 @@ export interface MaturityScores {
   maturity_phase: MaturityPhase;
   /** When these scores were last computed */
   computed_at: ISOTimestamp;
+  /** v3.1 — Industry median composite score for benchmarking (0.0–1.0) */
+  industry_benchmark_median?: number;
+  /** v3.1 — Top quartile composite score for aspirational target (0.0–1.0) */
+  industry_benchmark_top_quartile?: number;
+  /** v3.1 — Peer group used for benchmarking (e.g. "manufacturing-mid-cap-eu") */
+  peer_group?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -320,6 +349,12 @@ export interface TypedEdge {
   /** Network segment this edge crosses — triggers zone-crossing alert if unexpected */
   crosses_segment_boundary: boolean;
   last_validated: ISOTimestamp;
+  /** v3.1 — Classification of data flowing through this edge */
+  data_classification_in_transit?: DataClassification;
+  /** v3.1 — Approximate daily data volume (e.g. "50 GB/day", "continuous stream") */
+  data_volume?: string;
+  /** v3.1 — Authentication mechanism enforced on this edge */
+  authentication_type?: 'mTLS' | 'API_Key' | 'OAuth2' | 'Kerberos' | 'NTLM' | 'Certificate' | 'None' | 'MFA';
 }
 
 /**
@@ -352,6 +387,263 @@ export interface GraphNode {
    * Computed as sum of hourly_downtime_cost across all affected nodes × estimated_recovery_hours.
    */
   blast_radius_revenue_at_risk: number;
+  /** v3.1 — Number of distinct MITRE ATT&CK tactics covered by this node's controls */
+  mitre_tactics_covered?: number;
+  /** v3.1 — Total number of MITRE ATT&CK tactics relevant to this asset type */
+  mitre_tactics_total?: number;
+  /**
+   * v3.1 — Percentage of relevant MITRE tactics covered (0–100).
+   * CALC: (mitre_tactics_covered / mitre_tactics_total) × 100
+   */
+  mitre_coverage_pct?: number;
+  /**
+   * v3.1 — List of MITRE tactic IDs with no current control coverage.
+   * Direct AI query target: "which tactics are uncovered for this node?"
+   */
+  uncovered_critical_tactics?: string[];
+  /**
+   * v3.1 — Composite risk score (EUR annualized) from risk_quantification.
+   * CALC: threat_event_frequency × vulnerability_probability × primary_loss_magnitude
+   */
+  risk_score?: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3.1 — Risk Intelligence: FAIR Quantification
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * FAIR-inspired (Factor Analysis of Information Risk) quantitative risk model.
+ *
+ * Formula:
+ *   risk_score_annualized_eur = threat_event_frequency
+ *                              × vulnerability_probability
+ *                              × primary_loss_magnitude
+ *
+ * This enables AI to rank applications by financial risk exposure and
+ * compute cost-benefit ratios for recommended controls.
+ */
+export interface RiskQuantification {
+  /**
+   * Expected number of relevant threat events per year.
+   * Source: threat intelligence, historical incident rates, industry data.
+   * Example: 0.3 = one successful attack every ~3 years on average.
+   */
+  threat_event_frequency: number;
+  /**
+   * Probability that a threat event results in a loss (0.0–1.0).
+   * Considers current control effectiveness.
+   * Example: 0.6 = 60% chance a threat event overcomes defenses.
+   */
+  vulnerability_probability: number;
+  /**
+   * Expected financial loss per successful compromise (EUR).
+   * Includes: downtime cost + recovery cost + regulatory fines + reputational damage.
+   */
+  primary_loss_magnitude: number;
+  /**
+   * CALC (read-only): threat_event_frequency × vulnerability_probability × primary_loss_magnitude
+   * Represents expected annual loss in EUR.
+   */
+  risk_score_annualized_eur: number;
+  /** Confidence level of these estimates (0.0–1.0) */
+  confidence_level: number;
+  /** Methodology used: "FAIR" | "CVSS-based" | "Expert-elicitation" | "Historical" */
+  methodology: 'FAIR' | 'CVSS-based' | 'Expert-elicitation' | 'Historical';
+  /** Who validated these numbers and when */
+  last_reviewed_by: string;
+  last_reviewed_date: ISOTimestamp;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3.1 — Threat Model
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A named threat actor profile relevant to this application.
+ */
+export interface ThreatActor {
+  actor_id: string;
+  /** Common name or alias (e.g. "Sandworm", "FIN7", "Insider-Finance") */
+  name: string;
+  /** Threat actor category */
+  type: 'nation-state' | 'cybercriminal' | 'insider' | 'hacktivist' | 'competitor';
+  /** Primary motivation driving attacks */
+  motivation: 'financial' | 'espionage' | 'sabotage' | 'disruption' | 'data-theft';
+  /**
+   * Relative capability score (1–5):
+   * 1 = script-kiddie, 3 = organized crime, 5 = nation-state APT
+   */
+  capability_level: 1 | 2 | 3 | 4 | 5;
+  /** MITRE ATT&CK group ID if mapped (e.g. "G0034" for Sandworm) */
+  mitre_group_id?: string;
+  /** Known TTPs (T-codes) this actor uses against similar targets */
+  known_ttps: string[];
+  /** Qualitative likelihood this actor targets our specific asset type */
+  targeting_likelihood: 'low' | 'medium' | 'high' | 'very-high';
+}
+
+/**
+ * A named, structured attack scenario for this application.
+ * Used by AI to simulate attack paths and recommend defensive priorities.
+ */
+export interface AttackScenario {
+  scenario_id: string;
+  /** Human-readable scenario name (e.g. "Ransomware via phishing → lateral movement → ERP encryption") */
+  name: string;
+  threat_actor_ref: string; // → ThreatActor.actor_id
+  /** MITRE ATT&CK kill chain steps (ordered) */
+  kill_chain_steps: {
+    step: number;
+    tactic: string;
+    technique_id: string;
+    technique_name: string;
+    /** Which control (if any) currently blocks this step */
+    blocked_by_control?: string;
+  }[];
+  /** Estimated probability this scenario succeeds given current controls (0.0–1.0) */
+  success_probability: number;
+  /** Financial impact if this scenario succeeds (EUR) */
+  estimated_impact_eur: number;
+  /** Which controls, if added, would most reduce success_probability */
+  mitigating_controls: string[];
+}
+
+/**
+ * Structured threat model for a BASM node.
+ * Aggregates threat actors and attack scenarios for AI reasoning.
+ */
+export interface ThreatModel {
+  threat_actors: ThreatActor[];
+  attack_scenarios: AttackScenario[];
+  /** Primary attack vector most relevant to this asset */
+  primary_attack_vector: 'network' | 'email' | 'supply-chain' | 'insider' | 'physical' | 'web';
+  /** Date of last formal threat modeling review */
+  last_threat_model_review: ISOTimestamp;
+  /** Who conducted the threat model review */
+  reviewed_by: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3.1 — Control Economics
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Cost-benefit model for a single security control.
+ * Enables AI to compute ROI and prioritize control investments.
+ *
+ * ROI formula:
+ *   roi_payback_years = (annual_capex_eur + annual_opex_eur)
+ *                     / (risk_score_annualized_eur × expected_risk_reduction_pct)
+ *
+ *   cost_per_risk_euro_reduced = (annual_capex_eur + annual_opex_eur)
+ *                              / (risk_score_annualized_eur × expected_risk_reduction_pct)
+ */
+export interface ControlEconomics {
+  /** Type of control: preventive stops attacks, detective finds them, corrective recovers */
+  control_type: 'preventive' | 'detective' | 'corrective' | 'compensating';
+  /** Annualized capital expenditure for this control (EUR) */
+  annual_capex_eur: number;
+  /** Annualized operational expenditure (licenses, FTE hours, etc.) (EUR) */
+  annual_opex_eur: number;
+  /** Implementation effort in person-days */
+  implementation_days: number;
+  /**
+   * Fraction of annualized risk this control is expected to eliminate (0.0–1.0).
+   * Example: 0.40 = this control reduces expected annual loss by 40%.
+   */
+  expected_risk_reduction_pct: number;
+  /**
+   * CALC (read-only): years until cumulative risk reduction pays back control cost.
+   * roi_payback_years = total_annual_cost / (risk_annualized × risk_reduction_pct)
+   */
+  roi_payback_years: number;
+  /**
+   * CALC (read-only): EUR of annual control cost per EUR of annual risk reduced.
+   * Lower = better ROI. Target: < 1.0 (spend less than you save).
+   */
+  cost_per_risk_euro_reduced: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3.1 — Recommended Controls
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * An AI-addressable recommendation for a control not yet implemented.
+ * Distinct from SecurityControl (which tracks implemented controls).
+ * Enables AI to answer: "What should I implement next for best ROI?"
+ */
+export interface RecommendedControl {
+  recommendation_id: string;
+  /** Name of the recommended control */
+  name: string;
+  /** Why this control is recommended for this specific application */
+  rationale: string;
+  /** Expected effort to implement */
+  implementation_effort: 'low' | 'medium' | 'high' | 'very-high';
+  /** Estimated capital expenditure to implement (EUR) */
+  estimated_capex_eur: number;
+  /** Estimated annual operating cost (EUR) */
+  estimated_opex_eur: number;
+  /**
+   * Fraction of annualized risk this control would eliminate (0.0–1.0).
+   * Source: industry data, vendor claims, threat model analysis.
+   */
+  expected_risk_reduction_pct: number;
+  /**
+   * CALC: estimated_capex / (risk_score_annualized × expected_risk_reduction_pct)
+   * Lower = better ROI priority.
+   */
+  roi_payback_years_estimated: number;
+  /** Priority rank among all recommendations (1 = highest) */
+  priority_rank: number;
+  /** Compliance gaps this control would close */
+  compliance_gaps_addressed: string[];
+  /** MITRE tactics this control would cover */
+  mitre_tactics_addressed: string[];
+  /** Current implementation status */
+  status: 'proposed' | 'approved' | 'in-progress' | 'deferred' | 'rejected';
+  /** Roadmap target implementation date */
+  target_implementation_date?: ISOTimestamp;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3.1 — Incident History
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A historical security incident affecting this application.
+ * Grounds the AI's risk analysis in real-world evidence rather than theory.
+ * Required for recalibrating threat_event_frequency in RiskQuantification.
+ */
+export interface SecurityIncident {
+  incident_id: string;
+  /** Date the incident was first detected */
+  detected_date: ISOTimestamp;
+  /** Date the incident was fully resolved */
+  resolved_date?: ISOTimestamp;
+  /** Incident category */
+  type: 'ransomware' | 'data-breach' | 'unauthorized-access' | 'insider-threat'
+      | 'supply-chain' | 'phishing' | 'vulnerability-exploit' | 'denial-of-service' | 'other';
+  /** Plain-language description (no PII) */
+  description: string;
+  /** MITRE ATT&CK techniques observed during this incident */
+  mitre_techniques_observed: string[];
+  /** Total financial impact (downtime + recovery + fines) (EUR) */
+  total_financial_impact_eur: number;
+  /** Actual downtime duration in hours */
+  downtime_hours: number;
+  /** Root cause category */
+  root_cause: 'missing-control' | 'misconfiguration' | 'unpatched-vulnerability'
+            | 'social-engineering' | 'insider' | 'supply-chain' | 'unknown';
+  /** Which control failed or was absent */
+  failed_control_ref?: string;
+  /** Controls added or improved as a result of this incident */
+  remediation_applied: string[];
+  /** Whether this incident was disclosed to regulators (NIS2, GDPR, etc.) */
+  regulatory_disclosure_required: boolean;
+  regulatory_disclosure_ref?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -417,6 +709,8 @@ export interface SecurityControl {
   evidence_artifacts: EvidenceArtifact[];
   /** v2.4: Latest CCM check result for this control */
   latest_ccm_result?: CCMResult;
+  /** v3.1: Cost-benefit model for this control */
+  economics?: ControlEconomics;
 }
 
 export interface BusinessImpactAnalysis {
@@ -499,12 +793,12 @@ export interface RAGChunk {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Root BASM Document — v3.0
+// Root BASM Document — v3.1
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface BASMDocument {
   basm_metadata: {
-    schema_version: '3.0-DIGITAL-TWIN';
+    schema_version: '3.1-DIGITAL-TWIN';
     last_update: ISOTimestamp;
     maturity_tier_logic: string;
     author_role: string;
@@ -522,6 +816,22 @@ export interface BASMDocument {
     };
     technical_lead: string;
     criticality_class: 'Tier-1-Gold' | 'Tier-2-Silver' | 'Tier-3-Bronze';
+    /** v3.1 — Deployment environment */
+    environment?: EnvironmentType;
+    /** v3.1 — Whether this application is directly reachable from the internet */
+    external_facing?: boolean;
+    /** v3.1 — Approximate number of active users (internal + external) */
+    user_count_approx?: number;
+    /** v3.1 — Highest data classification handled by this application */
+    data_classification?: DataClassification;
+    /** v3.1 — Date the physical/virtual asset was first deployed */
+    asset_install_date?: ISOTimestamp;
+    /** v3.1 — End-of-life date for this asset/version (null if not yet known) */
+    asset_eol_date?: ISOTimestamp | null;
+    /** v3.1 — Primary vendor/manufacturer name */
+    vendor_name?: string;
+    /** v3.1 — Date the vendor support contract expires */
+    support_contract_expiry?: ISOTimestamp | null;
   };
 
   /** v2.3 — OT/ICS context (null for pure IT assets) */
@@ -554,4 +864,30 @@ export interface BASMDocument {
    * Input stream for AI-driven maturity trend analysis.
    */
   maturity_deltas: MaturityDelta[];
+
+  /**
+   * v3.1 — FAIR-based quantitative risk model.
+   * Enables AI to rank applications by annualized financial risk exposure
+   * and compute cost-benefit ratios for control investments.
+   */
+  risk_quantification: RiskQuantification;
+
+  /**
+   * v3.1 — Structured threat model: actors + attack scenarios.
+   * Grounds AI analysis in named threat actors and realistic kill chains.
+   */
+  threat_model: ThreatModel;
+
+  /**
+   * v3.1 — AI-addressable control recommendations (not yet implemented).
+   * Enables AI to answer: "What should I implement next for best ROI?"
+   */
+  recommended_controls: RecommendedControl[];
+
+  /**
+   * v3.1 — Historical security incidents affecting this application.
+   * Grounds risk quantification in real-world evidence.
+   * Required for recalibrating threat_event_frequency in RiskQuantification.
+   */
+  incident_history: SecurityIncident[];
 }

@@ -1,14 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12",
-  "$id": "https://acmefab.it/basm/schema/v3.0-DIGITAL-TWIN",
-  "title": "BASM — Business Application Security Model v3.0",
-  "description": "Digital Twin schema per la sicurezza aziendale. Ogni campo è documentato con il suo scopo, il motore che lo consuma e il rischio di un valore mancante o stale.",
+  "$id": "https://acmefab.it/basm/schema/v3.1-DIGITAL-TWIN",
+  "title": "BASM — Business Application Security Model v3.1",
+  "description": "Digital Twin schema per la sicurezza aziendale. Ogni campo è documentato con il suo scopo, il motore che lo consuma e il rischio di un valore mancante o stale. v3.1 aggiunge: risk_quantification (FAIR), threat_model, recommended_controls, incident_history, economics per controllo.",
   "type": "object",
   "required": [
     "basm_metadata", "identity_context", "ot_context",
     "business_impact_analysis", "security_controls",
     "graph_edges", "graph_node", "reasoning_for_ai",
-    "maturity_scoring", "snapshot_history", "maturity_deltas"
+    "maturity_scoring", "snapshot_history", "maturity_deltas",
+    "risk_quantification", "threat_model", "recommended_controls", "incident_history"
   ],
   "properties": {
 
@@ -18,7 +19,7 @@
       "required": ["schema_version", "last_update", "maturity_tier_logic", "author_role", "document_hash"],
       "properties": {
         "schema_version": {
-          "const": "3.0-DIGITAL-TWIN",
+          "const": "3.1-DIGITAL-TWIN",
           "description": "Versione fissa dello schema. Il parser rifiuta documenti con versione diversa."
         },
         "last_update": {
@@ -36,8 +37,8 @@
 
     "identity_context": {
       "type": "object",
-      "description": "Identità dell'applicazione nel grafo di rischio.",
-      "required": ["app_id", "name", "business_owner", "technical_lead", "criticality_class"],
+      "description": "Identità dell'applicazione nel grafo di rischio. v3.1: aggiunge contesto asset lifecycle, esposizione, data classification.",
+      "required": ["app_id", "name", "business_owner", "technical_lead", "criticality_class", "environment", "external_facing", "data_classification"],
       "properties": {
         "app_id": {
           "type": "string",
@@ -57,6 +58,38 @@
         "criticality_class": {
           "enum": ["Tier-1-Gold", "Tier-2-Silver", "Tier-3-Bronze"],
           "description": "Tier-1-Gold: asset critico, downtime non tollerato. Alimenta board_notification_threshold."
+        },
+        "environment": {
+          "enum": ["production", "staging", "development", "dr", "test"],
+          "description": "Ambiente di esercizio. Sistemi production hanno impatto massimo; staging/dev hanno attack surface spesso sottovalutata ma con accesso a dati reali."
+        },
+        "external_facing": {
+          "type": "boolean",
+          "description": "True se raggiungibile dall'esterno anche indirettamente (DMZ, partner, VPN esposta). Moltiplicatore del attack_surface_score."
+        },
+        "user_count_approx": {
+          "type": "integer", "minimum": 0,
+          "description": "Numero approssimativo di utenti che accedono regolarmente. Input per valutazione insider threat e copertura MFA."
+        },
+        "data_classification": {
+          "enum": ["Public", "Internal", "Confidential", "Restricted", "Secret"],
+          "description": "Classificazione del dato più sensibile gestito da questo asset. Determina i controlli minimi obbligatori e i requisiti GDPR applicabili."
+        },
+        "asset_install_date": {
+          "type": ["string", "null"],
+          "description": "Data ISO-8601 di installazione/messa in produzione. Asset più vecchi tendono ad accumulare debito tecnico di sicurezza."
+        },
+        "asset_eol_date": {
+          "type": ["string", "null"],
+          "description": "Data ISO-8601 prevista di End-of-Life. Se superata → eccezione di sicurezza obbligatoria fino a sostituzione."
+        },
+        "vendor_name": {
+          "type": ["string", "null"],
+          "description": "Fornitore del software/hardware principale. Usato per supply chain risk assessment e vendor concentration risk."
+        },
+        "support_contract_expiry": {
+          "type": ["string", "null"],
+          "description": "Data ISO-8601 scadenza contratto di supporto vendor. Se scaduto → patch critiche potrebbero non essere disponibili."
         }
       }
     },
@@ -174,12 +207,142 @@
       }
     },
 
+    "risk_quantification": {
+      "type": "object",
+      "description": "v3.1 — Quantificazione probabilistica del rischio (FAIR-inspired). Abilita il calcolo ROI dei controlli e la comparazione cross-asset. SENZA questo blocco l'AI non può rispondere a domande di costo-beneficio né calcolare 'quanto mi costa questo rischio in un anno?'.",
+      "required": ["threat_event_frequency_per_year", "vulnerability_probability", "primary_loss_magnitude_eur", "risk_score_annualized_eur", "confidence_in_estimate", "last_assessed", "methodology"],
+      "properties": {
+        "threat_event_frequency_per_year": {
+          "type": "number", "minimum": 0,
+          "description": "Frequenza attesa di eventi di minaccia per anno su questo asset. Es: 0.3 = un evento ogni ~3 anni. Fonte: storico incidenti, dati settoriali, threat intelligence. Input per risk_score."
+        },
+        "vulnerability_probability": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Probabilità che un attacco abbia successo se tentato, dati i controlli esistenti. Scende con controlli efficaci. Es: 0.25 con buona postura, 0.70 senza controlli adeguati."
+        },
+        "primary_loss_magnitude_eur": {
+          "type": "number", "minimum": 0,
+          "description": "Perdita primaria per singolo evento (downtime + recovery + legale + reputazione). Tipicamente: hourly_downtime_cost × rto_hours + costi aggiuntivi."
+        },
+        "risk_score_annualized_eur": {
+          "type": "number", "minimum": 0,
+          "description": "CALCOLATO: threat_event_frequency × vulnerability_probability × primary_loss_magnitude. Rischio atteso in euro per anno. Confrontabile tra tutti gli asset del portafoglio."
+        },
+        "secondary_loss_eur": {
+          "type": ["number", "null"],
+          "description": "Perdite secondarie (reputazione, sanzioni, perdita clienti). Opzionale ma migliora la stima per asset con alta visibilità esterna."
+        },
+        "confidence_in_estimate": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Affidabilità della stima: 0.9=dati storici verificati, 0.6=stima esperto con dati parziali, 0.3=stima qualitativa pura. Abbassa il effective_confidence del risk_score nel grafo."
+        },
+        "last_assessed": {
+          "type": "string", "format": "date-time",
+          "description": "Data ultima valutazione. Se > 12 mesi → confidenza degradata automaticamente dal motore."
+        },
+        "assessed_by": { "type": "string" },
+        "methodology": {
+          "type": "string",
+          "description": "Metodologia usata: 'FAIR-Core', 'qualitative-expert', 'historical-data', 'hybrid'. Determina il peso del confidence_in_estimate."
+        }
+      }
+    },
+
+    "threat_model": {
+      "type": "object",
+      "description": "v3.1 — Modello delle minacce rilevanti per questo asset. Strutturato per permettere all'AI di suggerire controlli mirati per threat actor specifici invece di raccomandazioni generiche.",
+      "required": ["relevant_threat_actors", "attack_scenarios", "attack_surface_score", "external_exposure", "supply_chain_risk"],
+      "properties": {
+        "relevant_threat_actors": {
+          "type": "array",
+          "description": "Threat actor noti o probabili per questo tipo di asset e settore.",
+          "items": {
+            "type": "object",
+            "required": ["actor_id", "name", "motivation", "capability", "typical_initial_access", "relevance_reason"],
+            "properties": {
+              "actor_id": { "type": "string" },
+              "name": { "type": "string" },
+              "motivation": {
+                "enum": ["financial", "espionage", "sabotage", "hacktivism", "insider"],
+                "description": "'financial'→ransomware/BEC, 'espionage'→APT state-sponsored, 'sabotage'→OT disruption, 'insider'→dipendente/fornitore malevolo."
+              },
+              "capability": {
+                "enum": ["low", "medium", "high", "nation-state"],
+                "description": "Capacità tecnica. Determina quali tecniche MITRE sono realisticamente eseguibili da questo actor."
+              },
+              "typical_initial_access": {
+                "type": "array", "items": { "type": "string" },
+                "description": "Tecniche MITRE T-code di initial access tipiche (es: T1190, T1566.001)."
+              },
+              "relevance_reason": {
+                "type": "string",
+                "description": "Perché questo actor è rilevante per questo asset specifico (settore, tecnologia, geopolitica)."
+              },
+              "intel_source": {
+                "type": ["string", "null"],
+                "description": "Fonte dell'intelligence: CISA Advisory, ENISA Threat Landscape, ISAC, vendor report. Null se inferito."
+              }
+            }
+          }
+        },
+        "attack_scenarios": {
+          "type": "array",
+          "description": "Scenari di attacco specifici su questo asset, con kill chain MITRE e gap di controllo espliciti.",
+          "items": {
+            "type": "object",
+            "required": ["scenario_id", "name", "likelihood", "impact", "mitre_chain"],
+            "properties": {
+              "scenario_id": { "type": "string" },
+              "name": { "type": "string" },
+              "likelihood": {
+                "enum": ["critical", "high", "medium", "low", "negligible"],
+                "description": "Probabilità qualitativa dello scenario, considerando threat_event_frequency e controlli esistenti."
+              },
+              "impact": { "enum": ["critical", "high", "medium", "low"] },
+              "entry_point": {
+                "type": "string",
+                "description": "app_id del nodo iniziale dell'attacco."
+              },
+              "path": {
+                "type": "array", "items": { "type": "string" },
+                "description": "Sequenza di app_id attraversati dall'attaccante per raggiungere/impattare questo asset."
+              },
+              "relevant_controls": {
+                "type": "array", "items": { "type": "string" },
+                "description": "control_id dei controlli esistenti che mitigano questo scenario."
+              },
+              "gap_controls": {
+                "type": "array", "items": { "type": "string" },
+                "description": "Controlli mancanti che ridurrebbero significativamente questo scenario (rec_id o descrizione)."
+              },
+              "mitre_chain": {
+                "type": "array", "items": { "type": "string" },
+                "description": "Sequenza di T-code MITRE ATT&CK che characterizzano questo scenario (kill chain ordinata)."
+              }
+            }
+          }
+        },
+        "attack_surface_score": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "0.0=nessuna esposizione, 1.0=massima. Funzione di: external_facing, user_count, connected_systems, known_cves non patchate."
+        },
+        "external_exposure": {
+          "type": "boolean",
+          "description": "True se questo asset è raggiungibile da internet, anche indirettamente tramite sistemi connessi."
+        },
+        "supply_chain_risk": {
+          "enum": ["none", "low", "medium", "high", "critical"],
+          "description": "Rischio derivante dalla supply chain (vendor compromise, dependency injection, EOL senza patch, accesso remoto vendor non controllato)."
+        }
+      }
+    },
+
     "security_controls": {
       "type": "array",
       "description": "Lista dei controlli di sicurezza monitorati su questo asset. Ogni controllo è un nodo di verità indipendente nel Truth Layer.",
       "items": {
         "type": "object",
-        "required": ["control_id", "name", "status", "verification", "mapping", "failure_management", "exception", "evidence_artifacts"],
+        "required": ["control_id", "name", "status", "verification", "mapping", "failure_management", "exception", "evidence_artifacts", "economics"],
         "properties": {
           "control_id": { "type": "string" },
           "name": { "type": "string" },
@@ -248,7 +411,7 @@
                   },
                   "cascade_decay_rate_per_day": {
                     "type": "number", "minimum": 0, "maximum": 1,
-                    "description": "Quota di confidence sottratta ai nodi downstream per ogni giorno di staleness di questo controllo. Meccanismo di propagazione dell'incertezza. Valori raccomandati: 0.05 (lento) - 0.15 (rapido)."
+                    "description": "Quota di confidence sottratta ai nodi downstream per ogni giorno di staleness di questo controllo. Valori raccomandati: 0.05 (lento) - 0.15 (rapido)."
                   },
                   "downstream_dependents": {
                     "type": "array", "items": { "type": "string" },
@@ -291,7 +454,7 @@
                   }
                 }
               },
-              "iec62443": { "type": "string" }
+              "iec62443": { "type": ["string", "null"] }
             }
           },
           "failure_management": {
@@ -311,7 +474,7 @@
                 "description": "IDs di asset necessari per eseguire il workaround. CRITICO: se uno di questi è nel blast radius dell'attacco, il workaround non è disponibile."
               },
               "workaround_last_tested": {
-                "type": "string", "format": "date-time",
+                "type": ["string", "null"], "format": "date-time",
                 "description": "Data dell'ultimo test reale del workaround. Se > 180 giorni → il motore abbassa il confidence_score del workaround."
               },
               "incident_playbook_ref": { "type": "string" }
@@ -360,7 +523,7 @@
             }
           },
           "latest_ccm_result": {
-            "type": "object",
+            "type": ["object", "null"],
             "description": "Ultimo risultato del CCM engine su questo controllo. Aggiornato ad ogni run automatico.",
             "properties": {
               "run_id": { "type": "string" },
@@ -380,6 +543,41 @@
                 }
               }
             }
+          },
+          "economics": {
+            "type": "object",
+            "description": "v3.1 — Analisi economica del controllo. Input primario per l'AI per rispondere a domande di costo-beneficio, ROI e prioritizzazione investimenti di sicurezza.",
+            "required": ["control_type", "annual_opex_eur", "expected_risk_reduction_pct"],
+            "properties": {
+              "control_type": {
+                "enum": ["preventive", "detective", "corrective", "compensating", "deterrent"],
+                "description": "preventive=evita l'evento, detective=rileva l'evento in corso, corrective=riduce danno post-evento, compensating=sostituto temporaneo di altro controllo, deterrent=disincentiva l'attaccante."
+              },
+              "annual_capex_eur": {
+                "type": "number", "minimum": 0,
+                "description": "Costo di acquisto/installazione ammortizzato su base annua (hardware, licenza perpetua). 0 per controlli puramente procedurali."
+              },
+              "annual_opex_eur": {
+                "type": "number", "minimum": 0,
+                "description": "Costo operativo annuo: licenze SaaS, personale dedicato, manutenzione, training."
+              },
+              "implementation_days": {
+                "type": "integer", "minimum": 0,
+                "description": "Giorni uomo stimati per implementare questo controllo da zero in un asset equivalente."
+              },
+              "expected_risk_reduction_pct": {
+                "type": "number", "minimum": 0, "maximum": 1,
+                "description": "Riduzione attesa del risk_score_annualized_eur se questo controllo fosse pienamente efficace e verificato. 0.35 = riduce il rischio del 35%."
+              },
+              "roi_payback_years": {
+                "type": ["number", "null"],
+                "description": "CALCOLATO: (annual_capex + annual_opex) / (risk_score_annualized_eur × expected_risk_reduction_pct). Anni per recuperare l'investimento in risk reduction. Null fino alla prima valutazione FAIR."
+              },
+              "cost_per_risk_euro_reduced": {
+                "type": ["number", "null"],
+                "description": "CALCOLATO: (annual_capex + annual_opex) / (risk_score_annualized_eur × expected_risk_reduction_pct). Euro spesi per ogni euro di rischio annualizzato ridotto. <1.0 = il controllo si ripaga da solo."
+              }
+            }
           }
         }
       }
@@ -390,18 +588,18 @@
       "description": "Archi tipizzati del Digital Twin. Sostituiscono il flat interconnections array. Compatibili con Neo4j, Amazon Neptune, graph-RAG.",
       "items": {
         "type": "object",
-        "required": ["edge_id", "type", "source_app_id", "target_app_id", "direction", "protocol", "criticality", "threat_tactics", "severance_impact", "encrypted", "mutually_authenticated", "crosses_segment_boundary", "last_validated"],
+        "required": ["edge_id", "type", "source_app_id", "target_app_id", "direction", "protocol", "criticality", "threat_tactics", "severance_impact", "encrypted", "mutually_authenticated", "crosses_segment_boundary", "last_validated", "data_classification_in_transit", "authentication_type"],
         "properties": {
           "edge_id": { "type": "string" },
           "type": {
-            "enum": ["AUTHENTICATES_VIA", "STORES_DATA_IN", "CONTROLLED_BY", "DEPENDS_ON_NETWORK_SEGMENT", "REPLICATES_TO", "MONITORED_BY", "FEEDS_DATA_TO", "TRIGGERS", "BACKUP_OF"],
-            "description": "Tipo semantico della relazione. Usato dal graph engine per calcolare le path di lateral movement (solo certi edge_type le abilitano)."
+            "enum": ["AUTHENTICATES_VIA", "STORES_DATA_IN", "CONTROLLED_BY", "DEPENDS_ON_NETWORK_SEGMENT", "REPLICATES_TO", "MONITORED_BY", "FEEDS_DATA_TO", "TRIGGERS", "BACKUP_OF", "ACCESSES", "ACCESSED_VIA", "SYNCS_WITH", "CONTROLS", "SHARES_DATA_WITH"],
+            "description": "Tipo semantico della relazione. Usato dal graph engine per calcolare le path di lateral movement."
           },
           "source_app_id": { "type": "string" },
           "target_app_id": { "type": "string" },
           "direction": { "enum": ["Inbound", "Outbound", "Bidirectional"] },
           "protocol": { "type": "string" },
-          "port": { "type": "integer" },
+          "port": { "type": ["integer", "null"] },
           "criticality": { "enum": ["Critical", "High", "Medium", "Low"] },
           "threat_tactics": {
             "type": "array",
@@ -427,9 +625,21 @@
           "mutually_authenticated": { "type": "boolean" },
           "crosses_segment_boundary": {
             "type": "boolean",
-            "description": "CRITICO per OT: se true, questo edge attraversa una zona Purdue e deve avere un firewall OT dedicato. Se false e purdue_levels diversi → anomalia automatica."
+            "description": "CRITICO per OT: se true, questo edge attraversa una zona Purdue e deve avere un firewall OT dedicato."
           },
-          "last_validated": { "type": "string", "format": "date-time" }
+          "last_validated": { "type": "string", "format": "date-time" },
+          "data_classification_in_transit": {
+            "enum": ["Public", "Internal", "Confidential", "Restricted", "Secret"],
+            "description": "v3.1 — Classificazione del dato più sensibile che transita su questo edge. Se 'Confidential' o superiore ed encrypted=false → alert automatico."
+          },
+          "data_volume": {
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "v3.1 — Volume relativo di dati trasportati. 'critical' indica canale privilegiato per esfiltrazione massiva — richiede DLP."
+          },
+          "authentication_type": {
+            "enum": ["none", "api_key", "certificate", "oauth2", "kerberos", "basic", "saml", "ntlm"],
+            "description": "v3.1 — Meccanismo di autenticazione dell'edge. 'none' o 'basic' su edge cross-segment → alert immediato."
+          }
         }
       }
     },
@@ -460,6 +670,26 @@
         "blast_radius_revenue_at_risk": {
           "type": "number",
           "description": "€ totali a rischio sommando hourly_cost × RTO di tutti i nodi nel blast radius. Cifra comunicata al Board."
+        },
+        "mitre_tactics_covered": {
+          "type": "integer", "minimum": 0,
+          "description": "v3.1 — Numero di tattiche MITRE ATT&CK coperte da almeno un controllo 'full' o 'partial' su questo asset. Calcolato dal CCM engine."
+        },
+        "mitre_tactics_total": {
+          "type": "integer", "minimum": 0,
+          "description": "v3.1 — Numero totale di tattiche MITRE rilevanti per questo tipo di asset. Denominatore per mitre_coverage_pct. Standard: 14 tattiche Enterprise ATT&CK."
+        },
+        "mitre_coverage_pct": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "v3.1 — CALCOLATO: mitre_tactics_covered / mitre_tactics_total. Percentuale di copertura delle tecniche di attacco rilevanti. <0.5 è considerato critico."
+        },
+        "uncovered_critical_tactics": {
+          "type": "array", "items": { "type": "string" },
+          "description": "v3.1 — Lista di tactic_id MITRE senza nessun controllo attivo (coverage='none'). Input diretto per recommended_controls priority."
+        },
+        "risk_score": {
+          "type": ["number", "null"],
+          "description": "v3.1 — Risk score annualizzato in EUR — copiato da risk_quantification.risk_score_annualized_eur per accesso diretto nel grafo. Null fino alla prima valutazione FAIR. Consente comparazione cross-asset in una singola query."
         }
       }
     },
@@ -482,7 +712,7 @@
             "required": ["chunk_id", "topic", "content"],
             "properties": {
               "chunk_id": { "type": "string" },
-              "topic": { "type": "string", "description": "Label del chunk usata per il retrieval per topic (es. 'Ransomware Scenario')." },
+              "topic": { "type": "string" },
               "content": { "type": "string" }
             }
           }
@@ -500,7 +730,114 @@
         "compliance_index": { "type": "number", "minimum": 0, "maximum": 1 },
         "composite_score": { "type": "number", "minimum": 0, "maximum": 1 },
         "maturity_phase": { "enum": ["Initial", "Developing", "Defined", "Managed", "Optimizing"] },
-        "computed_at": { "type": "string", "format": "date-time" }
+        "computed_at": { "type": "string", "format": "date-time" },
+        "industry_benchmark_median": {
+          "type": ["number", "null"], "minimum": 0, "maximum": 1,
+          "description": "v3.1 — Score mediano del settore per il peer_group definito. Null se benchmark non disponibile. Fonte: survey settoriali, ISAC, vendor reports."
+        },
+        "industry_benchmark_top_quartile": {
+          "type": ["number", "null"], "minimum": 0, "maximum": 1,
+          "description": "v3.1 — Score del 75° percentile (top quartile) del settore. Target di riferimento ottimale per il piano di miglioramento."
+        },
+        "peer_group": {
+          "type": ["string", "null"],
+          "description": "v3.1 — Gruppo di peer per il benchmark. Es: 'manufacturing-ot-critical', 'financial-services-tier1', 'healthcare-hospital'. Null se non classificato."
+        }
+      }
+    },
+
+    "recommended_controls": {
+      "type": "array",
+      "description": "v3.1 — Controlli non ancora implementati con analisi costo-beneficio. Input primario per l'AI per rispondere a 'cosa dovrei implementare prima?' e 'qual è il ROI di questo investimento?'. Ordinare per priority decrescente.",
+      "items": {
+        "type": "object",
+        "required": ["rec_id", "name", "control_type", "priority", "addresses_gap", "estimated_annual_cost_eur", "expected_risk_reduction_pct"],
+        "properties": {
+          "rec_id": { "type": "string" },
+          "name": { "type": "string" },
+          "control_type": {
+            "enum": ["preventive", "detective", "corrective", "compensating", "deterrent"]
+          },
+          "priority": {
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Derivata da: (expected_risk_reduction × risk_score_annualized) / estimated_cost. 'critical' = implementare nel prossimo sprint/sprint."
+          },
+          "addresses_gap": {
+            "type": "string",
+            "description": "Descrizione del gap di sicurezza o tecnica MITRE non coperta che questo controllo colmerebbe."
+          },
+          "addresses_mitre": {
+            "type": "array", "items": { "type": "string" },
+            "description": "Tecniche MITRE T-code che questo controllo mitigherebbe se implementato."
+          },
+          "estimated_annual_cost_eur": {
+            "type": "number", "minimum": 0,
+            "description": "Costo annuo totale stimato (capex ammortizzato + opex). Base per il calcolo ROI."
+          },
+          "expected_risk_reduction_pct": {
+            "type": "number", "minimum": 0, "maximum": 1,
+            "description": "Riduzione attesa del risk_score_annualized_eur se implementato e pienamente efficace."
+          },
+          "roi_payback_years": {
+            "type": ["number", "null"],
+            "description": "CALCOLATO: estimated_cost / (risk_score × expected_risk_reduction_pct). Anni per ripagare l'investimento in riduzione rischio."
+          },
+          "implementation_effort_days": {
+            "type": "integer", "minimum": 0,
+            "description": "Giorni uomo stimati per implementazione completa (inclusi test e documentazione)."
+          },
+          "blocking_reason": {
+            "type": ["string", "null"],
+            "description": "Perché non è ancora implementato: budget Q3-2026, dipendenza tecnica, procurement in corso. Null se nessun blocco noto."
+          },
+          "owner_proposed": {
+            "type": ["string", "null"],
+            "description": "Chi dovrebbe essere responsabile dell'implementazione (ruolo o email). Null se non ancora assegnato."
+          }
+        }
+      }
+    },
+
+    "incident_history": {
+      "type": "array",
+      "description": "v3.1 — Cronologia incidenti di sicurezza su questo asset. APPEND-ONLY — non modificare eventi passati. Uno dei predittori più forti di rischio futuro. Input AI per pattern recognition e calibrazione di threat_event_frequency.",
+      "items": {
+        "type": "object",
+        "required": ["incident_id", "date", "type", "severity", "containment_hours"],
+        "properties": {
+          "incident_id": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "type": {
+            "enum": ["ransomware", "unauthorized_access", "data_exfiltration", "anomalous_network_traffic", "firmware_tampering", "dos", "insider_threat", "supply_chain", "near_miss", "other"]
+          },
+          "severity": {
+            "enum": ["critical", "high", "medium", "low", "informational"]
+          },
+          "affected_controls": {
+            "type": "array", "items": { "type": "string" },
+            "description": "control_id dei controlli che hanno fallito o sono stati bypassati durante l'incidente."
+          },
+          "root_cause": {
+            "type": ["string", "null"],
+            "description": "Causa radice identificata nel post-mortem. Null se ancora in analisi."
+          },
+          "impact_eur": {
+            "type": "number", "minimum": 0,
+            "description": "Costo totale effettivo dell'incidente. 0 per near miss o incidenti contenuti senza impatto economico diretto."
+          },
+          "containment_hours": {
+            "type": "number", "minimum": 0,
+            "description": "Ore impiegate per contenere/risolvere l'incidente. Confrontato con rto_hours per validare le aspettative del BCP."
+          },
+          "lessons_learned": {
+            "type": ["string", "null"],
+            "description": "Cosa è stato cambiato dopo l'incidente (controlli, procedure, configurazioni). Null se ancora in elaborazione."
+          },
+          "linked_recommendation": {
+            "type": ["string", "null"],
+            "description": "rec_id del controllo raccomandato emerso come lezione da questo incidente. Crea il link tra storia e piano di miglioramento."
+          }
+        }
       }
     },
 

@@ -2,7 +2,7 @@
   "_interview_guide": "Compila questo JSON usando le risposte del file interview-mes-gestionale.md. Ogni campo ha un commento che indica la domanda corrispondente.",
 
   "basm_metadata": {
-    "schema_version": "3.0-DIGITAL-TWIN",
+    "schema_version": "3.1-DIGITAL-TWIN",
     "last_update": "__COMPILATO_AUTOMATICAMENTE__",
     "maturity_tier_logic": "Level-5-Optimized",
     "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
@@ -19,7 +19,15 @@
       "contact": "__A2__ email@azienda.it"
     },
     "technical_lead": "__A3__ Nome responsabile tecnico",
-    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver | Tier-3-Bronze"
+    "criticality_class": "__A4__ Tier-1-Gold | Tier-2-Silver | Tier-3-Bronze",
+    "environment": "__A5__ production | staging | development | dr | test",
+    "external_facing": "__A5__ true se accessibile da internet (es: portale web), false se solo rete interna",
+    "user_count_approx": "__A5__ numero approssimativo utenti attivi, es: 150",
+    "data_classification": "__A5__ Public | Internal | Confidential | Restricted | Secret",
+    "asset_install_date": "__A5__ ISO-8601 data prima installazione o null se non nota",
+    "asset_eol_date": "__A5__ ISO-8601 data end-of-life prevista o null se non nota",
+    "vendor_name": "__A5__ es: SAP SE | Microsoft | vendor del sistema",
+    "support_contract_expiry": "__A5__ ISO-8601 scadenza contratto supporto vendor o null"
   },
 
   "ot_context": {
@@ -128,7 +136,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -194,7 +212,17 @@
         "risk_acceptance_ref": "__D2__ riferimento RAF o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -260,7 +288,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -326,7 +364,17 @@
         "risk_acceptance_ref": "__D7__ RAF reference o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -392,7 +440,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     }
   ],
 
@@ -421,7 +479,10 @@
       "encrypted": "__C7__ true | false",
       "mutually_authenticated": "__C7__ true | false",
       "crosses_segment_boundary": "__D6__ true se attraversa firewall/VLAN",
-      "last_validated": "__D6__ ISO-8601"
+      "last_validated": "__D6__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     },
     {
       "_source": "Blocco C — C5 ERP/SAP",
@@ -447,7 +508,10 @@
       "encrypted": "__C7__ true | false",
       "mutually_authenticated": "__C7__ true | false",
       "crosses_segment_boundary": "__D6__ true | false",
-      "last_validated": "__C5__ ISO-8601"
+      "last_validated": "__C5__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     },
     {
       "_source": "Blocco C — C5 Active Directory / Autenticazione",
@@ -473,7 +537,10 @@
       "encrypted": "__C7__ true se LDAPS o Kerberos",
       "mutually_authenticated": "__C7__ true | false",
       "crosses_segment_boundary": "__D6__ true | false",
-      "last_validated": "__C5__ ISO-8601"
+      "last_validated": "__C5__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     },
     {
       "_source": "Blocco D — D3 Backup",
@@ -499,7 +566,10 @@
       "encrypted": "__D3__ true | false",
       "mutually_authenticated": "__D3__ true | false",
       "crosses_segment_boundary": "__D6__ true | false",
-      "last_validated": "__D3__ ISO-8601"
+      "last_validated": "__D3__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     }
   ],
 
@@ -511,7 +581,12 @@
     "neighborhood_ids": ["__CALCOLATO__ lista app_id connesse"],
     "graph_centrality": "__CALCOLATO_DAL_MOTORE__",
     "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__",
-    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__",
+    "mitre_tactics_covered": "__CALCOLATO__ numero tattiche MITRE coperte dai controlli attuali",
+    "mitre_tactics_total": "__ANALISTA__ numero tattiche MITRE rilevanti per questo tipo di asset, es: 12",
+    "mitre_coverage_pct": "__CALCOLATO__ (mitre_tactics_covered / mitre_tactics_total) × 100",
+    "uncovered_critical_tactics": ["__ANALISTA__ es: TA0010 — Exfiltration", "TA0040 — Impact"],
+    "risk_score": "__CALCOLATO__ da risk_quantification.risk_score_annualized_eur"
   },
 
   "reasoning_for_ai": {
@@ -582,7 +657,10 @@
     "compliance_index": 0.0,
     "composite_score": 0.0,
     "maturity_phase": "Initial",
-    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__",
+    "industry_benchmark_median": "__ANALISTA__ es: 0.52 — mediana settore manifatturiero EU",
+    "industry_benchmark_top_quartile": "__ANALISTA__ es: 0.72 — top 25% settore",
+    "peer_group": "__ANALISTA__ es: manufacturing-mid-cap-eu | industrial-automation"
   },
 
   "snapshot_history": [
@@ -604,5 +682,103 @@
     }
   ],
 
-  "maturity_deltas": []
+  "maturity_deltas": [],
+
+  "risk_quantification": {
+    "_source": "Blocco B + analisi FAIR — compilare con analista sicurezza",
+    "_note": "risk_score_annualized_eur = threat_event_frequency × vulnerability_probability × primary_loss_magnitude",
+    "threat_event_frequency": "__ANALISTA__ es: 0.25 — incidente ransomware ogni 4 anni in settore manifatturiero",
+    "vulnerability_probability": "__ANALISTA__ es: 0.55 — probabilità che attacco superi controlli attuali (0.0–1.0)",
+    "primary_loss_magnitude": "__B2__×__B6__×1.5 — downtime + recovery + sanzioni, es: hourly_cost × rto_hours × 1.5",
+    "risk_score_annualized_eur": "__CALCOLATO__ threat_event_frequency × vulnerability_probability × primary_loss_magnitude",
+    "confidence_level": "__ANALISTA__ es: 0.4 — stima basata su dati settore (0.0–1.0)",
+    "methodology": "FAIR",
+    "last_reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "last_reviewed_date": "__DATA_INTERVISTA__ ISO-8601"
+  },
+
+  "threat_model": {
+    "_source": "Blocco G + MITRE ATT&CK — compilare con analista sicurezza",
+    "threat_actors": [
+      {
+        "actor_id": "TA-MES-001-RANSOMWARE",
+        "name": "Ransomware Group — Cybercriminale Finanziario",
+        "type": "cybercriminal",
+        "motivation": "financial",
+        "capability_level": 3,
+        "mitre_group_id": null,
+        "known_ttps": ["T1566", "T1078", "T1486", "T1490", "T1489"],
+        "targeting_likelihood": "high"
+      },
+      {
+        "actor_id": "TA-MES-002-INSIDER",
+        "name": "Insider Malicious — Operatore/IT con accesso MES",
+        "type": "insider",
+        "motivation": "financial",
+        "capability_level": 2,
+        "mitre_group_id": null,
+        "known_ttps": ["T1078", "T1005", "T1565"],
+        "targeting_likelihood": "medium"
+      }
+    ],
+    "attack_scenarios": [
+      {
+        "scenario_id": "SCEN-MES-001-RANSOMWARE",
+        "name": "Ransomware via phishing email → lateral movement → cifratura DB MES",
+        "threat_actor_ref": "TA-MES-001-RANSOMWARE",
+        "kill_chain_steps": [
+          { "step": 1, "tactic": "Initial Access", "technique_id": "T1566", "technique_name": "Phishing", "blocked_by_control": null },
+          { "step": 2, "tactic": "Execution", "technique_id": "T1059", "technique_name": "Command and Scripting Interpreter", "blocked_by_control": "CTRL-MES-001-EDR" },
+          { "step": 3, "tactic": "Lateral Movement", "technique_id": "T1021", "technique_name": "Remote Services", "blocked_by_control": "CTRL-MES-001-LOGGING" },
+          { "step": 4, "tactic": "Impact", "technique_id": "T1486", "technique_name": "Data Encrypted for Impact", "blocked_by_control": "CTRL-MES-001-BACKUP" }
+        ],
+        "success_probability": "__ANALISTA__ es: 0.35 con controlli attuali",
+        "estimated_impact_eur": "__B2__×__B6__ costo downtime MES + recovery",
+        "mitigating_controls": ["EDR con behavioral detection", "Network segmentation L3/L4", "Email security gateway"]
+      }
+    ],
+    "primary_attack_vector": "email",
+    "last_threat_model_review": "__DATA_INTERVISTA__ ISO-8601",
+    "reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__"
+  },
+
+  "recommended_controls": [
+    {
+      "_note": "Compilare dopo intervista — controlli raccomandati se non già presenti",
+      "recommendation_id": "REC-MES-001-NDR",
+      "name": "Network Detection & Response (NDR) — confine MES/IT",
+      "rationale": "Rilevamento anomalie traffico tra MES e sistemi connessi (DB, ERP, AD) in tempo reale",
+      "implementation_effort": "medium",
+      "estimated_capex_eur": 15000,
+      "estimated_opex_eur": 8000,
+      "expected_risk_reduction_pct": 0.20,
+      "roi_payback_years_estimated": "__CALCOLATO__ capex / (risk_annualized × 0.20)",
+      "priority_rank": 1,
+      "compliance_gaps_addressed": ["NIS2 Art. 21.2(b)", "IEC 62443 SR 6.2"],
+      "mitre_tactics_addressed": ["TA0008", "TA0011"],
+      "status": "proposed",
+      "target_implementation_date": "__ROADMAP__ ISO-8601"
+    }
+  ],
+
+  "incident_history": [
+    {
+      "_note": "Compilare se si conoscono incidenti passati. Omettere o svuotare array se nessun incidente noto.",
+      "_example_structure": {
+        "incident_id": "INC-MES-001",
+        "detected_date": "__DATA__ ISO-8601",
+        "resolved_date": "__DATA__ ISO-8601",
+        "type": "ransomware | data-breach | unauthorized-access | other",
+        "description": "__DESCRIZIONE senza PII__",
+        "mitre_techniques_observed": ["T1566", "T1486"],
+        "total_financial_impact_eur": 0,
+        "downtime_hours": 0,
+        "root_cause": "missing-control | misconfiguration | unpatched-vulnerability | social-engineering | unknown",
+        "failed_control_ref": "CTRL-MES-001-EDR o null",
+        "remediation_applied": ["descrizione misure adottate post-incidente"],
+        "regulatory_disclosure_required": false,
+        "regulatory_disclosure_ref": null
+      }
+    }
+  ]
 }
