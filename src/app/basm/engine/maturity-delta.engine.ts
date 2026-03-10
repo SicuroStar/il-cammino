@@ -23,10 +23,15 @@ import {
 // Browser-safe hash: uses Node crypto when available (CI/CD), falls back to
 // a placeholder in browser context. BasmEngineService provides the real async
 // SHA-256 via SubtleCrypto for all UI-initiated saves.
-declare const require: (m: string) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 function sha256Sync(data: string): string {
+  // Short-circuit in browser builds — SubtleCrypto is used for UI-initiated saves
+  if (typeof window !== 'undefined') {
+    return 'browser-hash-deferred-to-subtlecrypto';
+  }
   try {
-    const { createHash } = require('crypto');
+    // Indirect require prevents webpack from statically bundling Node crypto
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const { createHash } = (Function('return require'))()('crypto');
     return createHash('sha256').update(data).digest('hex');
   } catch {
     return 'browser-hash-deferred-to-subtlecrypto';
