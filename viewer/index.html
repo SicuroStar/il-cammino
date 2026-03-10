@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BASM Viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --nav-bg: #0f172a;
+    --nav-text: #e2e8f0;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+    --radius: 12px;
+    --radius-sm: 6px;
+
+    --gold: #f59e0b;
+    --gold-bg: #fffbeb;
+    --silver: #64748b;
+    --silver-bg: #f8fafc;
+    --bronze: #10b981;
+    --bronze-bg: #ecfdf5;
+
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --gray: #9ca3af;
+
+    --risk-high: #ef4444;
+    --risk-high-bg: #fef2f2;
+    --risk-med: #f59e0b;
+    --risk-med-bg: #fffbeb;
+    --risk-low: #22c55e;
+    --risk-low-bg: #f0fdf4;
+  }
+
+  html, body { height: 100%; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; }
+
+  /* ─── NAV ─────────────────────────────────────────────────────────── */
+  nav {
+    background: var(--nav-bg);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,.3);
+  }
+  .nav-brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -.01em;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .nav-brand .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .nav-links { display: flex; gap: .25rem; }
+  .nav-btn {
+    color: var(--nav-text);
+    background: none;
+    border: none;
+    padding: .4rem .85rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: .9rem;
+    font-family: inherit;
+    transition: background .15s, color .15s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,.1); }
+  .nav-btn.active { background: var(--accent); color: #fff; }
+
+  /* ─── LAYOUT ──────────────────────────────────────────────────────── */
+  main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ─── VIEWS ───────────────────────────────────────────────────────── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ─── UPLOAD ZONE ─────────────────────────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    text-align: center;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    margin-bottom: 2rem;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: #eff6ff;
+  }
+  .upload-zone input { display: none; }
+  .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: .75rem; display: block; }
+  .upload-zone p { color: var(--text-muted); font-size: .9rem; margin-top: .4rem; }
+  .upload-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: .55rem 1.25rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: .9rem;
+    font-family: inherit;
+    font-weight: 500;
+    margin-top: 1rem;
+    transition: background .15s;
+  }
+  .upload-btn:hover { background: var(--accent-hover); }
+
+  /* ─── SECTION HEADER ──────────────────────────────────────────────── */
+  .section-title {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  /* ─── CARD GRID ───────────────────────────────────────────────────── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* ─── APP CARD ────────────────────────────────────────────────────── */
+  .app-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .app-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; margin-bottom: .85rem; }
+  .card-name { font-weight: 600; font-size: .95rem; line-height: 1.3; flex: 1; }
+  .card-id { font-size: .75rem; color: var(--text-muted); margin-top: .2rem; font-family: monospace; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: .2rem .6rem;
+    border-radius: 99px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-gold { background: var(--gold-bg); color: #92400e; border: 1px solid #fcd34d; }
+  .badge-silver { background: var(--silver-bg); color: #334155; border: 1px solid #cbd5e1; }
+  .badge-bronze { background: var(--bronze-bg); color: #065f46; border: 1px solid #6ee7b7; }
+  .badge-ot { background: #f0f9ff; color: #075985; border: 1px solid #7dd3fc; }
+  .badge-it { background: #f0fdf4; color: #14532d; border: 1px solid #86efac; }
+  .badge-cloud { background: #faf5ff; color: #581c87; border: 1px solid #d8b4fe; }
+
+  .card-divider { height: 1px; background: var(--border); margin: .85rem 0; }
+
+  /* Maturity bar */
+  .maturity-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+  .maturity-label { font-size: .8rem; color: var(--text-muted); width: 90px; flex-shrink: 0; }
+  .progress-track { flex: 1; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width .4s; }
+  .maturity-pct { font-size: .8rem; font-weight: 600; width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* Risk */
+  .risk-row { display: flex; align-items: center; justify-content: space-between; margin-top: .6rem; }
+  .risk-label { font-size: .75rem; color: var(--text-muted); }
+  .risk-value { font-size: .95rem; font-weight: 700; }
+  .risk-high { color: var(--risk-high); }
+  .risk-med  { color: var(--risk-med); }
+  .risk-low  { color: var(--risk-low); }
+
+  /* Controls pills */
+  .controls-row { display: flex; gap: .5rem; margin-top: .75rem; align-items: center; flex-wrap: wrap; }
+  .ctrl-pill {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .75rem; font-weight: 600;
+    padding: .18rem .55rem;
+    border-radius: 99px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+  }
+  .ctrl-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .ctrl-dot-green  { background: var(--green); }
+  .ctrl-dot-yellow { background: var(--yellow); }
+  .ctrl-dot-red    { background: var(--red); }
+  .ctrl-dot-gray   { background: var(--gray); }
+
+  /* Card meta */
+  .card-meta { font-size: .72rem; color: var(--text-muted); margin-top: .75rem; }
+
+  /* Card actions */
+  .card-actions { position: absolute; top: .75rem; right: .75rem; display: none; gap: .4rem; }
+  .app-card:hover .card-actions { display: flex; }
+  .icon-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: background .15s;
+  }
+  .icon-btn:hover { background: var(--border); }
+  .icon-btn.danger:hover { background: #fee2e2; border-color: #fca5a5; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+  .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: .4; }
+  .empty-state p { font-size: .95rem; }
+
+  /* ─── DETAIL VIEW ─────────────────────────────────────────────────── */
+  .detail-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .45rem .85rem;
+    cursor: pointer;
+    font-size: .85rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text);
+    transition: background .15s;
+    text-decoration: none;
+  }
+  .back-btn:hover { background: var(--bg); }
+  .detail-title { font-size: 1.3rem; font-weight: 700; flex: 1; }
+  .detail-subtitle { font-size: .8rem; color: var(--text-muted); font-family: monospace; }
+  .detail-badges { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+  .export-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .45rem .85rem;
+    cursor: pointer;
+    font-size: .85rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text);
+    transition: background .15s;
+  }
+  .export-btn:hover { background: var(--bg); }
+
+  /* Detail sections */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  details[open] summary { border-bottom: 1px solid var(--border); }
+  summary {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    user-select: none;
+    font-size: .95rem;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '▸'; color: var(--text-muted); font-size: .8rem; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(90deg); }
+  summary .summary-icon { margin-right: .6rem; }
+
+  .detail-section { padding: 1.25rem; }
+
+  /* Key-value grid */
+  .kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem 1.5rem;
+  }
+  @media (max-width: 600px) { .kv-grid { grid-template-columns: 1fr; } }
+  .kv-item {}
+  .kv-label { font-size: .72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .15rem; }
+  .kv-value { font-size: .9rem; word-break: break-word; }
+  .kv-value.mono { font-family: monospace; font-size: .82rem; }
+  .kv-value.highlight { font-weight: 700; font-size: 1.05rem; }
+
+  /* Tags */
+  .tag-list { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .35rem; }
+  .tag {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: .72rem;
+    padding: .15rem .5rem;
+    color: var(--text-muted);
+  }
+
+  /* Controls table */
+  .ctrl-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .ctrl-table th {
+    text-align: left;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: .4rem .6rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .ctrl-table td {
+    padding: .65rem .6rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .ctrl-table tr:last-child td { border-bottom: none; }
+  .ctrl-table tr:hover td { background: #f8fafc; }
+
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .status-dot-green  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+  .status-dot-yellow { background: var(--yellow); box-shadow: 0 0 4px var(--yellow); }
+  .status-dot-red    { background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .status-dot-gray   { background: var(--gray); }
+
+  .ctrl-name-cell { display: flex; align-items: center; gap: .6rem; }
+  .ctrl-name-text { font-weight: 500; }
+  .ctrl-id-text { font-size: .72rem; color: var(--text-muted); font-family: monospace; }
+
+  .confidence-bar { width: 60px; height: 5px; background: #e2e8f0; border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: .4rem; }
+  .confidence-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+  .staleness-badge {
+    font-size: .7rem; font-weight: 600;
+    padding: .15rem .5rem;
+    border-radius: 99px;
+    display: inline-block;
+  }
+  .staleness-fresh   { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+  .staleness-stale   { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+  .staleness-expired { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+  .staleness-unknown { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+
+  .exception-active {
+    font-size: .7rem; font-weight: 600;
+    padding: .15rem .5rem;
+    border-radius: 99px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+  }
+
+  /* Edges list */
+  .edge-list { display: flex; flex-direction: column; gap: .6rem; }
+  .edge-item {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+  .edge-title { font-weight: 600; font-size: .88rem; display: flex; align-items: center; gap: .5rem; }
+  .edge-type-badge {
+    font-size: .68rem; font-weight: 700;
+    padding: .1rem .45rem;
+    border-radius: 99px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+    letter-spacing: .03em;
+  }
+  .edge-detail { font-size: .8rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: .5rem; }
+  .edge-flag { display: inline-flex; align-items: center; gap: .25rem; }
+  .edge-flag .flag-icon { font-size: .8rem; }
+
+  /* Maturity detail */
+  .maturity-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) { .maturity-detail-grid { grid-template-columns: 1fr; } }
+  .maturity-block {
+    text-align: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .maturity-big { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .maturity-dim { font-size: .75rem; color: var(--text-muted); margin-top: .25rem; }
+  .maturity-phase-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+    border-radius: 99px;
+    font-size: .8rem;
+    font-weight: 700;
+    padding: .3rem .9rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Snapshot history */
+  .snapshot-list { display: flex; flex-direction: column; gap: .6rem; }
+  .snapshot-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: .75rem 1rem;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .snapshot-seq {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .snapshot-body { flex: 1; }
+  .snapshot-date { font-size: .8rem; color: var(--text-muted); }
+  .snapshot-summary { font-size: .85rem; margin-top: .2rem; }
+  .snapshot-score { font-size: .85rem; font-weight: 700; color: var(--accent); }
+
+  /* Raw JSON */
+  .raw-json-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .4rem .85rem;
+    cursor: pointer;
+    font-size: .8rem;
+    font-family: inherit;
+    color: var(--text-muted);
+    transition: background .15s;
+    margin-bottom: .75rem;
+  }
+  .raw-json-toggle:hover { background: var(--bg); }
+  .raw-json-box {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    font-family: monospace;
+    font-size: .78rem;
+    line-height: 1.6;
+    overflow: auto;
+    max-height: 500px;
+    display: none;
+  }
+  .raw-json-box.visible { display: block; }
+
+  /* ─── INTERVIEW VIEW ──────────────────────────────────────────────── */
+  .interview-toolbar {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .interview-toolbar label { font-weight: 600; color: var(--text-muted); font-size: .85rem; }
+  .guide-select {
+    flex: 1;
+    max-width: 300px;
+    padding: .5rem .85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: .9rem;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    padding-right: 2.25rem;
+  }
+  .print-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .5rem .85rem;
+    cursor: pointer;
+    font-size: .85rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text);
+    transition: background .15s;
+    margin-left: auto;
+  }
+  .print-btn:hover { background: var(--bg); }
+
+  .interview-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 2.5rem;
+    box-shadow: var(--shadow-sm);
+    min-height: 400px;
+  }
+  .interview-loading { color: var(--text-muted); font-style: italic; }
+
+  /* Markdown prose */
+  .interview-content h1 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text); }
+  .interview-content h2 { font-size: 1.15rem; margin: 2rem 0 .75rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: .35rem; }
+  .interview-content h3 { font-size: 1rem; margin: 1.25rem 0 .5rem; color: var(--text); }
+  .interview-content p { margin-bottom: .75rem; color: #374151; }
+  .interview-content strong { font-weight: 700; }
+  .interview-content em { color: var(--text-muted); }
+  .interview-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding: .5rem 1rem;
+    margin: 1rem 0;
+    background: #eff6ff;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: #1e40af;
+    font-size: .88rem;
+  }
+  .interview-content ul, .interview-content ol { padding-left: 1.5rem; margin-bottom: .75rem; }
+  .interview-content li { margin-bottom: .3rem; }
+  .interview-content code {
+    background: #f1f5f9;
+    border-radius: 3px;
+    padding: .1rem .35rem;
+    font-size: .82em;
+    font-family: monospace;
+    color: #1e40af;
+  }
+  .interview-content hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .interview-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: .88rem; }
+  .interview-content th { text-align: left; padding: .5rem .75rem; background: #f8fafc; border: 1px solid var(--border); font-weight: 600; }
+  .interview-content td { padding: .5rem .75rem; border: 1px solid var(--border); }
+
+  /* ─── TOAST ───────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: #0f172a;
+    color: #fff;
+    padding: .7rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: .85rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+    z-index: 9999;
+    max-width: 360px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ─── PRINT ───────────────────────────────────────────────────────── */
+  @media print {
+    nav, .interview-toolbar, .nav-links { display: none !important; }
+    main { max-width: none; padding: 0; }
+    .interview-content { border: none; box-shadow: none; padding: 0; }
+  }
+
+  /* ─── UTIL ────────────────────────────────────────────────────────── */
+  .mt-1 { margin-top: .25rem; }
+  .mt-2 { margin-top: .5rem; }
+  .text-muted { color: var(--text-muted); }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand"><span class="dot"></span> BASM Viewer</span>
+  <div class="nav-links">
+    <button class="nav-btn active" id="nav-dashboard" onclick="showView('dashboard')">Dashboard</button>
+    <button class="nav-btn" id="nav-interview" onclick="showView('interview')">Interviste</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ════════════════════════════ DASHBOARD VIEW ════════════════════ -->
+  <div class="view active" id="view-dashboard">
+
+    <div class="upload-zone" id="dropZone">
+      <span class="upload-icon">📂</span>
+      <strong>Trascina qui i file BASM JSON</strong>
+      <p>oppure clicca per selezionare uno o più file .json</p>
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Scegli file</button>
+      <input type="file" id="fileInput" accept=".json" multiple onchange="handleFiles(this.files)">
+    </div>
+
+    <p class="section-title" id="apps-count-label"></p>
+    <div class="card-grid" id="cardGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <span class="empty-icon">🗂️</span>
+      <p>Nessun documento caricato.<br>Trascina un file BASM JSON per cominciare.</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ DETAIL VIEW ══════════════════════ -->
+  <div class="view" id="view-detail">
+
+    <div class="detail-header">
+      <button class="back-btn" onclick="showView('dashboard')">← Torna alla dashboard</button>
+      <div style="flex:1">
+        <div class="detail-title" id="detail-name"></div>
+        <div class="detail-subtitle" id="detail-id"></div>
+      </div>
+      <div class="detail-badges" id="detail-badges"></div>
+      <button class="export-btn" onclick="exportCurrentDoc()">⬇ Esporta JSON</button>
+    </div>
+
+    <div id="detail-body"></div>
+  </div>
+
+  <!-- ════════════════════════════ INTERVIEW VIEW ═══════════════════ -->
+  <div class="view" id="view-interview">
+
+    <div class="interview-toolbar">
+      <label for="guideSelect">Guida intervista:</label>
+      <select id="guideSelect" class="guide-select" onchange="loadGuide(this.value)">
+        <option value="">— Seleziona una guida —</option>
+        <option value="interview-scada.md">SCADA / ICS / OT</option>
+        <option value="interview-erp-sap.md">ERP / SAP (Finance)</option>
+        <option value="interview-mes-gestionale.md">MES / Gestionale Produzione</option>
+        <option value="interview-infra-ad.md">Infrastruttura / Active Directory</option>
+        <option value="interview-plm.md">PLM / CAD (Proprietà Intellettuale)</option>
+      </select>
+      <button class="print-btn" onclick="window.print()">🖨 Stampa</button>
+    </div>
+
+    <div class="interview-content" id="interviewContent">
+      <p class="interview-loading">Seleziona una guida per visualizzarla.</p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+const STORAGE_KEY = 'basm_viewer_docs_v1';
+let docs = [];        // [{ filename, loadedAt, content }]
+let currentDoc = null;
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+function init() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) docs = JSON.parse(saved);
+  } catch {}
+  renderGrid();
+  setupDrop();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// VIEW ROUTING
+// ═══════════════════════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const navBtn = document.getElementById('nav-' + name);
+  if (navBtn) navBtn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FILE HANDLING
+// ═══════════════════════════════════════════════════════════════════════
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const content = JSON.parse(e.target.result);
+        const id = content?.identity_context?.app_id || f.name;
+        const existing = docs.findIndex(d => (d.content?.identity_context?.app_id || d.filename) === id);
+        const entry = { filename: f.name, loadedAt: new Date().toISOString(), content };
+        if (existing >= 0) {
+          docs[existing] = entry;
+          toast('Documento aggiornato: ' + (content?.identity_context?.name || f.name));
+        } else {
+          docs.push(entry);
+          toast('Documento caricato: ' + (content?.identity_context?.name || f.name));
+        }
+        persist();
+        renderGrid();
+      } catch {
+        toast('Errore: ' + f.name + ' non è un JSON valido.', true);
+      }
+    };
+    reader.readAsText(f);
+  });
+}
+
+function persist() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+  } catch (e) {
+    toast('LocalStorage pieno — il documento non sarà salvato tra sessioni.', true);
+  }
+}
+
+function removeDoc(idx, ev) {
+  ev.stopPropagation();
+  if (!confirm('Rimuovere questo documento dalla lista?')) return;
+  docs.splice(idx, 1);
+  persist();
+  renderGrid();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DROP ZONE
+// ═══════════════════════════════════════════════════════════════════════
+function setupDrop() {
+  const zone = document.getElementById('dropZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GRID RENDER
+// ═══════════════════════════════════════════════════════════════════════
+function renderGrid() {
+  const grid = document.getElementById('cardGrid');
+  const empty = document.getElementById('emptyState');
+  const label = document.getElementById('apps-count-label');
+
+  if (docs.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    label.textContent = '';
+    return;
+  }
+  empty.style.display = 'none';
+  label.textContent = docs.length + ' documento' + (docs.length !== 1 ? 'i' : '') + ' caricato' + (docs.length !== 1 ? 'i' : '');
+
+  // Sort by risk descending
+  const sorted = docs.map((d, i) => ({ ...d, origIdx: i }))
+    .sort((a, b) => (riskEur(b.content) || 0) - (riskEur(a.content) || 0));
+
+  grid.innerHTML = sorted.map(({ content: c, origIdx, filename, loadedAt }) => {
+    const ic = c?.identity_context || {};
+    const ms = c?.maturity_scoring || {};
+    const rq = c?.risk_quantification || {};
+    const ot = c?.ot_context || {};
+    const ctrls = c?.security_controls || [];
+    const meta = c?.basm_metadata || {};
+
+    const name = ic.name || filename;
+    const appId = ic.app_id || '—';
+    const tier = ic.criticality_class || '';
+    const assetType = ot.asset_type || 'IT';
+    const composite = ms.composite_score != null ? Math.round(ms.composite_score * 100) : null;
+    const eur = riskEur(c);
+    const lastUpdate = meta.last_update ? fmtDate(meta.last_update) : fmtDate(loadedAt);
+
+    const ctrlCounts = countControls(ctrls);
+
+    return `<div class="app-card" onclick="openDetail(${origIdx})">
+      <div class="card-actions">
+        <button class="icon-btn danger" title="Rimuovi" onclick="removeDoc(${origIdx}, event)">✕</button>
+      </div>
+      <div class="card-header">
+        <div>
+          <div class="card-name">${esc(name)}</div>
+          <div class="card-id">${esc(appId)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;align-items:flex-end">
+          ${tierBadge(tier)}
+          ${assetTypeBadge(assetType)}
+        </div>
+      </div>
+
+      ${composite != null ? `
+      <div class="maturity-row">
+        <span class="maturity-label">Maturità</span>
+        <div class="progress-track"><div class="progress-fill" style="width:${composite}%"></div></div>
+        <span class="maturity-pct">${composite}%</span>
+      </div>` : ''}
+
+      ${composite != null ? `
+      <div class="maturity-row">
+        <span class="maturity-label">Completezza</span>
+        <div class="progress-track"><div class="progress-fill" style="width:${Math.round((ms.data_completeness||0)*100)}%;background:#8b5cf6"></div></div>
+        <span class="maturity-pct">${Math.round((ms.data_completeness||0)*100)}%</span>
+      </div>
+      <div class="maturity-row">
+        <span class="maturity-label">Automazione</span>
+        <div class="progress-track"><div class="progress-fill" style="width:${Math.round((ms.automation_ratio||0)*100)}%;background:#06b6d4"></div></div>
+        <span class="maturity-pct">${Math.round((ms.automation_ratio||0)*100)}%</span>
+      </div>` : ''}
+
+      <div class="card-divider"></div>
+
+      <div class="risk-row">
+        <span class="risk-label">Rischio annuo stimato</span>
+        <span class="risk-value ${riskClass(eur)}">${eur != null ? fmtEur(eur) : '—'}</span>
+      </div>
+
+      <div class="controls-row">
+        ${ctrlCounts.green  ? `<span class="ctrl-pill"><span class="ctrl-dot ctrl-dot-green"></span>${ctrlCounts.green}</span>` : ''}
+        ${ctrlCounts.yellow ? `<span class="ctrl-pill"><span class="ctrl-dot ctrl-dot-yellow"></span>${ctrlCounts.yellow}</span>` : ''}
+        ${ctrlCounts.red    ? `<span class="ctrl-pill"><span class="ctrl-dot ctrl-dot-red"></span>${ctrlCounts.red}</span>` : ''}
+        ${ctrlCounts.gray   ? `<span class="ctrl-pill"><span class="ctrl-dot ctrl-dot-gray"></span>${ctrlCounts.gray}</span>` : ''}
+        ${ctrls.length === 0 ? `<span style="font-size:.78rem;color:var(--text-muted)">Nessun controllo</span>` : ''}
+        <span style="font-size:.75rem;color:var(--text-muted);margin-left:auto">${ctrls.length} ctrl.</span>
+      </div>
+
+      <div class="card-meta">Aggiornato: ${lastUpdate}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════════════════════════════════
+function openDetail(idx) {
+  currentDoc = docs[idx];
+  const c = currentDoc.content;
+  const ic = c?.identity_context || {};
+  const bia = c?.business_impact_analysis || {};
+  const ot = c?.ot_context || {};
+  const rq = c?.risk_quantification || {};
+  const ctrls = c?.security_controls || [];
+  const edges = c?.graph_edges || [];
+  const gn = c?.graph_node || {};
+  const ms = c?.maturity_scoring || {};
+  const snaps = c?.snapshot_history || [];
+  const meta = c?.basm_metadata || {};
+
+  document.getElementById('detail-name').textContent = ic.name || currentDoc.filename;
+  document.getElementById('detail-id').textContent = ic.app_id || '';
+  document.getElementById('detail-badges').innerHTML =
+    tierBadge(ic.criticality_class) +
+    (ot.asset_type ? ' ' + assetTypeBadge(ot.asset_type) : '');
+
+  let html = '';
+
+  // ── Identità ──────────────────────────────────────────────────────
+  html += `<details open>
+  <summary><span class="summary-icon">🏷</span> Identità e Responsabilità</summary>
+  <div class="detail-section">
+    <div class="kv-grid">
+      ${kv('Nome', esc(ic.name || '—'))}
+      ${kv('App ID', `<span class="mono">${esc(ic.app_id || '—')}</span>`)}
+      ${kv('Criticità', tierBadge(ic.criticality_class))}
+      ${kv('Ambiente', esc(ic.environment || '—'))}
+      ${kv('Classificazione dati', esc(ic.data_classification || '—'))}
+      ${kv('Tipo asset', esc(ot.asset_type || 'IT'))}
+      ${kv('Responsabile business', ic.business_owner ? `${esc(ic.business_owner.name || '')} — ${esc(ic.business_owner.department || '')}` : '—')}
+      ${kv('Contatto', ic.business_owner?.contact ? `<a href="mailto:${esc(ic.business_owner.contact)}">${esc(ic.business_owner.contact)}</a>` : '—')}
+      ${kv('Responsabile tecnico', esc(ic.technical_lead || '—'))}
+      ${kv('Fornitore', esc(ic.vendor || '—'))}
+      ${kv('Schema versione', esc(meta.schema_version || '—'))}
+      ${kv('Ultimo aggiornamento', fmtDate(meta.last_update || currentDoc.loadedAt))}
+    </div>
+  </div>
+</details>`;
+
+  // ── Business Impact ───────────────────────────────────────────────
+  html += `<details>
+  <summary><span class="summary-icon">💼</span> Impatto sul Business</summary>
+  <div class="detail-section">
+    <div class="kv-grid">
+      ${kv('Catena di processo', esc(bia.process_chain || '—'))}
+      ${kv('Costo orario downtime', bia.hourly_downtime_cost != null ? `<span class="highlight">${fmtEur(bia.hourly_downtime_cost)}</span>` : '—')}
+      ${kv('Revenue annuo a rischio', bia.annual_revenue_at_risk != null ? `<span class="highlight">${fmtEur(bia.annual_revenue_at_risk)}</span>` : '—')}
+      ${kv('Copertura cyber insurance', bia.cyber_insurance_coverage != null ? fmtEur(bia.cyber_insurance_coverage) : '—')}
+      ${kv('Esposizione netta', bia.net_financial_exposure != null ? `<span class="${riskClass(bia.net_financial_exposure)} highlight">${fmtEur(bia.net_financial_exposure)}</span>` : '—')}
+      ${kv('RTO', bia.recovery_objectives?.rto_hours != null ? bia.recovery_objectives.rto_hours + ' ore' : '—')}
+      ${kv('RPO', bia.recovery_objectives?.rpo_hours != null ? bia.recovery_objectives.rpo_hours + ' ore' : '—')}
+      ${kv('Ultimo BCP drill', fmtDate(bia.recovery_objectives?.last_bcp_drill))}
+      ${kv('Esito BCP drill', esc(bia.recovery_objectives?.bcp_drill_result || '—'))}
+    </div>
+    ${bia.legal_implications?.length ? `<div style="margin-top:1rem"><span class="kv-label">Implicazioni legali</span><div class="tag-list">${bia.legal_implications.map(l => `<span class="tag">${esc(l)}</span>`).join('')}</div></div>` : ''}
+  </div>
+</details>`;
+
+  // ── Risk Quantification ───────────────────────────────────────────
+  const eur = riskEur(c);
+  html += `<details>
+  <summary><span class="summary-icon">📊</span> Quantificazione del Rischio (FAIR)</summary>
+  <div class="detail-section">
+    <div class="kv-grid">
+      ${kv('Rischio annualizzato', eur != null ? `<span class="highlight ${riskClass(eur)}">${fmtEur(eur)}</span>` : '—')}
+      ${kv('Frequenza minacce/anno', rq.threat_event_frequency_per_year != null ? rq.threat_event_frequency_per_year : '—')}
+      ${kv('Probabilità vulnerabilità', rq.vulnerability_probability != null ? pct(rq.vulnerability_probability) : '—')}
+      ${kv('Perdita primaria', rq.primary_loss_magnitude_eur != null ? fmtEur(rq.primary_loss_magnitude_eur) : '—')}
+      ${kv('Confidenza stima', rq.confidence_in_estimate != null ? pct(rq.confidence_in_estimate) : '—')}
+      ${kv('Metodologia', esc(rq.methodology || '—'))}
+      ${kv('Ultima valutazione', fmtDate(rq.last_assessed_date))}
+    </div>
+  </div>
+</details>`;
+
+  // ── Security Controls ─────────────────────────────────────────────
+  html += `<details ${ctrls.length ? 'open' : ''}>
+  <summary><span class="summary-icon">🔒</span> Controlli di Sicurezza <span style="color:var(--text-muted);font-weight:400;font-size:.85rem;margin-left:.5rem">${ctrls.length} controlli</span></summary>
+  <div class="detail-section" style="padding:0">
+    ${ctrls.length === 0 ? '<p style="padding:1.25rem;color:var(--text-muted)">Nessun controllo definito.</p>' : `
+    <div style="overflow-x:auto">
+    <table class="ctrl-table">
+      <thead>
+        <tr>
+          <th>Controllo</th>
+          <th>Stato</th>
+          <th>Metodo</th>
+          <th>Confidenza</th>
+          <th>Verifica</th>
+          <th>Staleness</th>
+          <th>Eccezione</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${ctrls.map(ctrl => {
+          const ind = ctrl.status?.indicator || 'gray';
+          const st = ctrl.verification?.staleness?.staleness_status || 'unknown';
+          const exc = ctrl.exception?.is_active;
+          const conf = ctrl.verification?.confidence_score;
+          const lastV = ctrl.verification?.last_verified;
+          return `<tr>
+            <td>
+              <div class="ctrl-name-cell">
+                <span class="status-dot status-dot-${ind}"></span>
+                <div>
+                  <div class="ctrl-name-text">${esc(ctrl.name || ctrl.control_id)}</div>
+                  <div class="ctrl-id-text">${esc(ctrl.control_id || '')}</div>
+                </div>
+              </div>
+            </td>
+            <td>${esc(ctrl.status?.current_value || '—')}</td>
+            <td>${esc(ctrl.verification?.method || '—')}</td>
+            <td>
+              ${conf != null ? `<div class="confidence-bar"><div class="confidence-fill" style="width:${Math.round(conf*100)}%"></div></div>${Math.round(conf*100)}%` : '—'}
+            </td>
+            <td style="font-size:.78rem;color:var(--text-muted)">${lastV ? fmtDate(lastV) : '—'}</td>
+            <td><span class="staleness-badge staleness-${st}">${st}</span></td>
+            <td>${exc ? `<span class="exception-active">⚠ Attiva</span>` : ''}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    </div>`}
+  </div>
+</details>`;
+
+  // ── OT Context ────────────────────────────────────────────────────
+  if (ot.asset_type && ot.asset_type !== 'IT') {
+    const fw = ot.firmware || {};
+    html += `<details>
+  <summary><span class="summary-icon">⚙️</span> Contesto OT / ICS</summary>
+  <div class="detail-section">
+    <div class="kv-grid">
+      ${kv('Tipo asset', esc(ot.asset_type || '—'))}
+      ${kv('Livello Purdue', ot.purdue_level != null ? 'L' + ot.purdue_level : '—')}
+      ${kv('Air gap', esc(ot.air_gap_status || '—'))}
+      ${kv('Air gap verificato', fmtDate(ot.air_gap_last_verified))}
+      ${kv('Safety impact', `<span style="color:${ot.safety_impact === 'high' || ot.safety_impact === 'catastrophic' ? 'var(--red)' : 'inherit'};font-weight:${ot.safety_impact === 'high' ? '700' : 'inherit'}">${esc(ot.safety_impact || '—')}</span>`)  }
+      ${kv('IEC 62443 SL target', esc(ot.iec62443_target_sl || '—'))}
+      ${kv('Modalità degradata max', ot.degraded_mode_max_minutes ? ot.degraded_mode_max_minutes + ' min' : '—')}
+      ${kv('Throughput degradato', ot.degraded_mode_throughput_ratio != null ? pct(ot.degraded_mode_throughput_ratio) : '—')}
+    </div>
+    ${fw.vendor ? `<div style="margin-top:1.25rem"><span class="kv-label">Firmware</span>
+    <div class="kv-grid" style="margin-top:.35rem">
+      ${kv('Fornitore', esc(fw.vendor))}
+      ${kv('Versione', esc(fw.current_version || '—'))}
+      ${kv('Patch richiede downtime', fw.patch_requires_downtime ? '⚠ Sì' : 'No')}
+      ${kv('Politica aggiornamento', esc(fw.update_policy || '—'))}
+      ${kv('Ultimo patch', fmtDate(fw.last_patched))}
+    </div>
+    ${fw.known_cves?.length ? `<div style="margin-top:.75rem"><span class="kv-label">CVE note</span><div class="tag-list">${fw.known_cves.map(cv => `<span class="tag" style="color:var(--red);border-color:#fca5a5;background:#fef2f2">${esc(cv)}</span>`).join('')}</div></div>` : ''}
+    </div>` : ''}
+    ${ot.allowed_protocols?.length ? `<div style="margin-top:1rem"><span class="kv-label">Protocolli ammessi</span><div class="tag-list">${ot.allowed_protocols.map(p => `<span class="tag">${esc(p)}</span>`).join('')}</div></div>` : ''}
+  </div>
+</details>`;
+  }
+
+  // ── Graph Edges ───────────────────────────────────────────────────
+  if (edges.length) {
+    html += `<details>
+  <summary><span class="summary-icon">🔗</span> Dipendenze (Grafo) <span style="color:var(--text-muted);font-weight:400;font-size:.85rem;margin-left:.5rem">${edges.length} connessioni</span></summary>
+  <div class="detail-section">
+    <div class="edge-list">
+      ${edges.map(e => {
+        const crit = e.criticality || '';
+        const critColor = crit === 'Critical' ? 'var(--red)' : crit === 'High' ? 'var(--yellow)' : 'inherit';
+        return `<div class="edge-item">
+          <div class="edge-title">
+            <span class="edge-type-badge">${esc(e.type || '—')}</span>
+            <span>${esc(e.source_app_id || '')} → ${esc(e.target_app_id || '')}</span>
+          </div>
+          <div class="edge-detail">
+            <span class="edge-flag"><span class="flag-icon">📡</span>${esc(e.protocol || '—')}${e.port ? ':' + e.port : ''}</span>
+            <span class="edge-flag" style="color:${critColor};font-weight:600">${esc(crit)}</span>
+            <span class="edge-flag">${e.direction || ''}</span>
+            ${e.encrypted ? '<span class="edge-flag">🔐 Cifrato</span>' : '<span class="edge-flag" style="color:var(--red)">⚠ Non cifrato</span>'}
+            ${e.crosses_segment_boundary ? '<span class="edge-flag" style="color:var(--yellow)">↔ Cross-segment</span>' : ''}
+          </div>
+          ${e.severance_impact ? `<div style="font-size:.78rem;color:var(--text-muted);margin-top:.2rem">💥 ${esc(e.severance_impact)}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+    ${gn.graph_centrality != null ? `<div style="margin-top:1rem" class="kv-grid">
+      ${kv('Centralità nodo', pct(gn.graph_centrality))}
+      ${kv('Blast radius (nodi)', gn.blast_radius_node_count || '—')}
+      ${kv('Revenue a rischio (blast)', gn.blast_radius_revenue_at_risk != null ? fmtEur(gn.blast_radius_revenue_at_risk) : '—')}
+    </div>` : ''}
+  </div>
+</details>`;
+  }
+
+  // ── Maturity Scoring ──────────────────────────────────────────────
+  if (ms.composite_score != null) {
+    const snapshotHtml = snaps.length ? `
+      <div class="snapshot-list">
+        ${[...snaps].reverse().map(s => `
+          <div class="snapshot-item">
+            <div class="snapshot-seq">${s.sequence}</div>
+            <div class="snapshot-body">
+              <div class="flex-between">
+                <span class="snapshot-score">${Math.round((s.maturity_scores?.composite_score || 0) * 100)}% — ${esc(s.maturity_scores?.maturity_phase || '')}</span>
+                <span class="snapshot-date">${fmtDate(s.timestamp)}</span>
+              </div>
+              <div class="snapshot-summary">${esc(s.change_summary || s.triggered_by || '')}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : '';
+
+    html += `<details>
+  <summary><span class="summary-icon">📈</span> Maturità e Storico</summary>
+  <div class="detail-section">
+    <div style="margin-bottom:1rem">
+      <span class="maturity-phase-badge">Fase: ${esc(ms.maturity_phase || '—')}</span>
+    </div>
+    <div class="maturity-detail-grid">
+      <div class="maturity-block">
+        <div class="maturity-big">${Math.round((ms.composite_score || 0) * 100)}%</div>
+        <div class="maturity-dim">Score composito</div>
+      </div>
+      <div class="maturity-block">
+        <div class="maturity-big" style="color:#8b5cf6">${Math.round((ms.data_completeness || 0) * 100)}%</div>
+        <div class="maturity-dim">Completezza dati</div>
+      </div>
+      <div class="maturity-block">
+        <div class="maturity-big" style="color:#06b6d4">${Math.round((ms.automation_ratio || 0) * 100)}%</div>
+        <div class="maturity-dim">Automazione</div>
+      </div>
+    </div>
+    <div class="maturity-row" style="max-width:400px">
+      <span class="maturity-label">Compliance</span>
+      <div class="progress-track"><div class="progress-fill" style="width:${Math.round((ms.compliance_index || 0) * 100)}%;background:#10b981"></div></div>
+      <span class="maturity-pct">${Math.round((ms.compliance_index || 0) * 100)}%</span>
+    </div>
+    ${snaps.length ? `<div style="margin-top:1.5rem"><div class="section-title">Storico snapshot</div>${snapshotHtml}</div>` : ''}
+  </div>
+</details>`;
+  }
+
+  // ── Raw JSON ──────────────────────────────────────────────────────
+  html += `<details>
+  <summary><span class="summary-icon">{ }</span> JSON grezzo</summary>
+  <div class="detail-section">
+    <button class="raw-json-toggle" id="jsonToggleBtn" onclick="toggleJson()">Mostra JSON completo</button>
+    <pre class="raw-json-box" id="rawJsonBox">${esc(JSON.stringify(c, null, 2))}</pre>
+  </div>
+</details>`;
+
+  document.getElementById('detail-body').innerHTML = html;
+  showView('detail');
+}
+
+function toggleJson() {
+  const box = document.getElementById('rawJsonBox');
+  const btn = document.getElementById('jsonToggleBtn');
+  box.classList.toggle('visible');
+  btn.textContent = box.classList.contains('visible') ? 'Nascondi JSON' : 'Mostra JSON completo';
+}
+
+function exportCurrentDoc() {
+  if (!currentDoc) return;
+  const blob = new Blob([JSON.stringify(currentDoc.content, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = currentDoc.filename || 'basm-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('File esportato: ' + (currentDoc.filename || 'basm-export.json'));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INTERVIEW VIEW
+// ═══════════════════════════════════════════════════════════════════════
+// Paths to try for markdown files (relative to viewer/ dir)
+const GUIDES_BASE = '../src/app/basm/interviews/';
+
+async function loadGuide(filename) {
+  const el = document.getElementById('interviewContent');
+  if (!filename) {
+    el.innerHTML = '<p class="interview-loading">Seleziona una guida per visualizzarla.</p>';
+    return;
+  }
+  el.innerHTML = '<p class="interview-loading">Caricamento in corso…</p>';
+  try {
+    const res = await fetch(GUIDES_BASE + filename);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const md = await res.text();
+    el.innerHTML = marked.parse(md);
+  } catch (e) {
+    el.innerHTML = `<p style="color:var(--red)">Impossibile caricare la guida.<br>
+    Avvia un server locale dalla root del progetto:<br>
+    <code>npx serve .</code><br>
+    poi apri <code>http://localhost:3000/viewer/index.html</code></p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function riskEur(c) {
+  return c?.risk_quantification?.risk_score_annualized_eur ?? null;
+}
+
+function riskClass(eur) {
+  if (eur == null) return '';
+  if (eur >= 1000000) return 'risk-high';
+  if (eur >= 200000)  return 'risk-med';
+  return 'risk-low';
+}
+
+function fmtEur(n) {
+  if (n == null) return '—';
+  return '€' + n.toLocaleString('it-IT');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch { return iso; }
+}
+
+function pct(n) {
+  return Math.round(n * 100) + '%';
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function kv(label, value) {
+  return `<div class="kv-item"><div class="kv-label">${label}</div><div class="kv-value">${value}</div></div>`;
+}
+
+function countControls(ctrls) {
+  const c = { green: 0, yellow: 0, red: 0, gray: 0 };
+  (ctrls || []).forEach(ctrl => {
+    const ind = ctrl.status?.indicator || 'gray';
+    if (c[ind] != null) c[ind]++;
+    else c.gray++;
+  });
+  return c;
+}
+
+function tierBadge(tier) {
+  if (!tier) return '';
+  if (tier.includes('Gold'))   return `<span class="badge badge-gold">⭐ ${esc(tier)}</span>`;
+  if (tier.includes('Silver')) return `<span class="badge badge-silver">🥈 ${esc(tier)}</span>`;
+  if (tier.includes('Bronze')) return `<span class="badge badge-bronze">🥉 ${esc(tier)}</span>`;
+  return `<span class="badge">${esc(tier)}</span>`;
+}
+
+function assetTypeBadge(type) {
+  if (!type || type === 'IT') return `<span class="badge badge-it">${esc(type || 'IT')}</span>`;
+  if (type === 'Cloud')       return `<span class="badge badge-cloud">${esc(type)}</span>`;
+  return `<span class="badge badge-ot">${esc(type)}</span>`;
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isError ? '#991b1b' : '#0f172a';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
