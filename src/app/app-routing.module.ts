@@ -9,7 +9,9 @@ const routes: Routes = [
   },
   {
     path: 'basm',
-    loadChildren: () => import('./basm/basm.module').then(m => m.BasmModule)
+    loadChildren: () => import('./basm/basm.module')
+      .then(m => m.BasmModule)
+      .catch(e => { console.error('[Router] BasmModule load failed:', e); throw e; })
   },
   {
     path: 'folder/:id',
