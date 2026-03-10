@@ -2,7 +2,7 @@
   "_interview_guide": "Compila questo JSON usando le risposte del file interview-infra-ad.md. Active Directory è Tier-1-Gold universale: blast radius = tutta l'azienda.",
 
   "basm_metadata": {
-    "schema_version": "3.0-DIGITAL-TWIN",
+    "schema_version": "3.1-DIGITAL-TWIN",
     "last_update": "__COMPILATO_AUTOMATICAMENTE__",
     "maturity_tier_logic": "Level-5-Optimized",
     "author_role": "__CHI_HA_CONDOTTO_INTERVISTA__",
@@ -19,7 +19,15 @@
       "contact": "__A2__ email@azienda.it"
     },
     "technical_lead": "__A3__ Nome Domain Admin / System Administrator",
-    "criticality_class": "Tier-1-Gold"
+    "criticality_class": "Tier-1-Gold",
+    "environment": "__A5__ production | staging | development | dr | test",
+    "external_facing": "__A5__ true se accessibile da internet, false se solo rete interna",
+    "user_count_approx": "__A5__ numero approssimativo utenti attivi",
+    "data_classification": "__A5__ Public | Internal | Confidential | Restricted | Secret",
+    "asset_install_date": "__A5__ ISO-8601 data prima installazione o null",
+    "asset_eol_date": "__A5__ ISO-8601 data end-of-life prevista o null",
+    "vendor_name": "__A5__ es: Microsoft | Siemens | vendor del sistema",
+    "support_contract_expiry": "__A5__ ISO-8601 scadenza contratto supporto vendor o null"
   },
 
   "ot_context": {
@@ -133,7 +141,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -199,7 +217,17 @@
         "risk_acceptance_ref": "__D2__ RAF-AD-PAM-001 o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -265,7 +293,17 @@
         "risk_acceptance_ref": "__D3__ RAF-AD-MFA-001 o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -331,7 +369,17 @@
         "risk_acceptance_ref": null
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     },
 
     {
@@ -397,7 +445,17 @@
         "risk_acceptance_ref": "__D8__ RAF-AD-LEGACY-001 o null"
       },
       "evidence_artifacts": [],
-      "latest_ccm_result": null
+      "latest_ccm_result": null,
+      "economics": {
+        "_note": "Compilare con analista sicurezza per calcolo ROI controllo",
+        "control_type": "__ANALISTA__ preventive | detective | corrective | compensating",
+        "annual_capex_eur": "__ANALISTA__ costo capitale annualizzato in EUR, es: 5000",
+        "annual_opex_eur": "__ANALISTA__ costo operativo annuo (licenze, personale) in EUR, es: 8000",
+        "implementation_days": "__ANALISTA__ giorni/persona per implementare, es: 10",
+        "expected_risk_reduction_pct": "__ANALISTA__ frazione di rischio annuo ridotta (0.0–1.0), es: 0.30",
+        "roi_payback_years": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)",
+        "cost_per_risk_euro_reduced": "__CALCOLATO__ (annual_capex + annual_opex) / (risk_score_annualized × expected_risk_reduction_pct)"
+      }
     }
   ],
 
@@ -426,7 +484,10 @@
       "encrypted": true,
       "mutually_authenticated": "__C6__ true | false",
       "crosses_segment_boundary": false,
-      "last_validated": "__C4__ ISO-8601"
+      "last_validated": "__C4__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     },
     {
       "_source": "Blocco C — C3 Sincronizzazione Azure AD",
@@ -452,7 +513,10 @@
       "encrypted": true,
       "mutually_authenticated": true,
       "crosses_segment_boundary": true,
-      "last_validated": "__C3__ ISO-8601"
+      "last_validated": "__C3__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     },
     {
       "_source": "Blocco D — D4 Backup System State DC",
@@ -478,7 +542,10 @@
       "encrypted": "__D4__ true | false",
       "mutually_authenticated": "__D4__ true | false",
       "crosses_segment_boundary": true,
-      "last_validated": "__D4__ ISO-8601"
+      "last_validated": "__D4__ ISO-8601",
+      "data_classification_in_transit": "__C7__ Public | Internal | Confidential | Restricted | Secret",
+      "data_volume": "__C7__ es: 500 MB/day | continuous-stream | low | high",
+      "authentication_type": "__C7__ mTLS | API_Key | OAuth2 | Kerberos | NTLM | Certificate | None | MFA"
     }
   ],
 
@@ -490,7 +557,12 @@
     "neighborhood_ids": ["__CALCOLATO__ tutti i sistemi che si autenticano via AD"],
     "graph_centrality": "__CALCOLATO_DAL_MOTORE__ — atteso: massimo in tutta la rete",
     "blast_radius_node_count": "__CALCOLATO_DAL_MOTORE__ — atteso: = tutti i sistemi aziendali",
-    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__"
+    "blast_radius_revenue_at_risk": "__CALCOLATO_DAL_MOTORE__",
+    "mitre_tactics_covered": "__CALCOLATO__ numero tattiche MITRE coperte dai controlli attuali",
+    "mitre_tactics_total": "__ANALISTA__ numero tattiche MITRE rilevanti per questo tipo di asset, es: 14",
+    "mitre_coverage_pct": "__CALCOLATO__ (mitre_tactics_covered / mitre_tactics_total) × 100",
+    "uncovered_critical_tactics": ["__ANALISTA__ es: TA0006 — Credential Access avanzato", "TA0004 — Privilege Escalation"],
+    "risk_score": "__CALCOLATO__ da risk_quantification.risk_score_annualized_eur"
   },
 
   "reasoning_for_ai": {
@@ -561,7 +633,10 @@
     "compliance_index": 0.0,
     "composite_score": 0.0,
     "maturity_phase": "Initial",
-    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__"
+    "computed_at": "__CALCOLATO_AUTOMATICAMENTE__",
+    "industry_benchmark_median": "__ANALISTA__ es: 0.52 — mediana settore manifatturiero EU",
+    "industry_benchmark_top_quartile": "__ANALISTA__ es: 0.72 — top 25% settore",
+    "peer_group": "__ANALISTA__ es: manufacturing-mid-cap-eu"
   },
 
   "snapshot_history": [
@@ -583,5 +658,131 @@
     }
   ],
 
-  "maturity_deltas": []
+  "maturity_deltas": [],
+
+  "risk_quantification": {
+    "_source": "Blocco B + analisi FAIR — compilare con analista sicurezza",
+    "_note": "AD è Tier-1-Gold universale: blast radius = tutta l'azienda. risk_score è il più alto del portfolio.",
+    "threat_event_frequency": "__ANALISTA__ es: 0.30 — Golden Ticket/DCSync: attacco ogni ~3 anni in aziende simili",
+    "vulnerability_probability": "__ANALISTA__ es: 0.60 — AD ha superficie d'attacco ampia; compromissione difficile da rilevare",
+    "primary_loss_magnitude": "__B2__×__B6__×3.0 — downtime TOTALE azienda + recovery AD (giorni) + sanzioni",
+    "risk_score_annualized_eur": "__CALCOLATO__ threat_event_frequency × vulnerability_probability × primary_loss_magnitude",
+    "confidence_level": "__ANALISTA__ es: 0.45",
+    "methodology": "FAIR",
+    "last_reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__",
+    "last_reviewed_date": "__DATA_INTERVISTA__ ISO-8601"
+  },
+
+  "threat_model": {
+    "_source": "Blocco G + MITRE ATT&CK — compilare con analista sicurezza",
+    "threat_actors": [
+      {
+        "actor_id": "TA-AD-001-NATION-STATE",
+        "name": "Nation-State APT — Accesso persistente e movimento laterale",
+        "type": "nation-state",
+        "motivation": "espionage",
+        "capability_level": 5,
+        "mitre_group_id": "__ANALISTA__ es: G0007 (APT28) | G0034 (Sandworm)",
+        "known_ttps": ["T1558.001", "T1003.003", "T1207", "T1484", "T1078.002"],
+        "targeting_likelihood": "medium"
+      },
+      {
+        "actor_id": "TA-AD-002-RANSOMWARE",
+        "name": "Ransomware Group — AD come gateway per infettare tutti i sistemi",
+        "type": "cybercriminal",
+        "motivation": "financial",
+        "capability_level": 3,
+        "mitre_group_id": null,
+        "known_ttps": ["T1566", "T1078", "T1486", "T1490", "T1078.002"],
+        "targeting_likelihood": "very-high"
+      }
+    ],
+    "attack_scenarios": [
+      {
+        "scenario_id": "SCEN-AD-001-GOLDEN-TICKET",
+        "name": "Golden Ticket Attack — Compromissione KRBTGT → accesso completo a tutti i sistemi AD-dipendenti",
+        "threat_actor_ref": "TA-AD-001-NATION-STATE",
+        "kill_chain_steps": [
+          { "step": 1, "tactic": "Initial Access", "technique_id": "T1566", "technique_name": "Phishing Domain Admin", "blocked_by_control": null },
+          { "step": 2, "tactic": "Credential Access", "technique_id": "T1003.003", "technique_name": "NTDS.dit Dump", "blocked_by_control": "CTRL-AD-001-EDR" },
+          { "step": 3, "tactic": "Credential Access", "technique_id": "T1558.001", "technique_name": "Golden Ticket", "blocked_by_control": "CTRL-AD-001-LOGGING-HARDENING" },
+          { "step": 4, "tactic": "Lateral Movement", "technique_id": "T1021", "technique_name": "Remote Services — accesso a tutti i sistemi", "blocked_by_control": null }
+        ],
+        "success_probability": "__ANALISTA__ es: 0.25 — difficile da rilevare senza Defender for Identity",
+        "estimated_impact_eur": "__B2__ × RTO_totale_azienda — TUTTI i sistemi down contemporaneamente",
+        "mitigating_controls": ["Microsoft Defender for Identity", "PAM con just-in-time access", "KRBTGT password rotation semestrale"]
+      },
+      {
+        "scenario_id": "SCEN-AD-002-RANSOMWARE-TOTAL",
+        "name": "Ransomware che usa AD GPO per distribuzione su tutti i sistemi Windows",
+        "threat_actor_ref": "TA-AD-002-RANSOMWARE",
+        "kill_chain_steps": [
+          { "step": 1, "tactic": "Initial Access", "technique_id": "T1566", "technique_name": "Phishing", "blocked_by_control": null },
+          { "step": 2, "tactic": "Privilege Escalation", "technique_id": "T1078.002", "technique_name": "Domain Account", "blocked_by_control": "CTRL-AD-001-PAM" },
+          { "step": 3, "tactic": "Lateral Movement", "technique_id": "T1484", "technique_name": "Domain Policy Modification (GPO)", "blocked_by_control": "CTRL-AD-001-LOGGING-HARDENING" },
+          { "step": 4, "tactic": "Impact", "technique_id": "T1486", "technique_name": "Data Encrypted for Impact — tutti i sistemi Windows", "blocked_by_control": "CTRL-AD-001-BACKUP" }
+        ],
+        "success_probability": "__ANALISTA__ es: 0.40 se Domain Admin compromesso",
+        "estimated_impact_eur": "__ANALISTA__ totalità sistemi × costo recovery × settimane",
+        "mitigating_controls": ["Monitoring GPO changes via SIEM", "Backup System State offline immutabile", "Tiered admin model"]
+      }
+    ],
+    "primary_attack_vector": "email",
+    "last_threat_model_review": "__DATA_INTERVISTA__ ISO-8601",
+    "reviewed_by": "__CHI_HA_CONDOTTO_INTERVISTA__"
+  },
+
+  "recommended_controls": [
+    {
+      "recommendation_id": "REC-AD-001-DEFENDER-IDENTITY",
+      "name": "Microsoft Defender for Identity (MDI) — Rilevamento Golden Ticket e DCSync",
+      "rationale": "Unico strumento che rileva Golden Ticket in tempo reale analizzando traffico Kerberos. Fondamentale per AD.",
+      "implementation_effort": "low",
+      "estimated_capex_eur": 0,
+      "estimated_opex_eur": 15000,
+      "expected_risk_reduction_pct": 0.40,
+      "roi_payback_years_estimated": "__CALCOLATO__",
+      "priority_rank": 1,
+      "compliance_gaps_addressed": ["NIS2 Art. 21.2(b)", "ISO 27001 A.8.15"],
+      "mitre_tactics_addressed": ["TA0006", "TA0008", "TA0003"],
+      "status": "proposed",
+      "target_implementation_date": "__ROADMAP__ ISO-8601"
+    },
+    {
+      "recommendation_id": "REC-AD-002-TIERED-ADMIN",
+      "name": "Active Directory Tier Model (Tier 0/1/2) — Separazione account admin",
+      "rationale": "Impedisce che compromissione di un admin workstation porti a Domain Admin. Riduce blast radius privilege escalation.",
+      "implementation_effort": "high",
+      "estimated_capex_eur": 5000,
+      "estimated_opex_eur": 3000,
+      "expected_risk_reduction_pct": 0.35,
+      "roi_payback_years_estimated": "__CALCOLATO__",
+      "priority_rank": 2,
+      "compliance_gaps_addressed": ["NIS2 Art. 21.2(i)", "ISO 27001 A.9.2.3"],
+      "mitre_tactics_addressed": ["TA0004", "TA0006"],
+      "status": "proposed",
+      "target_implementation_date": "__ROADMAP__ ISO-8601"
+    }
+  ],
+
+  "incident_history": [
+    {
+      "_note": "Compilare se si conoscono incidenti passati. Omettere o svuotare array se nessun incidente noto.",
+      "_example_structure": {
+        "incident_id": "INC-AD-001",
+        "detected_date": "__DATA__ ISO-8601",
+        "resolved_date": "__DATA__ ISO-8601",
+        "type": "unauthorized-access | ransomware | other",
+        "description": "__DESCRIZIONE senza PII__",
+        "mitre_techniques_observed": ["T1558.001", "T1003.003"],
+        "total_financial_impact_eur": 0,
+        "downtime_hours": 0,
+        "root_cause": "missing-control | misconfiguration | unpatched-vulnerability | social-engineering | unknown",
+        "failed_control_ref": "CTRL-AD-001-LOGGING-HARDENING o null",
+        "remediation_applied": ["descrizione misure adottate post-incidente"],
+        "regulatory_disclosure_required": false,
+        "regulatory_disclosure_ref": null
+      }
+    }
+  ]
 }

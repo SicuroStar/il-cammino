@@ -1,0 +1,75 @@
+<div class="sparkline-wrapper" *ngIf="snapshots?.length; else noData">
+
+  <!-- Trend label row -->
+  <div class="sparkline-header">
+    <span class="trend-indicator" [style.color]="trendColor">
+      {{ trendIcon() }} {{ trendLabel() }}
+    </span>
+    <span class="last-score" [style.color]="trendColor">
+      {{ lastScore() | number:'1.0-0' }}%
+    </span>
+  </div>
+
+  <!-- SVG chart -->
+  <svg [attr.width]="width" [attr.height]="height"
+       [attr.viewBox]="'0 0 ' + width + ' ' + height"
+       style="display:block; overflow:visible">
+
+    <!-- Baseline grid lines at 25%, 50%, 75% -->
+    <line *ngFor="let pct of [0.25, 0.5, 0.75]"
+          [attr.x1]="pad" [attr.y1]="pad + plotH - pct * plotH"
+          [attr.x2]="pad + plotW" [attr.y2]="pad + plotH - pct * plotH"
+          stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3,3">
+    </line>
+
+    <!-- Filled area under line -->
+    <polygon *ngIf="area"
+             [attr.points]="area"
+             [attr.fill]="trendColor"
+             opacity="0.12">
+    </polygon>
+
+    <!-- Trend line -->
+    <polyline *ngIf="polyline"
+              [attr.points]="polyline"
+              fill="none"
+              [attr.stroke]="trendColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round">
+    </polyline>
+
+    <!-- Data points -->
+    <g *ngFor="let pt of points">
+      <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3"
+              [attr.fill]="trendColor"
+              [attr.stroke]="'white'" stroke-width="1.5">
+      </circle>
+
+      <!-- X-axis date label (optional) -->
+      <text *ngIf="showLabels"
+            [attr.x]="pt.x" [attr.y]="height - 2"
+            text-anchor="middle" font-size="8" fill="#92949c">
+        {{ pt.label }}
+      </text>
+    </g>
+
+    <!-- Y-axis labels -->
+    <text [attr.x]="pad - 2" [attr.y]="pad + 4"
+          text-anchor="end" font-size="8" fill="#92949c">100</text>
+    <text [attr.x]="pad - 2" [attr.y]="pad + plotH"
+          text-anchor="end" font-size="8" fill="#92949c">0</text>
+
+  </svg>
+
+  <ion-note class="snapshot-count">
+    {{ snapshots.length }} snapshot
+  </ion-note>
+
+</div>
+
+<ng-template #noData>
+  <div class="sparkline-empty">
+    <ion-note color="medium">Nessuno storico disponibile</ion-note>
+  </div>
+</ng-template>

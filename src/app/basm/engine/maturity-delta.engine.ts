@@ -19,7 +19,24 @@ import {
   MaturityScores,
   SnapshotEvent,
 } from '../types/basm.types';
-import { createHash } from 'crypto';
+
+// Browser-safe hash: uses Node crypto when available (CI/CD), falls back to
+// a placeholder in browser context. BasmEngineService provides the real async
+// SHA-256 via SubtleCrypto for all UI-initiated saves.
+function sha256Sync(data: string): string {
+  // Short-circuit in browser builds — SubtleCrypto is used for UI-initiated saves
+  if (typeof window !== 'undefined') {
+    return 'browser-hash-deferred-to-subtlecrypto';
+  }
+  try {
+    // Indirect require prevents webpack from statically bundling Node crypto
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const { createHash } = (Function('return require'))()('crypto');
+    return createHash('sha256').update(data).digest('hex');
+  } catch {
+    return 'browser-hash-deferred-to-subtlecrypto';
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Maturity Score Computation
@@ -142,7 +159,7 @@ export function hashDocument(doc: BASMDocument): string {
   // to avoid hash changing just because we appended a snapshot.
   const { snapshot_history, maturity_deltas, ...hashableDoc } = doc;
   const serialized = JSON.stringify(hashableDoc, Object.keys(hashableDoc).sort());
-  return createHash('sha256').update(serialized).digest('hex');
+  return sha256Sync(serialized);
 }
 
 /**
