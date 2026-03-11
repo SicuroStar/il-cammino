@@ -1,0 +1,974 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/SicuroStar/il-cammino/raw/main/schema/basm.schema.v4.json",
+  "title": "BASM v4.0-STIX-LITE",
+  "description": "Business Application Security Model — bundle STIX-lite con estensioni formali STIX 2.1. Ogni asset aziendale è un grafo di oggetti tipizzati (software, infrastructure, course-of-action, threat-actor, relationship...) con estensioni BASM per staleness, maturity scoring, FAIR risk e RAG.",
+  "type": "object",
+  "required": ["type", "id", "spec_version", "x_basm_schema_version", "objects"],
+  "additionalProperties": false,
+  "properties": {
+
+    "type": {
+      "type": "string",
+      "const": "bundle",
+      "description": "Tipo STIX 2.1 — sempre 'bundle'."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^bundle--basm-[a-zA-Z0-9_\\-]+$",
+      "description": "ID univoco del bundle. Formato: bundle--basm-{app_id}.",
+      "examples": ["bundle--basm-PLANT-CONVEYOR-PLC-001"]
+    },
+    "spec_version": {
+      "type": "string",
+      "const": "2.1",
+      "description": "Versione della specifica STIX."
+    },
+    "x_basm_schema_version": {
+      "type": "string",
+      "const": "4.0-STIX-LITE",
+      "description": "Versione del modello BASM."
+    },
+    "x_basm_created": {
+      "$ref": "#/$defs/ISOTimestamp",
+      "description": "Data di creazione del bundle (immutabile dopo la prima scrittura)."
+    },
+    "x_basm_modified": {
+      "$ref": "#/$defs/ISOTimestamp",
+      "description": "Data dell'ultima modifica al bundle."
+    },
+
+    "x_basm_maturity_scoring": {
+      "$ref": "#/$defs/MaturityScoring",
+      "description": "Score composito di maturità del documento BASM (completezza dati, automazione, compliance)."
+    },
+    "x_basm_risk_quantification": {
+      "$ref": "#/$defs/RiskQuantification",
+      "description": "Quantificazione probabilistica del rischio (modello FAIR-inspired)."
+    },
+    "x_basm_snapshot_history": {
+      "type": "array",
+      "description": "Storico immutabile degli snapshot del documento (event sourcing).",
+      "items": { "$ref": "#/$defs/SnapshotEvent" }
+    },
+    "x_basm_maturity_deltas": {
+      "type": "array",
+      "description": "Delta di maturità calcolati tra snapshot consecutivi.",
+      "items": { "$ref": "#/$defs/MaturityDelta" }
+    },
+    "x_basm_reasoning_for_ai": {
+      "$ref": "#/$defs/ReasoningForAI",
+      "description": "Contesto narrativo e RAG chunks per analisi LLM/AI."
+    },
+    "x_basm_graph_node": {
+      "$ref": "#/$defs/GraphNode",
+      "description": "Metriche del nodo nel grafo di rischio (centralità, blast radius, copertura MITRE)."
+    },
+
+    "objects": {
+      "type": "array",
+      "minItems": 3,
+      "description": "Array di oggetti STIX 2.1 tipizzati con estensioni BASM. Deve contenere almeno: extension-definition, identity, software.",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/ExtensionDefinitionObject" },
+          { "$ref": "#/$defs/IdentityObject" },
+          { "$ref": "#/$defs/SoftwareObject" },
+          { "$ref": "#/$defs/InfrastructureObject" },
+          { "$ref": "#/$defs/CourseOfActionObject" },
+          { "$ref": "#/$defs/ThreatActorObject" },
+          { "$ref": "#/$defs/AttackPatternObject" },
+          { "$ref": "#/$defs/RelationshipObject" },
+          { "$ref": "#/$defs/ArtifactObject" },
+          { "$ref": "#/$defs/IncidentObject" }
+        ]
+      }
+    }
+  },
+
+  "$defs": {
+
+    "ISOTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp ISO-8601 con timezone (es. 2026-03-11T14:00:00Z)."
+    },
+    "ConfidenceScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Score di confidenza normalizzato [0.0, 1.0]."
+    },
+    "StatusIndicator": {
+      "type": "string",
+      "enum": ["green", "yellow", "red", "gray"],
+      "description": "Stato semaforo del controllo. green=operativo, yellow=parziale/eccezione, red=fallito, gray=non verificato."
+    },
+    "StalenesStatus": {
+      "type": "string",
+      "enum": ["fresh", "stale", "expired", "unknown"],
+      "description": "Stato di freschezza della verifica. fresh=entro TTL, stale=oltre TTL, expired=critico, unknown=mai verificato."
+    },
+    "DataClassification": {
+      "type": "string",
+      "enum": ["Public", "Internal", "Confidential", "Restricted", "Secret"],
+      "description": "Classificazione dati dell'asset secondo la policy aziendale."
+    },
+    "EnvironmentType": {
+      "type": "string",
+      "enum": ["production", "staging", "dev", "dr", "test"],
+      "description": "Tipo di ambiente di deployment."
+    },
+    "CriticalityClass": {
+      "type": "string",
+      "enum": ["Tier-1-Platinum", "Tier-1-Gold", "Tier-2-Silver", "Tier-3-Bronze"],
+      "description": "Classe di criticità dell'asset. Platinum=backbone aziendale, Gold=produzione critica, Silver=supporto operativo, Bronze=accessorio."
+    },
+    "AssetType": {
+      "type": "string",
+      "enum": ["IT", "OT", "IoT", "ICS", "Cloud", "Hybrid"],
+      "description": "Tipo di asset tecnologico."
+    },
+    "PurdueLevel": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Livello nel modello Purdue ISA-95 per asset OT/ICS. 0=Campo/Safety, 1=Dispositivi intelligenti, 2=Controllo, 3=MES, 4=ERP/IT, 5=Cloud/DMZ."
+    },
+    "SafetyImpact": {
+      "type": "string",
+      "enum": ["none", "low", "medium", "high", "catastrophic"],
+      "description": "Impatto sulla safety fisica in caso di compromissione dell'asset."
+    },
+    "IEC62443SL": {
+      "type": "string",
+      "enum": ["SL-1", "SL-2", "SL-3", "SL-4"],
+      "description": "Security Level target IEC 62443 per asset OT/ICS."
+    },
+    "AirGapStatus": {
+      "type": "string",
+      "enum": ["verified", "assumed", "partial", "none"],
+      "description": "Stato dell'air gap (isolamento fisico di rete)."
+    },
+    "BcpDrillResult": {
+      "type": "string",
+      "enum": ["passed", "partial", "failed", "not-tested"],
+      "description": "Esito dell'ultimo BCP drill."
+    },
+    "EdgeCriticality": {
+      "type": "string",
+      "enum": ["Critical", "High", "Medium", "Low"],
+      "description": "Criticità della relazione (connessione di rete/dati) tra asset."
+    },
+    "DataFlowDirection": {
+      "type": "string",
+      "enum": ["Inbound", "Outbound", "Bidirectional"],
+      "description": "Direzione del flusso dati/controllo."
+    },
+    "MaturityPhase": {
+      "type": "string",
+      "enum": ["Initial", "Developing", "Defined", "Managed", "Optimizing"],
+      "description": "Fase di maturità secondo il modello BASM (ispirato a CMMI)."
+    },
+    "ControlCoverage": {
+      "type": "string",
+      "enum": ["full", "partial", "none"],
+      "description": "Grado di copertura del controllo su una tecnica MITRE ATT&CK."
+    },
+    "ControlType": {
+      "type": "string",
+      "enum": ["preventive", "detective", "corrective", "compensating"],
+      "description": "Tipo funzionale del controllo di sicurezza."
+    },
+    "TrendType": {
+      "type": "string",
+      "enum": ["improving", "stable", "degrading", "volatile"],
+      "description": "Tendenza del trend di maturità tra snapshot consecutivi."
+    },
+
+    "MitreReference": {
+      "type": "object",
+      "description": "Riferimento a una tecnica MITRE ATT&CK (o ATT&CK for ICS).",
+      "required": ["tactic_id", "tactic_name", "technique_id", "technique_name"],
+      "additionalProperties": false,
+      "properties": {
+        "tactic_id":       { "type": "string", "examples": ["TA0040", "TA0008"] },
+        "tactic_name":     { "type": "string", "examples": ["Impact", "Lateral Movement"] },
+        "technique_id":    { "type": "string", "examples": ["T1486", "T0886"] },
+        "technique_name":  { "type": "string" },
+        "sub_technique_id": { "type": ["string", "null"] },
+        "control_coverage": { "$ref": "#/$defs/ControlCoverage" }
+      }
+    },
+
+    "FirmwareInfo": {
+      "type": "object",
+      "description": "Informazioni sul firmware installato su un asset OT/IoT.",
+      "required": ["vendor", "current_version"],
+      "additionalProperties": false,
+      "properties": {
+        "vendor":                    { "type": "string" },
+        "current_version":           { "type": "string" },
+        "release_date":              { "$ref": "#/$defs/ISOTimestamp" },
+        "known_cves":                { "type": "array", "items": { "type": "string", "pattern": "^CVE-\\d{4}-\\d+$" } },
+        "patch_requires_downtime":   { "type": "boolean" },
+        "last_patched":              { "$ref": "#/$defs/ISOTimestamp" },
+        "update_policy":             { "type": "string", "enum": ["monthly", "quarterly", "biannual", "annual", "vendor-driven", "manual-only"] },
+        "compensating_control_ref":  { "type": "string", "description": "ID del course-of-action che compensa la mancata patch." }
+      }
+    },
+
+    "MaturityScores": {
+      "type": "object",
+      "description": "Istantanea dei punteggi di maturità in un dato momento.",
+      "required": ["data_completeness", "automation_ratio", "compliance_index", "composite_score", "maturity_phase", "computed_at"],
+      "additionalProperties": false,
+      "properties": {
+        "data_completeness":  { "$ref": "#/$defs/ConfidenceScore", "description": "Quota campi BASM valorizzati rispetto al totale." },
+        "automation_ratio":   { "$ref": "#/$defs/ConfidenceScore", "description": "Quota controlli verificati automaticamente." },
+        "compliance_index":   { "$ref": "#/$defs/ConfidenceScore", "description": "Media dei confidence score pesata per mapping normativo." },
+        "composite_score":    { "$ref": "#/$defs/ConfidenceScore", "description": "Media pesata delle tre dimensioni (0.4 completeness + 0.3 automation + 0.3 compliance)." },
+        "maturity_phase":     { "$ref": "#/$defs/MaturityPhase" },
+        "computed_at":        { "$ref": "#/$defs/ISOTimestamp" }
+      }
+    },
+
+    "MaturityScoring": {
+      "allOf": [
+        { "$ref": "#/$defs/MaturityScores" },
+        {
+          "type": "object",
+          "properties": {
+            "industry_benchmark_median":      { "$ref": "#/$defs/ConfidenceScore", "description": "Mediana del settore (peer group)." },
+            "industry_benchmark_top_quartile": { "$ref": "#/$defs/ConfidenceScore", "description": "Primo quartile del settore." },
+            "peer_group":                     { "type": "string", "description": "Descrizione del peer group di riferimento." }
+          }
+        }
+      ]
+    },
+
+    "RiskQuantification": {
+      "type": "object",
+      "description": "Quantificazione probabilistica del rischio annualizzato (FAIR-inspired).",
+      "required": ["risk_score_annualized_eur", "methodology", "last_assessed_date"],
+      "additionalProperties": false,
+      "properties": {
+        "threat_event_frequency_per_year": { "type": "number", "minimum": 0, "description": "Numero atteso di eventi di minaccia per anno." },
+        "vulnerability_probability":       { "$ref": "#/$defs/ConfidenceScore", "description": "Probabilità che una minaccia sfrutti una vulnerabilità [0-1]." },
+        "primary_loss_magnitude_eur":      { "type": "number", "minimum": 0, "description": "Entità della perdita primaria in EUR per singolo evento." },
+        "risk_score_annualized_eur":       { "type": "number", "minimum": 0, "description": "Rischio annualizzato in EUR = TEF × Vuln × Loss. KPI principale." },
+        "confidence_in_estimate":          { "$ref": "#/$defs/ConfidenceScore", "description": "Confidenza nella stima complessiva [0-1]." },
+        "methodology": {
+          "type": "string",
+          "enum": ["FAIR-Core", "qualitative-expert", "historical-data", "hybrid"],
+          "description": "Metodologia usata per la quantificazione."
+        },
+        "last_assessed_date":    { "$ref": "#/$defs/ISOTimestamp" },
+        "last_reviewed_by":      { "type": "string", "description": "Ruolo o nome del revisore." }
+      }
+    },
+
+    "SnapshotEvent": {
+      "type": "object",
+      "description": "Evento immutabile nella storia del documento. Ogni modifica significativa crea uno snapshot.",
+      "required": ["sequence", "snapshot_id", "timestamp", "triggered_by", "maturity_scores"],
+      "additionalProperties": false,
+      "properties": {
+        "sequence":         { "type": "integer", "minimum": 1 },
+        "snapshot_id":      { "type": "string", "pattern": "^SNAP-" },
+        "timestamp":        { "$ref": "#/$defs/ISOTimestamp" },
+        "triggered_by":     { "type": "string", "description": "Chi o cosa ha triggerato lo snapshot (es. 'automated-ccm-pipeline', 'quarterly-review')." },
+        "document_hash":    { "type": "string", "description": "Hash SHA-256 del bundle al momento dello snapshot." },
+        "maturity_scores":  { "$ref": "#/$defs/MaturityScores" },
+        "change_summary":   { "type": "string", "description": "Breve descrizione delle modifiche che hanno motivato lo snapshot." }
+      }
+    },
+
+    "MaturityDelta": {
+      "type": "object",
+      "description": "Delta di maturità calcolato tra due snapshot consecutivi.",
+      "required": ["from_snapshot", "to_snapshot", "elapsed_days", "trend"],
+      "additionalProperties": false,
+      "properties": {
+        "from_snapshot":              { "type": "string" },
+        "to_snapshot":                { "type": "string" },
+        "elapsed_days":               { "type": "integer", "minimum": 0 },
+        "data_completeness_delta":    { "type": "number" },
+        "automation_ratio_delta":     { "type": "number" },
+        "compliance_index_delta":     { "type": "number" },
+        "composite_score_delta":      { "type": "number" },
+        "changed_controls":           { "type": "array", "items": { "type": "string" } },
+        "exception_changes":          { "type": "array", "items": { "type": "string" } },
+        "improvement_velocity":       { "type": "number", "description": "Punti di composite score guadagnati per giorno." },
+        "trend":                      { "$ref": "#/$defs/TrendType" }
+      }
+    },
+
+    "RAGChunk": {
+      "type": "object",
+      "description": "Chunk testuale precompilato per l'indicizzazione vettoriale (RAG).",
+      "required": ["chunk_id", "topic", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id":        { "type": "string" },
+        "topic":           { "type": "string", "description": "Titolo semantico del chunk (es. 'Asset Identity & Business Role')." },
+        "content":         { "type": "string", "description": "Testo da inviare al modello di embedding. Deve essere autonomo e leggibile senza contesto esterno." },
+        "embedding_id":    { "type": "string", "description": "ID nel vector store (es. 'rag-{app_id}-{chunk_id}')." },
+        "embedding_model": { "type": "string", "description": "Modello usato per l'embedding (es. 'text-embedding-3-large')." },
+        "last_embedded":   { "type": ["string", "null"] },
+        "embedding_valid": { "type": "boolean" },
+        "content_hash":    { "type": "string", "description": "Hash SHA-256 del content per rilevare invalidazioni." }
+      }
+    },
+
+    "ReasoningForAI": {
+      "type": "object",
+      "description": "Contesto narrativo per analisi LLM e RAG. Questo blocco è il 'cervello' del documento.",
+      "required": ["logic_inference", "failure_cascading_effect"],
+      "additionalProperties": false,
+      "properties": {
+        "logic_inference": {
+          "type": "string",
+          "description": "Spiegazione del ruolo dell'asset nel processo aziendale e perché è critico per la sicurezza."
+        },
+        "failure_cascading_effect": {
+          "type": "string",
+          "description": "Catena di impatti in caso di compromissione: quali sistemi downstream vengono colpiti, in quale sequenza, con quale impatto economico."
+        },
+        "training_notes": {
+          "type": "string",
+          "description": "Note operative per gli operatori di sicurezza e per il fine-tuning del modello."
+        },
+        "semantic_tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tag semantici per clustering e co-retrieval RAG."
+        },
+        "rag_chunks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RAGChunk" },
+          "description": "Chunks testuali precompilati per il vector store."
+        }
+      }
+    },
+
+    "GraphNode": {
+      "type": "object",
+      "description": "Metriche del nodo nel grafo di rischio aggregato (calcolate dall'engine).",
+      "required": ["node_id"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id":                      { "type": "string" },
+        "semantic_tags":                { "type": "array", "items": { "type": "string" } },
+        "graph_centrality":             { "$ref": "#/$defs/ConfidenceScore", "description": "Centralità betweenness normalizzata. Valori vicini a 1 = nodo critico di giunzione." },
+        "blast_radius_node_count":      { "type": "integer", "minimum": 0, "description": "Numero di nodi raggiungibili in caso di compromissione (BFS)." },
+        "blast_radius_revenue_at_risk_eur": { "type": "number", "minimum": 0, "description": "Revenue totale a rischio nel blast radius (EUR)." },
+        "neighborhood_ids":             { "type": "array", "items": { "type": "string" }, "description": "App ID dei nodi adiacenti nel grafo." },
+        "mitre_coverage_pct":           { "type": "number", "minimum": 0, "maximum": 100, "description": "Percentuale di tattiche MITRE ATT&CK coperte dai controlli attivi." },
+        "uncovered_critical_tactics":   { "type": "array", "items": { "type": "string" }, "description": "Tattiche MITRE non coperte da nessun controllo attivo." }
+      }
+    },
+
+    "BasmExtBase": {
+      "type": "object",
+      "description": "Base dell'estensione BASM (sempre presente su ogni oggetto che usa l'extension-definition--basm-ext).",
+      "required": ["extension_type"],
+      "properties": {
+        "extension_type": { "type": "string", "const": "property-extension" }
+      }
+    },
+
+    "BasmVerificationBlock": {
+      "type": "object",
+      "description": "Blocco di verifica e staleness per un controllo di sicurezza (Truth Decay Engine).",
+      "required": ["method", "confidence_score", "last_verified", "ttl_days"],
+      "additionalProperties": false,
+      "properties": {
+        "method":           { "type": "string", "enum": ["Automated", "Manual", "Hybrid"] },
+        "source":           { "type": "string", "description": "Sistema o persona che ha prodotto la verifica." },
+        "confidence_score": { "$ref": "#/$defs/ConfidenceScore" },
+        "last_verified":    { "$ref": "#/$defs/ISOTimestamp" },
+        "ttl_days":         { "type": "integer", "minimum": 1, "description": "Giorni di validità della verifica prima di diventare 'stale'." },
+        "lineage": {
+          "type": "object",
+          "description": "Provenienza e tracciabilità del dato di verifica.",
+          "additionalProperties": false,
+          "properties": {
+            "source_system":         { "type": "string" },
+            "ingestion_method":      { "type": "string", "enum": ["API_Pull", "Agent_Push", "Manual_Entry", "File_Import", "Webhook"] },
+            "last_ingestion_hash":   { "type": "string", "pattern": "^sha256:" },
+            "source_timestamp":      { "$ref": "#/$defs/ISOTimestamp" },
+            "verified_by_human":     { "type": "boolean" },
+            "verified_by":           { "type": "string" },
+            "confidence_algorithm":  { "type": "string" }
+          }
+        },
+        "staleness": {
+          "type": "object",
+          "description": "Stato e parametri del decadimento di confidenza nel tempo.",
+          "required": ["staleness_status"],
+          "additionalProperties": false,
+          "properties": {
+            "staleness_status":            { "$ref": "#/$defs/StalenesStatus" },
+            "next_verification_due":       { "$ref": "#/$defs/ISOTimestamp" },
+            "cascade_decay_rate_per_day":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Tasso di decadimento della confidenza per giorno dopo la scadenza TTL." },
+            "downstream_dependents":       { "type": "array", "items": { "type": "string" }, "description": "ID dei controlli che dipendono da questo per il calcolo del proprio confidence score." },
+            "alert_threshold":             { "$ref": "#/$defs/ConfidenceScore", "description": "Soglia di confidence sotto la quale scatta un alert." },
+            "staleness_alert_active":      { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "BasmMappingBlock": {
+      "type": "object",
+      "description": "Mapping del controllo agli standard normativi.",
+      "additionalProperties": false,
+      "properties": {
+        "iso27001":    { "type": "string", "description": "Controllo ISO 27001:2022 (es. 'A.8.7')." },
+        "nis2":        { "type": "string", "description": "Articolo NIS2 (es. 'Art. 21.2(e)')." },
+        "iec62443":    { "type": "string", "description": "Security Requirement IEC 62443 (es. 'SR 3.2')." },
+        "mitre_attack": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MitreReference" },
+          "description": "Tecniche MITRE ATT&CK (o ATT&CK for ICS) coperte da questo controllo."
+        }
+      }
+    },
+
+    "BasmExceptionBlock": {
+      "type": "object",
+      "description": "Eccezione attiva sul controllo (risk acceptance formale).",
+      "required": ["is_active"],
+      "additionalProperties": false,
+      "properties": {
+        "is_active":          { "type": "boolean" },
+        "reason":             { "type": ["string", "null"] },
+        "approved_by":        { "type": ["string", "null"] },
+        "expiry_date":        { "type": ["string", "null"] },
+        "risk_acceptance_ref": { "type": ["string", "null"], "description": "Rif. al documento formale di accettazione del rischio (es. 'RAF-2026-003')." }
+      }
+    },
+
+    "BasmEconomicsBlock": {
+      "type": "object",
+      "description": "Analisi economica del controllo (CAPEX/OPEX, ROI, riduzione rischio).",
+      "additionalProperties": false,
+      "properties": {
+        "control_type":                { "$ref": "#/$defs/ControlType" },
+        "annual_capex_eur":            { "type": "number", "minimum": 0 },
+        "annual_opex_eur":             { "type": "number", "minimum": 0 },
+        "implementation_days":         { "type": "integer", "minimum": 0 },
+        "expected_risk_reduction_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "roi_payback_years":           { "type": "number", "minimum": 0 },
+        "cost_per_risk_euro_reduced":  { "type": "number", "minimum": 0 }
+      }
+    },
+
+    "BasmEdgeBlock": {
+      "type": "object",
+      "description": "Metadata tecnica di una relazione di rete/dati tra asset (ex graph_edges).",
+      "additionalProperties": false,
+      "properties": {
+        "protocol":                    { "type": "string" },
+        "port":                        { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "criticality":                 { "$ref": "#/$defs/EdgeCriticality" },
+        "direction":                   { "$ref": "#/$defs/DataFlowDirection" },
+        "encrypted":                   { "type": "boolean" },
+        "mutually_authenticated":      { "type": "boolean" },
+        "crosses_segment_boundary":    { "type": "boolean" },
+        "data_classification_in_transit": { "$ref": "#/$defs/DataClassification" },
+        "authentication_type":         { "type": "string" },
+        "severance_impact":            { "type": "string", "description": "Descrizione dell'impatto se questa connessione venisse recisa o compromessa." },
+        "last_validated":              { "$ref": "#/$defs/ISOTimestamp" },
+        "threat_tactics":              { "type": "array", "items": { "$ref": "#/$defs/MitreReference" } }
+      }
+    },
+
+    "ExtensionDefinitionObject": {
+      "type": "object",
+      "description": "Oggetto STIX 2.1 che registra formalmente l'estensione BASM.",
+      "required": ["type", "id", "spec_version", "name", "schema", "version", "extension_types", "extension_properties"],
+      "additionalProperties": true,
+      "properties": {
+        "type":                 { "type": "string", "const": "extension-definition" },
+        "id":                   { "type": "string", "const": "extension-definition--basm-ext" },
+        "spec_version":         { "type": "string", "const": "2.1" },
+        "name":                 { "type": "string" },
+        "description":          { "type": "string" },
+        "created":              { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":             { "$ref": "#/$defs/ISOTimestamp" },
+        "schema":               { "type": "string", "format": "uri" },
+        "version":              { "type": "string" },
+        "extension_types":      { "type": "array", "items": { "type": "string" }, "contains": { "const": "property-extension" } },
+        "extension_properties": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "IdentityObject": {
+      "type": "object",
+      "description": "Business owner / organizzazione che subisce il danno economico in caso di incidente.",
+      "required": ["type", "id", "spec_version", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "identity" },
+        "id":           { "type": "string", "pattern": "^identity--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "name":         { "type": "string" },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "identity_class": { "type": "string", "enum": ["individual", "group", "system", "organization", "class", "unknown"] },
+        "sectors":      { "type": "array", "items": { "type": "string" } },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_hourly_loss_eur":            { "type": "number", "minimum": 0 },
+                    "x_basm_annual_revenue_at_risk_eur": { "type": "number", "minimum": 0 },
+                    "x_basm_department":                 { "type": "string" },
+                    "x_basm_contact":                    { "type": "string" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "SoftwareObject": {
+      "type": "object",
+      "description": "Il sistema logico (crown jewel): l'applicazione o il sistema software da valutare. Porta identity, BIA e classificazione.",
+      "required": ["type", "id", "spec_version", "name", "extensions"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "software" },
+        "id":           { "type": "string", "pattern": "^software--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "name":         { "type": "string" },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "swid":         { "type": "string", "description": "Software Identification Tag (SWID)." },
+        "languages":    { "type": "array", "items": { "type": "string" } },
+        "vendor":       { "type": "string" },
+        "version":      { "type": "string" },
+        "extensions": {
+          "type": "object",
+          "required": ["extension-definition--basm-ext"],
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "required": ["x_basm_app_id", "x_basm_criticality"],
+                  "properties": {
+                    "x_basm_app_id":             { "type": "string", "description": "ID univoco dell'app nel registro aziendale." },
+                    "x_basm_criticality":         { "$ref": "#/$defs/CriticalityClass" },
+                    "x_basm_environment":         { "$ref": "#/$defs/EnvironmentType" },
+                    "x_basm_data_classification": { "$ref": "#/$defs/DataClassification" },
+                    "x_basm_external_facing":     { "type": "boolean" },
+                    "x_basm_user_count_approx":   { "type": "integer", "minimum": 0 },
+                    "x_basm_asset_install_date":  { "$ref": "#/$defs/ISOTimestamp" },
+                    "x_basm_asset_eol_date":      { "$ref": "#/$defs/ISOTimestamp" },
+                    "x_basm_support_contract_expiry": { "$ref": "#/$defs/ISOTimestamp" },
+                    "x_basm_bia": {
+                      "type": "object",
+                      "description": "Business Impact Analysis: costi, obiettivi di recovery, implicazioni legali.",
+                      "required": ["process_chain", "hourly_downtime_cost_eur"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "process_chain":              { "type": "string" },
+                        "hourly_downtime_cost_eur":   { "type": "number", "minimum": 0 },
+                        "annual_revenue_at_risk_eur":  { "type": "number", "minimum": 0 },
+                        "cyber_insurance_coverage_eur": { "type": "number", "minimum": 0 },
+                        "net_financial_exposure_eur":  { "type": "number", "minimum": 0 },
+                        "legal_implications":          { "type": "array", "items": { "type": "string" } },
+                        "rto_hours":                   { "type": "number", "minimum": 0 },
+                        "rpo_hours":                   { "type": "number", "minimum": 0 },
+                        "last_bcp_drill":               { "$ref": "#/$defs/ISOTimestamp" },
+                        "bcp_drill_result":             { "$ref": "#/$defs/BcpDrillResult" },
+                        "board_notification_threshold": { "$ref": "#/$defs/ConfidenceScore" }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "InfrastructureObject": {
+      "type": "object",
+      "description": "Asset fisico/infrastrutturale: server, VM, PLC, apparato OT. Porta il contesto OT/ICS e i riferimenti CMDB.",
+      "required": ["type", "id", "spec_version", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type":             { "type": "string", "const": "infrastructure" },
+        "id":               { "type": "string", "pattern": "^infrastructure--" },
+        "spec_version":     { "type": "string", "const": "2.1" },
+        "name":             { "type": "string" },
+        "description":      { "type": "string" },
+        "created":          { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":         { "$ref": "#/$defs/ISOTimestamp" },
+        "infrastructure_types": { "type": "array", "items": { "type": "string" } },
+        "ip_addresses":     { "type": "array", "items": { "type": "string" } },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_cmdb_id":  { "type": "string" },
+                    "x_basm_hostname": { "type": "string" },
+                    "x_basm_ot": {
+                      "type": "object",
+                      "description": "Contesto OT/ICS. Compilare solo se asset_type ≠ IT.",
+                      "required": ["asset_type"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "asset_type":                    { "$ref": "#/$defs/AssetType" },
+                        "purdue_level":                  { "$ref": "#/$defs/PurdueLevel" },
+                        "air_gap_status":                { "$ref": "#/$defs/AirGapStatus" },
+                        "air_gap_last_verified":         { "$ref": "#/$defs/ISOTimestamp" },
+                        "firmware":                      { "$ref": "#/$defs/FirmwareInfo" },
+                        "allowed_protocols":             { "type": "array", "items": { "type": "string" } },
+                        "degraded_mode_max_minutes":     { "type": "integer", "minimum": 0 },
+                        "degraded_mode_throughput_ratio": { "$ref": "#/$defs/ConfidenceScore" },
+                        "safety_impact":                 { "$ref": "#/$defs/SafetyImpact" },
+                        "iec62443_target_sl":            { "$ref": "#/$defs/IEC62443SL" }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "CourseOfActionObject": {
+      "type": "object",
+      "description": "Controllo di sicurezza implementato o raccomandato. Cuore del BASM: porta status, verifica, staleness, mapping normativo, eccezioni ed economics.",
+      "required": ["type", "id", "spec_version", "name", "extensions"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "course-of-action" },
+        "id":           { "type": "string", "pattern": "^course-of-action--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "name":         { "type": "string" },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "extensions": {
+          "type": "object",
+          "required": ["extension-definition--basm-ext"],
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "required": ["x_basm_control_id", "x_basm_status", "x_basm_verification"],
+                  "properties": {
+                    "x_basm_control_id":        { "type": "string", "pattern": "^CTRL-" },
+                    "x_basm_status": {
+                      "type": "object",
+                      "required": ["indicator", "current_value", "effective_confidence"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "indicator":            { "$ref": "#/$defs/StatusIndicator" },
+                        "current_value":        { "type": "string" },
+                        "effective_confidence": { "$ref": "#/$defs/ConfidenceScore" }
+                      }
+                    },
+                    "x_basm_verification":      { "$ref": "#/$defs/BasmVerificationBlock" },
+                    "x_basm_mapping":           { "$ref": "#/$defs/BasmMappingBlock" },
+                    "x_basm_failure_management": {
+                      "type": "object",
+                      "description": "Piano operativo in caso di fallimento del controllo.",
+                      "additionalProperties": false,
+                      "properties": {
+                        "immediate_action":         { "type": "string" },
+                        "business_workaround":      { "type": "string" },
+                        "workaround_dependencies":  { "type": "array", "items": { "type": "string" } },
+                        "workaround_last_tested":   { "$ref": "#/$defs/ISOTimestamp" },
+                        "incident_playbook_ref":    { "type": "string" }
+                      }
+                    },
+                    "x_basm_exception":         { "$ref": "#/$defs/BasmExceptionBlock" },
+                    "x_basm_economics":         { "$ref": "#/$defs/BasmEconomicsBlock" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "ThreatActorObject": {
+      "type": "object",
+      "description": "Attore di minaccia rilevante per l'asset. Estende il tipo STIX nativo threat-actor.",
+      "required": ["type", "id", "spec_version", "name", "threat_actor_types"],
+      "additionalProperties": false,
+      "properties": {
+        "type":               { "type": "string", "const": "threat-actor" },
+        "id":                 { "type": "string", "pattern": "^threat-actor--" },
+        "spec_version":       { "type": "string", "const": "2.1" },
+        "name":               { "type": "string" },
+        "description":        { "type": "string" },
+        "created":            { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":           { "$ref": "#/$defs/ISOTimestamp" },
+        "threat_actor_types": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["activist", "competitor", "crime-syndicate", "criminal", "hacker", "insider-accidental", "insider-disgruntled", "nation-state", "sensationalist", "spy", "terrorist", "unknown"] }
+        },
+        "sophistication": {
+          "type": "string",
+          "enum": ["none", "minimal", "intermediate", "advanced", "expert", "innovator", "strategic"]
+        },
+        "primary_motivation": { "type": "string" },
+        "aliases":            { "type": "array", "items": { "type": "string" } },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_targeting_likelihood": { "$ref": "#/$defs/ConfidenceScore" },
+                    "x_basm_known_ttps":           { "type": "array", "items": { "type": "string" }, "description": "Tecniche MITRE ATT&CK note (es. 'T1486', 'T1190')." },
+                    "x_basm_mitre_group_id":       { "type": "string", "description": "ID gruppo MITRE ATT&CK (es. 'G0034' per APT28)." }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "AttackPatternObject": {
+      "type": "object",
+      "description": "Tecnica MITRE ATT&CK o scenario di attacco specifico per l'asset.",
+      "required": ["type", "id", "spec_version", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "attack-pattern" },
+        "id":           { "type": "string", "pattern": "^attack-pattern--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "name":         { "type": "string" },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "kill_chain_phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kill_chain_name", "phase_name"],
+            "properties": {
+              "kill_chain_name": { "type": "string" },
+              "phase_name":      { "type": "string" }
+            }
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_mitre_id":     { "type": "string", "pattern": "^T\\d{4}(\\.\\d{3})?$" },
+                    "x_mitre_tactic": { "type": "string", "description": "ID e nome tattica MITRE (es. 'TA0040 Impact')." },
+                    "x_basm_scenario": {
+                      "type": "object",
+                      "description": "Scenario di attacco specifico per questo asset.",
+                      "additionalProperties": false,
+                      "properties": {
+                        "scenario_id":          { "type": "string" },
+                        "success_probability":  { "$ref": "#/$defs/ConfidenceScore" },
+                        "estimated_impact_eur": { "type": "number", "minimum": 0 },
+                        "mitigating_controls":  { "type": "array", "items": { "type": "string" }, "description": "ID dei course-of-action che mitigano questo scenario." }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "RelationshipObject": {
+      "type": "object",
+      "description": "Connessione tipizzata tra due oggetti del bundle (equivalente ai graph_edges BASM v3.1). Può anche rappresentare relazioni strutturali (runs-on, serves, targets, mitigates).",
+      "required": ["type", "id", "spec_version", "relationship_type", "source_ref", "target_ref"],
+      "additionalProperties": false,
+      "properties": {
+        "type":              { "type": "string", "const": "relationship" },
+        "id":                { "type": "string", "pattern": "^relationship--" },
+        "spec_version":      { "type": "string", "const": "2.1" },
+        "relationship_type": {
+          "type": "string",
+          "description": "Tipo semantico della relazione.",
+          "enum": [
+            "serves", "runs-on", "mitigates", "mitigated-by",
+            "targets", "uses", "indicates", "attributed-to",
+            "controlled-by", "feeds-data-to", "depends-on",
+            "monitored-by", "authenticates-via", "stores-data-in",
+            "replicates-to", "backup-of", "triggers", "related-to"
+          ]
+        },
+        "source_ref":   { "type": "string", "description": "ID STIX dell'oggetto sorgente." },
+        "target_ref":   { "type": "string", "description": "ID STIX dell'oggetto destinazione." },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "start_time":   { "$ref": "#/$defs/ISOTimestamp" },
+        "stop_time":    { "$ref": "#/$defs/ISOTimestamp" },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_edge": { "$ref": "#/$defs/BasmEdgeBlock" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "ArtifactObject": {
+      "type": "object",
+      "description": "Evidence artifact con hash crittografico a prova di audit.",
+      "required": ["type", "id", "spec_version", "hashes"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "artifact" },
+        "id":           { "type": "string", "pattern": "^artifact--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "mime_type":    { "type": "string" },
+        "url":          { "type": "string", "format": "uri" },
+        "hashes": {
+          "type": "object",
+          "description": "Hash crittografici del contenuto (STIX native).",
+          "properties": {
+            "SHA-256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "SHA-512": { "type": "string" },
+            "MD5":     { "type": "string" }
+          }
+        },
+        "payload_bin": { "type": "string", "description": "Contenuto base64 dell'artifact (opzionale)." },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_evidence": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "evidence_id":             { "type": "string", "pattern": "^EVD-" },
+                        "type":                    { "type": "string", "enum": ["api_response", "screenshot", "log_extract", "config_export", "scan_report", "manual_attestation", "certificate"] },
+                        "source_system":           { "type": "string" },
+                        "source_uri":              { "type": "string" },
+                        "collected_at":            { "$ref": "#/$defs/ISOTimestamp" },
+                        "auto_collected":          { "type": "boolean" },
+                        "satisfies_requirements":  { "type": "array", "items": { "type": "string" } },
+                        "validity_days":           { "type": "integer", "minimum": 0 },
+                        "expires_at":              { "$ref": "#/$defs/ISOTimestamp" }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "IncidentObject": {
+      "type": "object",
+      "description": "Incidente di sicurezza storico che ha coinvolto questo asset.",
+      "required": ["type", "id", "spec_version", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type":         { "type": "string", "const": "incident" },
+        "id":           { "type": "string", "pattern": "^incident--" },
+        "spec_version": { "type": "string", "const": "2.1" },
+        "name":         { "type": "string" },
+        "description":  { "type": "string" },
+        "created":      { "$ref": "#/$defs/ISOTimestamp" },
+        "modified":     { "$ref": "#/$defs/ISOTimestamp" },
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "extension-definition--basm-ext": {
+              "allOf": [
+                { "$ref": "#/$defs/BasmExtBase" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "x_basm_incident": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "incident_id":                  { "type": "string", "pattern": "^INC-" },
+                        "incident_type":                { "type": "string", "enum": ["ransomware", "data-breach", "unauthorized-access", "insider-threat", "supply-chain", "phishing", "vulnerability-exploit", "denial-of-service", "other"] },
+                        "detected_date":                { "$ref": "#/$defs/ISOTimestamp" },
+                        "resolved_date":                { "$ref": "#/$defs/ISOTimestamp" },
+                        "total_financial_impact_eur":   { "type": "number", "minimum": 0 },
+                        "downtime_hours":               { "type": "number", "minimum": 0 },
+                        "root_cause":                   { "type": "string" },
+                        "failed_control_ref":           { "type": "string", "description": "ID del course-of-action che ha fallito." },
+                        "mitre_techniques_observed":    { "type": "array", "items": { "type": "string" } },
+                        "remediation_applied":          { "type": "array", "items": { "type": "string" } },
+                        "regulatory_disclosure_required": { "type": "boolean" },
+                        "regulatory_disclosure_ref":    { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+
+  }
+}

@@ -1,0 +1,763 @@
+{
+  "type": "bundle",
+  "id": "bundle--basm-PLANT-CONVEYOR-PLC-001",
+  "spec_version": "2.1",
+  "x_basm_schema_version": "4.0-STIX-LITE",
+  "x_basm_created": "2026-01-10T09:00:00Z",
+  "x_basm_modified": "2026-03-08T23:15:00Z",
+
+  "x_basm_maturity_scoring": {
+    "data_completeness": 0.88,
+    "automation_ratio": 0.67,
+    "compliance_index": 0.74,
+    "composite_score": 0.76,
+    "maturity_phase": "Managed",
+    "computed_at": "2026-03-08T23:15:00Z",
+    "industry_benchmark_median": 0.55,
+    "industry_benchmark_top_quartile": 0.82,
+    "peer_group": "Manufacturing OT — Purdue L1-L2 (EU)"
+  },
+
+  "x_basm_risk_quantification": {
+    "threat_event_frequency_per_year": 0.4,
+    "vulnerability_probability": 0.35,
+    "primary_loss_magnitude_eur": 74000,
+    "risk_score_annualized_eur": 3256000,
+    "confidence_in_estimate": 0.72,
+    "methodology": "FAIR-Core",
+    "last_assessed_date": "2026-03-01T09:00:00Z",
+    "last_reviewed_by": "Senior Cybersecurity Engineer"
+  },
+
+  "x_basm_graph_node": {
+    "node_id": "PLANT-CONVEYOR-PLC-001",
+    "semantic_tags": ["OT", "PLC", "Siemens", "S7-1500", "rullo-trasportatore", "Order-to-Cash", "Purdue-L1", "IEC62443", "ransomware-vector", "lateral-movement", "produzione-critica"],
+    "graph_centrality": 0.82,
+    "blast_radius_node_count": 3,
+    "blast_radius_revenue_at_risk_eur": 245000,
+    "neighborhood_ids": ["SCADA-MAIN-001", "HISTORIAN-AVEVA-001", "ERP-SAP-001"],
+    "mitre_coverage_pct": 62,
+    "uncovered_critical_tactics": ["TA0006 Credential Access", "TA0010 Exfiltration"]
+  },
+
+  "x_basm_snapshot_history": [
+    {
+      "sequence": 1,
+      "snapshot_id": "SNAP-PLANT-CONVEYOR-PLC-001-0001",
+      "timestamp": "2026-01-10T09:00:00Z",
+      "triggered_by": "initial-onboarding",
+      "document_hash": "sha256:aabbcc0001",
+      "maturity_scores": {
+        "data_completeness": 0.42,
+        "automation_ratio": 0.33,
+        "compliance_index": 0.28,
+        "composite_score": 0.34,
+        "maturity_phase": "Developing",
+        "computed_at": "2026-01-10T09:00:00Z"
+      },
+      "change_summary": "Creazione iniziale. Solo identity e BIA compilati."
+    },
+    {
+      "sequence": 2,
+      "snapshot_id": "SNAP-PLANT-CONVEYOR-PLC-001-0002",
+      "timestamp": "2026-02-05T14:00:00Z",
+      "triggered_by": "quarterly-review",
+      "document_hash": "sha256:aabbcc0002",
+      "maturity_scores": {
+        "data_completeness": 0.65,
+        "automation_ratio": 0.50,
+        "compliance_index": 0.55,
+        "composite_score": 0.57,
+        "maturity_phase": "Defined",
+        "computed_at": "2026-02-05T14:00:00Z"
+      },
+      "change_summary": "Aggiunti tutti i controlli. Primo CCM run completato. OT context popolato."
+    },
+    {
+      "sequence": 3,
+      "snapshot_id": "SNAP-PLANT-CONVEYOR-PLC-001-0003",
+      "timestamp": "2026-03-08T23:15:00Z",
+      "triggered_by": "automated-ccm-pipeline",
+      "document_hash": "sha256:placeholder-computed-by-engine",
+      "maturity_scores": {
+        "data_completeness": 0.88,
+        "automation_ratio": 0.67,
+        "compliance_index": 0.74,
+        "composite_score": 0.76,
+        "maturity_phase": "Managed",
+        "computed_at": "2026-03-08T23:15:00Z"
+      },
+      "change_summary": "Migrazione a BASM v4.0-STIX-LITE. Aggiunti relationship objects, evidence artifacts, threat-actor. Eccezione RAF-2026-003 attiva su NETISO."
+    }
+  ],
+
+  "x_basm_maturity_deltas": [
+    {
+      "from_snapshot": "SNAP-PLANT-CONVEYOR-PLC-001-0001",
+      "to_snapshot": "SNAP-PLANT-CONVEYOR-PLC-001-0002",
+      "elapsed_days": 26,
+      "data_completeness_delta": 0.23,
+      "automation_ratio_delta": 0.17,
+      "compliance_index_delta": 0.27,
+      "composite_score_delta": 0.23,
+      "changed_controls": ["CTRL-PLC-001-EDR", "CTRL-PLC-001-NETISO", "CTRL-PLC-001-FWAUDIT"],
+      "exception_changes": [],
+      "improvement_velocity": 0.0088,
+      "trend": "improving"
+    },
+    {
+      "from_snapshot": "SNAP-PLANT-CONVEYOR-PLC-001-0002",
+      "to_snapshot": "SNAP-PLANT-CONVEYOR-PLC-001-0003",
+      "elapsed_days": 31,
+      "data_completeness_delta": 0.23,
+      "automation_ratio_delta": 0.17,
+      "compliance_index_delta": 0.19,
+      "composite_score_delta": 0.19,
+      "changed_controls": ["CTRL-PLC-001-NETISO"],
+      "exception_changes": ["RAF-2026-003 activated on CTRL-PLC-001-NETISO"],
+      "improvement_velocity": 0.0061,
+      "trend": "improving"
+    }
+  ],
+
+  "x_basm_reasoning_for_ai": {
+    "logic_inference": "Questo PLC Siemens S7-1500 controlla il movimento fisico del rullo trasportatore della Linea A. È il nodo Purdue Level 1 che traduce i comandi SCADA in azioni fisiche. La sua compromissione è un evento fisico con potenziale impatto sulla safety degli operatori. Il processo Order-to-Cash dipende direttamente: senza conferma di produzione dal PLC, gli ordini non vengono chiusi e la fatturazione si blocca.",
+    "failure_cascading_effect": "PLC down → (1) SCADA-MAIN-001 perde telemetria e controllo remoto Linea A → (2) HISTORIAN-AVEVA-001 smette di ricevere dati, KPI non affidabili → (3) ERP-SAP-001 non riceve conferma ordini, blocco Order-to-Cash. Revenue impact: €18.500/ora × RTO 4h = €74.000 per incidente.",
+    "training_notes": "Non connettere mai laptop ingegneria direttamente alla porta Ethernet del PLC senza verificare VLAN OT-ISOLATED (192.168.50.0/24) e agent Defender for IoT attivo. Il firmware 3.12.4 ha CVE-2024-43647 — non operare in modalità bridged OT/IT senza approvazione CISO (vedi RAF-2026-003).",
+    "semantic_tags": ["OT", "PLC", "Siemens", "S7-1500", "ransomware-vector", "lateral-movement", "Order-to-Cash", "Purdue-L1"],
+    "rag_chunks": [
+      {
+        "chunk_id": "CHUNK-PLC001-IDENTITY",
+        "topic": "Asset Identity & Business Role",
+        "content": "PLC Siemens S7-1500 — Rullo Trasportatore Linea A. Tier-1-Gold, OT, Purdue L1. Owner: Mario Rossi (Direzione Operations). Processo: Order-to-Cash. Costo downtime: €18.500/ora. RTO: 4h. Revenue at risk: €3.256M/anno. Net exposure (dopo insurance €1M): €2.256M.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-IDENTITY",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLC001-OT",
+        "topic": "OT/ICS Context & Safety",
+        "content": "Purdue Level 1 (Intelligent Devices). Air gap: partial — bridge OT/IT attivo per manutenzione firmware fino al 2026-03-15 (RAF-2026-003). Firmware Siemens 3.12.4, CVE-2024-43647 presente, patch richiede downtime. Protocolli: S7, Profinet, OPC-UA. Safety impact: HIGH. IEC 62443 target SL-2. Degraded mode: max 240 min, throughput 40%.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-OT",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLC001-CONTROLS",
+        "topic": "Security Controls Status",
+        "content": "EDR Defender for IoT: GREEN, confidence 0.91, fresh (TTL 1 giorno). Network Isolation VLAN: YELLOW, confidence 0.61, STALE — eccezione RAF-2026-003 attiva fino 2026-03-15, bridge OT/IT aperto per firmware update, 2 porte extra aperte (TCP/102 S7, TCP/443). Firmware Integrity Hash: GREEN, confidence 0.83, fresh (TTL 7 giorni), CVE-2024-43647 mitigata da isolamento rete.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-CONTROLS",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLC001-GRAPH",
+        "topic": "Graph Topology & Blast Radius",
+        "content": "Centralità nodo: 0.82 (critico). Connessioni: → SCADA-MAIN-001 (controlled-by, OPC-UA/4840, Critical, cifrato, mutual auth). → HISTORIAN-AVEVA-001 (feeds-data-to, OPC-DA/135, High, NON cifrato, cross-segment). → ERP-SAP-001 (feeds-data-to, REST/HTTPS/443, High, cifrato, no mutual auth, cross-segment). Blast radius: 3 nodi, €245.000 revenue a rischio.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-GRAPH",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      },
+      {
+        "chunk_id": "CHUNK-PLC001-RANSOMWARE",
+        "topic": "Ransomware Attack Scenario",
+        "content": "Scenario più probabile: ransomware entra da ERP-SAP-001 tramite edge OPC-DA non cifrato verso HISTORIAN, poi lateralmente al PLC. Workaround: modo manuale HMI locale, throughput 40%, max 4h (dipende da HMI-PANEL-LOCAL-001 non compromesso). Playbook: PB-OT-RANSOMWARE-001. MITRE coperto: T1486 (Impact/Ransomware, partial), T1562.001 (Defense Evasion, full), T0839 (Module Firmware, full). Non coperto: Credential Access, Exfiltration.",
+        "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-RANSOMWARE",
+        "embedding_model": "text-embedding-3-large",
+        "last_embedded": null,
+        "embedding_valid": false,
+        "content_hash": "sha256:pending"
+      }
+    ]
+  },
+
+  "objects": [
+
+    {
+      "type": "extension-definition",
+      "id": "extension-definition--basm-ext",
+      "spec_version": "2.1",
+      "name": "BASM Security Metadata Extension v4.0",
+      "description": "Business Application Security Model — STIX-lite extension per security posture assessment enterprise. Aggiunge staleness/truth-decay, maturity scoring FAIR, OT/ICS context, economics dei controlli.",
+      "created": "2026-01-01T00:00:00Z",
+      "modified": "2026-03-11T00:00:00Z",
+      "schema": "https://github.com/SicuroStar/il-cammino/raw/main/schema/basm.schema.v4.json",
+      "version": "4.0",
+      "extension_types": ["property-extension"],
+      "extension_properties": [
+        "x_basm_app_id", "x_basm_criticality", "x_basm_environment",
+        "x_basm_data_classification", "x_basm_bia", "x_basm_ot",
+        "x_basm_control_id", "x_basm_status", "x_basm_verification",
+        "x_basm_mapping", "x_basm_failure_management", "x_basm_exception",
+        "x_basm_economics", "x_basm_edge", "x_basm_evidence",
+        "x_basm_incident", "x_basm_targeting_likelihood", "x_basm_known_ttps",
+        "x_basm_scenario", "x_mitre_id", "x_mitre_tactic",
+        "x_basm_hourly_loss_eur", "x_basm_annual_revenue_at_risk_eur"
+      ]
+    },
+
+    {
+      "type": "identity",
+      "id": "identity--acmefab-operations",
+      "spec_version": "2.1",
+      "name": "Mario Rossi — Direzione Operations, AcmeFab",
+      "description": "Business owner della Linea A. Riceve notifica immediata in caso di fermo produzione.",
+      "identity_class": "individual",
+      "sectors": ["manufacturing"],
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_hourly_loss_eur": 18500,
+          "x_basm_annual_revenue_at_risk_eur": 3256000,
+          "x_basm_department": "Direzione Operations",
+          "x_basm_contact": "m.rossi@acmefab.it"
+        }
+      }
+    },
+
+    {
+      "type": "software",
+      "id": "software--PLANT-CONVEYOR-PLC-001",
+      "spec_version": "2.1",
+      "name": "Sistema PLC Rullo Trasportatore — Linea A",
+      "description": "Sistema di controllo PLC per il rullo trasportatore della Linea A. Nodo Purdue L1 che traduce comandi SCADA in azioni fisiche sul conveyor.",
+      "vendor": "Siemens",
+      "version": "3.12.4",
+      "swid": "PLANT-CONVEYOR-PLC-001",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_app_id": "PLANT-CONVEYOR-PLC-001",
+          "x_basm_criticality": "Tier-1-Gold",
+          "x_basm_environment": "production",
+          "x_basm_data_classification": "Internal",
+          "x_basm_external_facing": false,
+          "x_basm_asset_install_date": "2022-06-01T00:00:00Z",
+          "x_basm_bia": {
+            "process_chain": "Order-to-Cash / Produzione Linea A",
+            "hourly_downtime_cost_eur": 18500,
+            "annual_revenue_at_risk_eur": 3256000,
+            "cyber_insurance_coverage_eur": 1000000,
+            "net_financial_exposure_eur": 2256000,
+            "legal_implications": ["NIS2 Essential", "IEC 62443", "ISO 27001", "Direttiva Macchine 2006/42/CE"],
+            "rto_hours": 4,
+            "rpo_hours": 1,
+            "last_bcp_drill": "2025-10-12T09:00:00Z",
+            "bcp_drill_result": "partial",
+            "board_notification_threshold": 0.5
+          }
+        }
+      }
+    },
+
+    {
+      "type": "infrastructure",
+      "id": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "spec_version": "2.1",
+      "name": "Siemens S7-1500 PLC — Linea A",
+      "description": "Hardware PLC fisicamente montato sul quadro elettrico Linea A. Purdue Level 1. Air gap parziale durante finestra manutenzione firmware.",
+      "infrastructure_types": ["control-system"],
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_cmdb_id": "OT-PLC-00142",
+          "x_basm_ot": {
+            "asset_type": "OT",
+            "purdue_level": 1,
+            "air_gap_status": "partial",
+            "air_gap_last_verified": "2026-01-15T08:00:00Z",
+            "firmware": {
+              "vendor": "Siemens",
+              "current_version": "3.12.4",
+              "release_date": "2024-09-01T00:00:00Z",
+              "known_cves": ["CVE-2024-43647"],
+              "patch_requires_downtime": true,
+              "last_patched": "2025-11-20T06:00:00Z",
+              "update_policy": "quarterly",
+              "compensating_control_ref": "course-of-action--CTRL-PLC-001-NETISO"
+            },
+            "allowed_protocols": ["S7", "Profinet", "OPC-UA"],
+            "degraded_mode_max_minutes": 240,
+            "degraded_mode_throughput_ratio": 0.4,
+            "safety_impact": "high",
+            "iec62443_target_sl": "SL-2"
+          }
+        }
+      }
+    },
+
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--CTRL-PLC-001-EDR",
+      "spec_version": "2.1",
+      "name": "EDR — Defender for IoT Agent",
+      "description": "Agente EDR Microsoft Defender for IoT installato sul PLC. Onboarded, attivo, monitoraggio continuativo.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_control_id": "CTRL-PLC-001-EDR",
+          "x_basm_status": {
+            "indicator": "green",
+            "current_value": "Onboarded, Active, Low Risk",
+            "effective_confidence": 0.87
+          },
+          "x_basm_verification": {
+            "method": "Automated",
+            "source": "Microsoft Defender for IoT API",
+            "confidence_score": 0.91,
+            "last_verified": "2026-03-08T06:00:00Z",
+            "ttl_days": 1,
+            "lineage": {
+              "source_system": "Microsoft Defender for IoT",
+              "ingestion_method": "API_Pull",
+              "last_ingestion_hash": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+              "source_timestamp": "2026-03-08T05:58:00Z",
+              "verified_by_human": false,
+              "confidence_algorithm": "weighted_source_reliability_v2"
+            },
+            "staleness": {
+              "staleness_status": "fresh",
+              "next_verification_due": "2026-03-09T06:00:00Z",
+              "cascade_decay_rate_per_day": 0.08,
+              "downstream_dependents": ["course-of-action--CTRL-PLC-001-NETISO"],
+              "alert_threshold": 0.5,
+              "staleness_alert_active": false
+            }
+          },
+          "x_basm_mapping": {
+            "iso27001": "A.8.7",
+            "nis2": "Art. 21.2(e)",
+            "iec62443": "SR 3.2",
+            "mitre_attack": [
+              { "tactic_id": "TA0040", "tactic_name": "Impact", "technique_id": "T1486", "technique_name": "Data Encrypted for Impact", "sub_technique_id": null, "control_coverage": "partial" },
+              { "tactic_id": "TA0005", "tactic_name": "Defense Evasion", "technique_id": "T1562", "technique_name": "Impair Defenses", "sub_technique_id": "T1562.001", "control_coverage": "full" }
+            ]
+          },
+          "x_basm_failure_management": {
+            "immediate_action": "Isolare il PLC dal segmento IT/OT bridged. Attivare VLAN di quarantena 192.168.99.0/24.",
+            "business_workaround": "Attivare modalità manuale: operatore presidia fisicamente il pannello HMI locale. Throughput ridotto al 40%. Max 4h.",
+            "workaround_dependencies": ["HMI-PANEL-LOCAL-001"],
+            "workaround_last_tested": "2025-10-12T09:00:00Z",
+            "incident_playbook_ref": "PB-OT-RANSOMWARE-001"
+          },
+          "x_basm_exception": {
+            "is_active": false,
+            "reason": null,
+            "approved_by": null,
+            "expiry_date": null,
+            "risk_acceptance_ref": null
+          },
+          "x_basm_economics": {
+            "control_type": "detective",
+            "annual_capex_eur": 0,
+            "annual_opex_eur": 8400,
+            "implementation_days": 3,
+            "expected_risk_reduction_pct": 35,
+            "roi_payback_years": 0.3,
+            "cost_per_risk_euro_reduced": 0.0074
+          }
+        }
+      }
+    },
+
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--CTRL-PLC-001-NETISO",
+      "spec_version": "2.1",
+      "name": "Network Isolation — VLAN Segmentation OT/IT",
+      "description": "Segmentazione VLAN OT/IT per isolare il PLC dalla rete IT. Attualmente parziale: bridge attivo per aggiornamento firmware.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_control_id": "CTRL-PLC-001-NETISO",
+          "x_basm_status": {
+            "indicator": "yellow",
+            "current_value": "Partial — bridging attivo per aggiornamenti firmware",
+            "effective_confidence": 0.61
+          },
+          "x_basm_verification": {
+            "method": "Hybrid",
+            "source": "Tenable.io",
+            "confidence_score": 0.72,
+            "last_verified": "2026-03-06T08:00:00Z",
+            "ttl_days": 3,
+            "lineage": {
+              "source_system": "Tenable.io",
+              "ingestion_method": "API_Pull",
+              "last_ingestion_hash": "sha256:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+              "source_timestamp": "2026-03-06T07:45:00Z",
+              "verified_by_human": true,
+              "verified_by": "luca.bianchi@acmefab.it",
+              "confidence_algorithm": "weighted_source_reliability_v2"
+            },
+            "staleness": {
+              "staleness_status": "stale",
+              "next_verification_due": "2026-03-09T08:00:00Z",
+              "cascade_decay_rate_per_day": 0.12,
+              "downstream_dependents": ["course-of-action--CTRL-PLC-001-FWAUDIT"],
+              "alert_threshold": 0.45,
+              "staleness_alert_active": false
+            }
+          },
+          "x_basm_mapping": {
+            "iso27001": "A.8.22",
+            "nis2": "Art. 21.2(h)",
+            "iec62443": "SR 5.1",
+            "mitre_attack": [
+              { "tactic_id": "TA0008", "tactic_name": "Lateral Movement", "technique_id": "T1021", "technique_name": "Remote Services", "sub_technique_id": "T1021.002", "control_coverage": "partial" }
+            ]
+          },
+          "x_basm_failure_management": {
+            "immediate_action": "Chiudere immediatamente il bridge OT/IT. Verificare firewall Purdue L3→L2 su Fortinet FortiGate-OT.",
+            "business_workaround": "Produzione continua su rete OT isolata. Dati salvati localmente su HMI e sincronizzati al ripristino.",
+            "workaround_dependencies": ["HMI-PANEL-LOCAL-001", "HISTORIAN-LOCAL-001"],
+            "workaround_last_tested": "2025-08-20T14:00:00Z",
+            "incident_playbook_ref": "PB-OT-NETISO-002"
+          },
+          "x_basm_exception": {
+            "is_active": true,
+            "reason": "Bridge OT/IT temporaneamente attivo per aggiornamento firmware Siemens S7-1500. Approvato per finestra di manutenzione.",
+            "approved_by": "ciso@acmefab.it",
+            "expiry_date": "2026-03-15T23:59:00Z",
+            "risk_acceptance_ref": "RAF-2026-003"
+          },
+          "x_basm_economics": {
+            "control_type": "preventive",
+            "annual_capex_eur": 12000,
+            "annual_opex_eur": 3600,
+            "implementation_days": 10,
+            "expected_risk_reduction_pct": 55,
+            "roi_payback_years": 0.5,
+            "cost_per_risk_euro_reduced": 0.0048
+          }
+        }
+      }
+    },
+
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--CTRL-PLC-001-FWAUDIT",
+      "spec_version": "2.1",
+      "name": "Firmware Integrity — Verifica Hash Firmware PLC",
+      "description": "Verifica automatica dell'integrità del firmware tramite hash SHA-256 confrontato con il manifest del vendor Siemens.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_control_id": "CTRL-PLC-001-FWAUDIT",
+          "x_basm_status": {
+            "indicator": "green",
+            "current_value": "Hash verificato: SHA256 matches vendor manifest",
+            "effective_confidence": 0.83
+          },
+          "x_basm_verification": {
+            "method": "Automated",
+            "source": "Tenable.io — OT Plugin",
+            "confidence_score": 0.88,
+            "last_verified": "2026-03-07T04:00:00Z",
+            "ttl_days": 7,
+            "lineage": {
+              "source_system": "Tenable.io — OT Plugin",
+              "ingestion_method": "API_Pull",
+              "last_ingestion_hash": "sha256:c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "source_timestamp": "2026-03-07T03:50:00Z",
+              "verified_by_human": false,
+              "confidence_algorithm": "weighted_source_reliability_v2"
+            },
+            "staleness": {
+              "staleness_status": "fresh",
+              "next_verification_due": "2026-03-14T04:00:00Z",
+              "cascade_decay_rate_per_day": 0.05,
+              "downstream_dependents": [],
+              "alert_threshold": 0.5,
+              "staleness_alert_active": false
+            }
+          },
+          "x_basm_mapping": {
+            "iso27001": "A.8.8",
+            "nis2": "Art. 21.2(e)",
+            "iec62443": "SR 3.4",
+            "mitre_attack": [
+              { "tactic_id": "TA0040", "tactic_name": "Impact", "technique_id": "T0839", "technique_name": "Module Firmware", "sub_technique_id": null, "control_coverage": "full" }
+            ]
+          },
+          "x_basm_failure_management": {
+            "immediate_action": "Spegnere il PLC in modo sicuro (safe state). Non riavviare fino a verifica fisica firmware con supporto Siemens.",
+            "business_workaround": "Attivare PLC backup PLANT-CONVEYOR-PLC-001-BACKUP se disponibile. Altrimenti stop Linea A, redirigere su Linea B.",
+            "workaround_dependencies": ["PLANT-CONVEYOR-PLC-001-BACKUP", "PLANT-CONVEYOR-PLC-002"],
+            "workaround_last_tested": "2025-06-10T10:00:00Z",
+            "incident_playbook_ref": "PB-OT-FW-TAMPER-003"
+          },
+          "x_basm_exception": {
+            "is_active": false,
+            "reason": null,
+            "approved_by": null,
+            "expiry_date": null,
+            "risk_acceptance_ref": null
+          },
+          "x_basm_economics": {
+            "control_type": "detective",
+            "annual_capex_eur": 0,
+            "annual_opex_eur": 1200,
+            "implementation_days": 1,
+            "expected_risk_reduction_pct": 20,
+            "roi_payback_years": 0.1,
+            "cost_per_risk_euro_reduced": 0.0018
+          }
+        }
+      }
+    },
+
+    {
+      "type": "threat-actor",
+      "id": "threat-actor--ransomware-opportunistic-ot",
+      "spec_version": "2.1",
+      "name": "Ransomware Group — Opportunistic OT",
+      "description": "Gruppo cybercriminale che sfrutta opportunisticamente vulnerabilità OT/IT bridging. Non APT, ma capacità tecniche intermediate con tool commerciali.",
+      "threat_actor_types": ["crime-syndicate"],
+      "sophistication": "intermediate",
+      "primary_motivation": "financial-gain",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_targeting_likelihood": 0.6,
+          "x_basm_known_ttps": ["T1486", "T1190", "T1133", "T1078", "T1036"],
+          "x_basm_mitre_group_id": null
+        }
+      }
+    },
+
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--mitre-T1486",
+      "spec_version": "2.1",
+      "name": "Data Encrypted for Impact",
+      "description": "Cifratura dei file di sistema e dati operativi per interrompere la disponibilità. In contesto OT può bloccare la logica di controllo del PLC.",
+      "kill_chain_phases": [{ "kill_chain_name": "mitre-attack", "phase_name": "impact" }],
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_mitre_id": "T1486",
+          "x_mitre_tactic": "TA0040 Impact"
+        }
+      }
+    },
+
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--mitre-T1562-001",
+      "spec_version": "2.1",
+      "name": "Impair Defenses: Disable or Modify Tools",
+      "description": "Disabilitazione degli strumenti di sicurezza (es. EDR agent) per ridurre la rilevabilità dell'attacco.",
+      "kill_chain_phases": [{ "kill_chain_name": "mitre-attack", "phase_name": "defense-evasion" }],
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_mitre_id": "T1562.001",
+          "x_mitre_tactic": "TA0005 Defense Evasion"
+        }
+      }
+    },
+
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--mitre-T0839",
+      "spec_version": "2.1",
+      "name": "Module Firmware",
+      "description": "Modifica del firmware del PLC per compromettere il comportamento fisico del sistema di controllo. Tecnica ATT&CK for ICS.",
+      "kill_chain_phases": [{ "kill_chain_name": "mitre-ics-attack", "phase_name": "impact" }],
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_mitre_id": "T0839",
+          "x_mitre_tactic": "TA0040 Impact (ICS)"
+        }
+      }
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--sw-runs-on-infra",
+      "spec_version": "2.1",
+      "relationship_type": "runs-on",
+      "source_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "target_ref": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "description": "Il sistema logico PLC gira sull'hardware Siemens S7-1500 fisicamente installato sulla Linea A."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--sw-serves-identity",
+      "spec_version": "2.1",
+      "relationship_type": "serves",
+      "source_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "target_ref": "identity--acmefab-operations",
+      "description": "Il sistema PLC serve le operazioni della Direzione Operations — è il backbone della produzione Linea A."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--edr-mitigates-infra",
+      "spec_version": "2.1",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--CTRL-PLC-001-EDR",
+      "target_ref": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "description": "L'agente EDR Defender for IoT monitora e protegge l'hardware PLC fisico."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--netiso-mitigates-infra",
+      "spec_version": "2.1",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--CTRL-PLC-001-NETISO",
+      "target_ref": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "description": "La segmentazione VLAN OT/IT isola il PLC dalla rete IT, riducendo la superficie di attacco laterale."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--fwaudit-mitigates-infra",
+      "spec_version": "2.1",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--CTRL-PLC-001-FWAUDIT",
+      "target_ref": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "description": "La verifica hash del firmware rileva modifiche non autorizzate al firmware Siemens S7-1500."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--ta-targets-plc",
+      "spec_version": "2.1",
+      "relationship_type": "targets",
+      "source_ref": "threat-actor--ransomware-opportunistic-ot",
+      "target_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "description": "Il gruppo ransomware opportunistico ha likelihood 0.6 di targetizzare questo PLC via OT/IT bridging."
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--EDGE-PLC001-SCADA-001",
+      "spec_version": "2.1",
+      "relationship_type": "controlled-by",
+      "source_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "target_ref": "software--SCADA-MAIN-001",
+      "description": "Il PLC riceve comandi operativi dallo SCADA-MAIN-001 tramite OPC-UA. Connessione critica: senza SCADA, operatori devono presidiare fisicamente l'HMI locale.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_edge": {
+            "protocol": "OPC-UA",
+            "port": 4840,
+            "criticality": "Critical",
+            "direction": "Inbound",
+            "encrypted": true,
+            "mutually_authenticated": true,
+            "crosses_segment_boundary": false,
+            "data_classification_in_transit": "Internal",
+            "severance_impact": "Perdita controllo remoto PLC. Operatore deve presidiare fisicamente il pannello HMI locale.",
+            "last_validated": "2026-03-01T08:00:00Z",
+            "threat_tactics": [
+              { "tactic_id": "TA0008", "tactic_name": "Lateral Movement", "technique_id": "T0886", "technique_name": "Remote Services", "sub_technique_id": null, "control_coverage": "partial" }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--EDGE-PLC001-HISTORIAN-001",
+      "spec_version": "2.1",
+      "relationship_type": "feeds-data-to",
+      "source_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "target_ref": "software--HISTORIAN-AVEVA-001",
+      "description": "Il PLC alimenta l'historian con dati di produzione real-time via OPC-DA. Connessione NON cifrata — vettore di lateral movement ad alto rischio.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_edge": {
+            "protocol": "OPC-DA",
+            "port": 135,
+            "criticality": "High",
+            "direction": "Outbound",
+            "encrypted": false,
+            "mutually_authenticated": false,
+            "crosses_segment_boundary": true,
+            "data_classification_in_transit": "Internal",
+            "severance_impact": "Storico produzione non aggiornato. KPI linea non disponibili in real-time. Impatto su MES e ERP.",
+            "last_validated": "2026-02-15T10:00:00Z",
+            "threat_tactics": [
+              { "tactic_id": "TA0009", "tactic_name": "Collection", "technique_id": "T0882", "technique_name": "Theft of Operational Information", "sub_technique_id": null, "control_coverage": "partial" }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "type": "relationship",
+      "id": "relationship--EDGE-PLC001-ERP-001",
+      "spec_version": "2.1",
+      "relationship_type": "feeds-data-to",
+      "source_ref": "software--PLANT-CONVEYOR-PLC-001",
+      "target_ref": "software--ERP-SAP-001",
+      "description": "Conferma ordini di produzione all'ERP via REST/HTTPS. Cross-segment, cifrato ma senza mutual authentication — rischio lateral movement T1210.",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_edge": {
+            "protocol": "REST/HTTPS",
+            "port": 443,
+            "criticality": "High",
+            "direction": "Outbound",
+            "encrypted": true,
+            "mutually_authenticated": false,
+            "crosses_segment_boundary": true,
+            "data_classification_in_transit": "Internal",
+            "severance_impact": "Ordini di produzione non confermati. Blocco Order-to-Cash. Impatto diretto su fatturato.",
+            "last_validated": "2026-01-20T12:00:00Z",
+            "threat_tactics": [
+              { "tactic_id": "TA0008", "tactic_name": "Lateral Movement", "technique_id": "T1210", "technique_name": "Exploitation of Remote Services", "sub_technique_id": null, "control_coverage": "none" }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "type": "artifact",
+      "id": "artifact--EVD-CTRL-PLC-001-EDR-001",
+      "spec_version": "2.1",
+      "mime_type": "application/json",
+      "hashes": {
+        "SHA-256": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+      },
+      "payload_bin": "eyJvbmJvYXJkaW5nU3RhdHVzIjoiT25ib2FyZGVkIiwiaGVhbHRoU3RhdHVzIjoiQWN0aXZlIn0=",
+      "extensions": {
+        "extension-definition--basm-ext": {
+          "extension_type": "property-extension",
+          "x_basm_evidence": {
+            "evidence_id": "EVD-CTRL-PLC-001-EDR-001",
+            "type": "api_response",
+            "source_system": "Microsoft Defender for IoT",
+            "source_uri": "https://api.securitycenter.microsoft.com/api/machines/PLANT-CONVEYOR-PLC-001",
+            "collected_at": "2026-03-08T06:00:00Z",
+            "auto_collected": true,
+            "satisfies_requirements": ["A.8.7", "Art. 21.2(e)", "SR 3.2"],
+            "validity_days": 1,
+            "expires_at": "2026-03-09T06:00:00Z"
+          }
+        }
+      }
+    }
+
+  ]
+}
