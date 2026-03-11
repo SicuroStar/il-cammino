@@ -2,9 +2,9 @@
   "type": "bundle",
   "id": "bundle--basm-PLANT-CONVEYOR-PLC-001",
   "spec_version": "2.1",
-  "x_basm_schema_version": "4.0-STIX-LITE",
+  "x_basm_schema_version": "4.1-STIX-LITE",
   "x_basm_created": "2026-01-10T09:00:00Z",
-  "x_basm_modified": "2026-03-08T23:15:00Z",
+  "x_basm_modified": "2026-03-11T00:00:00Z",
 
   "x_basm_maturity_scoring": {
     "data_completeness": 0.88,
@@ -38,6 +38,113 @@
     "neighborhood_ids": ["SCADA-MAIN-001", "HISTORIAN-AVEVA-001", "ERP-SAP-001"],
     "mitre_coverage_pct": 62,
     "uncovered_critical_tactics": ["TA0006 Credential Access", "TA0010 Exfiltration"]
+  },
+
+  "x_basm_neighbors_summary": [
+    {
+      "node_id": "SCADA-MAIN-001",
+      "asset_name": "SCADA Supervisory System — Ignition Platform",
+      "asset_type": "OT",
+      "purdue_level": 2,
+      "criticality": "Tier-1-Gold",
+      "owner": "Luca Bianchi — Automazione Industriale",
+      "business_process": "Supervisione e controllo remoto Linee A-B-C",
+      "hourly_downtime_cost_eur": 18500,
+      "rto_hours": 2,
+      "relationship_to_asset": "Invia comandi operativi al PLC via OPC-UA/4840 (controlled-by). Senza SCADA gli operatori devono presidiare fisicamente l'HMI locale (throughput -60%).",
+      "bundle_ref": "bundle--basm-SCADA-MAIN-001"
+    },
+    {
+      "node_id": "HISTORIAN-AVEVA-001",
+      "asset_name": "AVEVA PI Historian — Dati Processo",
+      "asset_type": "OT",
+      "purdue_level": 3,
+      "criticality": "Tier-2-Silver",
+      "owner": "Luca Bianchi — Automazione Industriale",
+      "business_process": "Archiviazione KPI produzione, compliance reportistica",
+      "hourly_downtime_cost_eur": 3200,
+      "rto_hours": 8,
+      "relationship_to_asset": "Riceve dati real-time dal PLC via OPC-DA/135 (feeds-data-to). Edge NON cifrato, cross-segment — vettore laterale ad alto rischio. Senza dati PLC i KPI di produzione non sono disponibili in real-time.",
+      "bundle_ref": "bundle--basm-HISTORIAN-AVEVA-001"
+    },
+    {
+      "node_id": "ERP-SAP-001",
+      "asset_name": "SAP S/4HANA — ERP Aziendale",
+      "asset_type": "IT",
+      "purdue_level": 4,
+      "criticality": "Tier-1-Platinum",
+      "owner": "Giulia Ferrari — CFO Office",
+      "business_process": "Order-to-Cash, fatturazione, supply chain",
+      "hourly_downtime_cost_eur": 32000,
+      "rto_hours": 4,
+      "relationship_to_asset": "Riceve conferma ordini di produzione dal PLC via REST/HTTPS/443 (feeds-data-to). Senza conferma PLC il processo Order-to-Cash si blocca e la fatturazione si interrompe. Cross-segment, no mutual auth — rischio exploitation T1210.",
+      "bundle_ref": "bundle--basm-ERP-SAP-001"
+    }
+  ],
+
+  "x_basm_current_alerts": [
+    {
+      "alert_id": "ALERT-PLC001-001",
+      "severity": "high",
+      "category": "staleness",
+      "message": "CTRL-PLC-001-NETISO: verifica scaduta. Ultimo check 2026-03-06, TTL 3 giorni — ora stale. Confidence effettiva decaduta a 0.61. Con exception RAF-2026-003 attiva (bridge OT/IT aperto), rischio lateral movement elevato.",
+      "related_object_id": "course-of-action--CTRL-PLC-001-NETISO",
+      "generated_at": "2026-03-11T00:00:00Z",
+      "auto_resolved": false,
+      "auto_resolve_at": null
+    },
+    {
+      "alert_id": "ALERT-PLC001-002",
+      "severity": "high",
+      "category": "exception_expiring",
+      "message": "Exception RAF-2026-003 su CTRL-PLC-001-NETISO scade il 2026-03-15 (4 giorni). Verificare se il firmware update Siemens è completato. Se non completato, richiedere proroga CISO o pianificare chiusura bridge OT/IT.",
+      "related_object_id": "course-of-action--CTRL-PLC-001-NETISO",
+      "generated_at": "2026-03-11T00:00:00Z",
+      "auto_resolved": true,
+      "auto_resolve_at": "2026-03-15T23:59:00Z"
+    },
+    {
+      "alert_id": "ALERT-PLC001-003",
+      "severity": "medium",
+      "category": "cve_unpatched",
+      "message": "CVE-2024-43647 su firmware Siemens 3.12.4 non patchato. Patch richiede downtime pianificato. Mitigazione attiva via CTRL-PLC-001-NETISO (stato: yellow/stale). Con bridge OT/IT aperto la mitigazione è degradata.",
+      "related_object_id": "infrastructure--PLANT-CONVEYOR-PLC-001",
+      "generated_at": "2026-03-11T00:00:00Z",
+      "auto_resolved": false,
+      "auto_resolve_at": null
+    }
+  ],
+
+  "x_basm_kc_hooks": {
+    "policy_collection": {
+      "collection_id": "KC-POLICY-CISO-2025",
+      "relevant_docs": [
+        "POL-CISO-OT-2025-001",
+        "POL-CISO-EXCEPTION-2025-002",
+        "POL-CISO-FIRMWARE-2024-005",
+        "PRO-OT-NETWORK-SEGMENTATION-V3"
+      ],
+      "last_synced": null
+    },
+    "qualys_collection": {
+      "collection_id": "KC-QUALYS-VMDR-2026",
+      "asset_qualys_id": "QASSET-OT-PLC-00142",
+      "last_scan_date": "2026-03-05T04:00:00Z",
+      "open_critical_count": 1,
+      "open_high_count": 0
+    },
+    "servicenow_collection": {
+      "collection_id": "KC-SNOW-CMDB-2026",
+      "cmdb_sys_id": "c3b4a2d1e5f60789abcdef0123456789",
+      "open_tickets": 2,
+      "last_synced": null
+    },
+    "firewall_collection": {
+      "collection_id": "KC-FW-FORTIGATE-OT-2026",
+      "governing_fw_ids": ["FORTIGATE-OT-L2-01", "FORTIGATE-CORE-L3-01"],
+      "relevant_rule_ids": ["FW-RULE-OT-VLAN-042", "FW-RULE-OT-HISTORIAN-135", "FW-RULE-OT-ERP-443"],
+      "last_policy_audit": "2026-02-01T09:00:00Z"
+    }
   },
 
   "x_basm_snapshot_history": [
@@ -129,52 +236,96 @@
       {
         "chunk_id": "CHUNK-PLC001-IDENTITY",
         "topic": "Asset Identity & Business Role",
-        "content": "PLC Siemens S7-1500 — Rullo Trasportatore Linea A. Tier-1-Gold, OT, Purdue L1. Owner: Mario Rossi (Direzione Operations). Processo: Order-to-Cash. Costo downtime: €18.500/ora. RTO: 4h. Revenue at risk: €3.256M/anno. Net exposure (dopo insurance €1M): €2.256M.",
+        "content": "PLC Siemens S7-1500 — Rullo Trasportatore Linea A. Tier-1-Gold, OT, Purdue L1. Stabilimento: ACMEFAB-MIL-01 (Milano, IT). Giurisdizioni: NIS2-IT, GDPR, IEC62443. Owner: Mario Rossi (Direzione Operations). Processo: Order-to-Cash. Costo downtime: €18.500/ora. Schedulazione: 5 giorni/settimana, 2 turni da 8h, 120 unità/ora, €19.3/unità, utilizzo 82%. RTO: 4h. Revenue at risk: €3.256M/anno. Net exposure (dopo insurance €1M): €2.256M. Cliente esposto: LogiPartner SpA (€1.85M/anno, SLA RTO 8h, penale €2.200/ora).",
         "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-IDENTITY",
         "embedding_model": "text-embedding-3-large",
         "last_embedded": null,
         "embedding_valid": false,
-        "content_hash": "sha256:pending"
+        "content_hash": "sha256:pending",
+        "auto_generated": false,
+        "source_fields": [
+          "objects[software].extensions.x_basm_app_id",
+          "objects[software].extensions.x_basm_criticality",
+          "objects[software].extensions.x_basm_bia",
+          "objects[infrastructure].extensions.x_basm_plant_site",
+          "objects[identity].name"
+        ]
       },
       {
         "chunk_id": "CHUNK-PLC001-OT",
         "topic": "OT/ICS Context & Safety",
-        "content": "Purdue Level 1 (Intelligent Devices). Air gap: partial — bridge OT/IT attivo per manutenzione firmware fino al 2026-03-15 (RAF-2026-003). Firmware Siemens 3.12.4, CVE-2024-43647 presente, patch richiede downtime. Protocolli: S7, Profinet, OPC-UA. Safety impact: HIGH. IEC 62443 target SL-2. Degraded mode: max 240 min, throughput 40%.",
+        "content": "Purdue Level 1 (Intelligent Devices). Air gap: partial — bridge OT/IT attivo per manutenzione firmware fino al 2026-03-15 (RAF-2026-003). Firmware Siemens 3.12.4, CVE-2024-43647 presente (Qualys QID-376246, open critical), patch richiede downtime. Protocolli: S7, Profinet, OPC-UA. Safety impact: HIGH. IEC 62443 target SL-2. Degraded mode: max 240 min, throughput 40%. CMDB ServiceNow: QASSET-OT-PLC-00142 (2 ticket aperti). FW: FORTIGATE-OT-L2-01, FORTIGATE-CORE-L3-01.",
         "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-OT",
         "embedding_model": "text-embedding-3-large",
         "last_embedded": null,
         "embedding_valid": false,
-        "content_hash": "sha256:pending"
+        "content_hash": "sha256:pending",
+        "auto_generated": false,
+        "source_fields": [
+          "objects[infrastructure].extensions.x_basm_ot",
+          "objects[infrastructure].extensions.x_basm_plant_site",
+          "x_basm_kc_hooks.qualys_collection",
+          "x_basm_kc_hooks.servicenow_collection",
+          "x_basm_kc_hooks.firewall_collection"
+        ]
       },
       {
         "chunk_id": "CHUNK-PLC001-CONTROLS",
         "topic": "Security Controls Status",
-        "content": "EDR Defender for IoT: GREEN, confidence 0.91, fresh (TTL 1 giorno). Network Isolation VLAN: YELLOW, confidence 0.61, STALE — eccezione RAF-2026-003 attiva fino 2026-03-15, bridge OT/IT aperto per firmware update, 2 porte extra aperte (TCP/102 S7, TCP/443). Firmware Integrity Hash: GREEN, confidence 0.83, fresh (TTL 7 giorni), CVE-2024-43647 mitigata da isolamento rete.",
+        "content": "EDR Defender for IoT (CTRL-PLC-001-EDR): GREEN, confidence 0.91, fresh (TTL 1g), policy POL-CISO-OT-2025-001. Network Isolation VLAN (CTRL-PLC-001-NETISO): YELLOW, confidence 0.61, STALE — eccezione RAF-2026-003 attiva fino 2026-03-15, bridge OT/IT aperto per firmware update, FW rule FW-RULE-OT-VLAN-042. ALERT: verifica scaduta, rischio lateral movement elevato. ALERT: eccezione scade in 4 giorni — pianificare chiusura bridge o richiedere proroga CISO. Firmware Integrity Hash (CTRL-PLC-001-FWAUDIT): GREEN, confidence 0.83, fresh (TTL 7g), CVE-2024-43647 parzialmente mitigata da isolamento rete (ma NETISO è STALE).",
         "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-CONTROLS",
         "embedding_model": "text-embedding-3-large",
         "last_embedded": null,
         "embedding_valid": false,
-        "content_hash": "sha256:pending"
+        "content_hash": "sha256:pending",
+        "auto_generated": false,
+        "source_fields": [
+          "objects[course-of-action--CTRL-PLC-001-EDR].extensions.x_basm_status",
+          "objects[course-of-action--CTRL-PLC-001-EDR].extensions.x_basm_verification",
+          "objects[course-of-action--CTRL-PLC-001-NETISO].extensions.x_basm_status",
+          "objects[course-of-action--CTRL-PLC-001-NETISO].extensions.x_basm_verification",
+          "objects[course-of-action--CTRL-PLC-001-NETISO].extensions.x_basm_exception",
+          "objects[course-of-action--CTRL-PLC-001-NETISO].extensions.x_basm_mapping",
+          "objects[course-of-action--CTRL-PLC-001-FWAUDIT].extensions.x_basm_status",
+          "x_basm_current_alerts"
+        ]
       },
       {
         "chunk_id": "CHUNK-PLC001-GRAPH",
         "topic": "Graph Topology & Blast Radius",
-        "content": "Centralità nodo: 0.82 (critico). Connessioni: → SCADA-MAIN-001 (controlled-by, OPC-UA/4840, Critical, cifrato, mutual auth). → HISTORIAN-AVEVA-001 (feeds-data-to, OPC-DA/135, High, NON cifrato, cross-segment). → ERP-SAP-001 (feeds-data-to, REST/HTTPS/443, High, cifrato, no mutual auth, cross-segment). Blast radius: 3 nodi, €245.000 revenue a rischio.",
+        "content": "Centralità nodo: 0.82 (critico). Tattiche MITRE non coperte: TA0006 Credential Access, TA0010 Exfiltration. Connessioni: (1) SCADA-MAIN-001 [Tier-1-Gold, Purdue L2, RTO 2h, €18.500/ora] — controlled-by, OPC-UA/4840, cifrato, mutual auth. Senza SCADA: operatori fisici HMI, throughput -60%. (2) HISTORIAN-AVEVA-001 [Tier-2-Silver, Purdue L3, RTO 8h, €3.200/ora] — feeds-data-to, OPC-DA/135, NON cifrato, cross-segment, FW-RULE-OT-HISTORIAN-135. Vettore laterale ad alto rischio — ALERT: edge non cifrato verso sistema cross-segment. (3) ERP-SAP-001 [Tier-1-Platinum, Purdue L4, RTO 4h, €32.000/ora] — feeds-data-to, REST/HTTPS/443, cifrato, no mutual auth, cross-segment. Senza conferma PLC: blocco Order-to-Cash, fatturazione ferma. Blast radius: 3 nodi, €245.000 revenue direttamente a rischio.",
         "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-GRAPH",
         "embedding_model": "text-embedding-3-large",
         "last_embedded": null,
         "embedding_valid": false,
-        "content_hash": "sha256:pending"
+        "content_hash": "sha256:pending",
+        "auto_generated": false,
+        "source_fields": [
+          "x_basm_graph_node",
+          "x_basm_neighbors_summary",
+          "objects[relationship--EDGE-PLC001-SCADA-001].extensions.x_basm_edge",
+          "objects[relationship--EDGE-PLC001-HISTORIAN-001].extensions.x_basm_edge",
+          "objects[relationship--EDGE-PLC001-ERP-001].extensions.x_basm_edge"
+        ]
       },
       {
         "chunk_id": "CHUNK-PLC001-RANSOMWARE",
         "topic": "Ransomware Attack Scenario",
-        "content": "Scenario più probabile: ransomware entra da ERP-SAP-001 tramite edge OPC-DA non cifrato verso HISTORIAN, poi lateralmente al PLC. Workaround: modo manuale HMI locale, throughput 40%, max 4h (dipende da HMI-PANEL-LOCAL-001 non compromesso). Playbook: PB-OT-RANSOMWARE-001. MITRE coperto: T1486 (Impact/Ransomware, partial), T1562.001 (Defense Evasion, full), T0839 (Module Firmware, full). Non coperto: Credential Access, Exfiltration.",
+        "content": "Scenario più probabile (probabilità 0.8, impatto €245K): ransomware gruppo opportunistico (likelihood 0.6) entra da ERP-SAP-001 [Tier-1-Platinum] tramite edge OPC-DA NON cifrato (FW-RULE-OT-HISTORIAN-135) verso HISTORIAN-AVEVA-001, poi lateralmente al PLC via bridge OT/IT aperto (RAF-2026-003, attivo fino 2026-03-15). Workaround: modo manuale HMI locale, throughput 40%, max 4h (dipende da HMI-PANEL-LOCAL-001 non compromesso). Playbook: PB-OT-RANSOMWARE-001. MITRE coperto: T1486 (Impact/Ransomware, partial), T1562.001 (Defense Evasion, full), T0839 (Module Firmware, full). NON coperto: TA0006 Credential Access, TA0010 Exfiltration. Rischio OT: con bridge aperto e NETISO stale, CVE-2024-43647 non patchata è exploitable. Azione immediata: chiudere bridge OT/IT o attendere 2026-03-15.",
         "embedding_id": "rag-PLANT-CONVEYOR-PLC-001-CHUNK-PLC001-RANSOMWARE",
         "embedding_model": "text-embedding-3-large",
         "last_embedded": null,
         "embedding_valid": false,
-        "content_hash": "sha256:pending"
+        "content_hash": "sha256:pending",
+        "auto_generated": false,
+        "source_fields": [
+          "objects[attack-pattern--mitre-T1486].extensions.x_basm_scenario",
+          "objects[threat-actor--ransomware-opportunistic-ot].extensions.x_basm_targeting_likelihood",
+          "objects[course-of-action--CTRL-PLC-001-NETISO].extensions.x_basm_exception",
+          "objects[relationship--EDGE-PLC001-HISTORIAN-001].extensions.x_basm_edge",
+          "x_basm_reasoning_for_ai.failure_cascading_effect",
+          "x_basm_current_alerts"
+        ]
       }
     ]
   },
@@ -190,7 +341,7 @@
       "created": "2026-01-01T00:00:00Z",
       "modified": "2026-03-11T00:00:00Z",
       "schema": "https://github.com/SicuroStar/il-cammino/raw/main/schema/basm.schema.v4.json",
-      "version": "4.0",
+      "version": "4.1",
       "extension_types": ["property-extension"],
       "extension_properties": [
         "x_basm_app_id", "x_basm_criticality", "x_basm_environment",
@@ -200,7 +351,8 @@
         "x_basm_economics", "x_basm_edge", "x_basm_evidence",
         "x_basm_incident", "x_basm_targeting_likelihood", "x_basm_known_ttps",
         "x_basm_scenario", "x_mitre_id", "x_mitre_tactic",
-        "x_basm_hourly_loss_eur", "x_basm_annual_revenue_at_risk_eur"
+        "x_basm_hourly_loss_eur", "x_basm_annual_revenue_at_risk_eur",
+        "x_basm_plant_site", "x_basm_cmdb_id", "x_basm_hostname"
       ]
     },
 
@@ -252,7 +404,24 @@
             "rpo_hours": 1,
             "last_bcp_drill": "2025-10-12T09:00:00Z",
             "bcp_drill_result": "partial",
-            "board_notification_threshold": 0.5
+            "board_notification_threshold": 0.5,
+            "production_schedule": {
+              "days_per_week": 5,
+              "shifts_per_day": 2,
+              "hours_per_shift": 8,
+              "units_per_hour": 120,
+              "revenue_per_unit_eur": 19.3,
+              "utilization_pct": 0.82
+            },
+            "customer_exposure": [
+              {
+                "customer_name": "LogiPartner SpA",
+                "annual_revenue_eur": 1850000,
+                "sla_rto_hours": 8,
+                "penalty_per_hour_eur": 2200,
+                "contract_expiry": "2027-06-30"
+              }
+            ]
           }
         }
       }
@@ -269,6 +438,14 @@
         "extension-definition--basm-ext": {
           "extension_type": "property-extension",
           "x_basm_cmdb_id": "OT-PLC-00142",
+          "x_basm_plant_site": {
+            "site_code": "ACMEFAB-MIL-01",
+            "country": "IT",
+            "city": "Milano",
+            "regulatory_jurisdictions": ["NIS2-IT", "GDPR", "IEC62443", "Direttiva-Macchine-2006-42-CE"],
+            "plant_manager": "Roberto Conti",
+            "production_lines": ["LINEA-A", "LINEA-B", "LINEA-C"]
+          },
           "x_basm_ot": {
             "asset_type": "OT",
             "purdue_level": 1,
@@ -282,7 +459,8 @@
               "patch_requires_downtime": true,
               "last_patched": "2025-11-20T06:00:00Z",
               "update_policy": "quarterly",
-              "compensating_control_ref": "course-of-action--CTRL-PLC-001-NETISO"
+              "compensating_control_ref": "course-of-action--CTRL-PLC-001-NETISO",
+              "qualys_vuln_refs": ["QID-376246"]
             },
             "allowed_protocols": ["S7", "Profinet", "OPC-UA"],
             "degraded_mode_max_minutes": 240,
@@ -413,7 +591,9 @@
             "iec62443": "SR 5.1",
             "mitre_attack": [
               { "tactic_id": "TA0008", "tactic_name": "Lateral Movement", "technique_id": "T1021", "technique_name": "Remote Services", "sub_technique_id": "T1021.002", "control_coverage": "partial" }
-            ]
+            ],
+            "policy_ref": "POL-CISO-OT-2025-001",
+            "firewall_policy_ref": "FW-RULE-OT-VLAN-042"
           },
           "x_basm_failure_management": {
             "immediate_action": "Chiudere immediatamente il bridge OT/IT. Verificare firewall Purdue L3→L2 su Fortinet FortiGate-OT.",
@@ -696,7 +876,8 @@
             "last_validated": "2026-02-15T10:00:00Z",
             "threat_tactics": [
               { "tactic_id": "TA0009", "tactic_name": "Collection", "technique_id": "T0882", "technique_name": "Theft of Operational Information", "sub_technique_id": null, "control_coverage": "partial" }
-            ]
+            ],
+            "firewall_policy_ref": "FW-RULE-OT-HISTORIAN-135"
           }
         }
       }

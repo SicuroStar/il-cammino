@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/SicuroStar/il-cammino/raw/main/schema/basm.schema.v4.json",
-  "title": "BASM v4.0-STIX-LITE",
-  "description": "Business Application Security Model — bundle STIX-lite con estensioni formali STIX 2.1. Ogni asset aziendale è un grafo di oggetti tipizzati (software, infrastructure, course-of-action, threat-actor, relationship...) con estensioni BASM per staleness, maturity scoring, FAIR risk e RAG.",
+  "title": "BASM v4.1-STIX-LITE",
+  "description": "Business Application Security Model — bundle STIX-lite con estensioni formali STIX 2.1. Ogni asset aziendale è un grafo di oggetti tipizzati (software, infrastructure, course-of-action, threat-actor, relationship...) con estensioni BASM per staleness, maturity scoring, FAIR risk e RAG. v4.1 aggiunge: neighbors_summary (bundle auto-contenuto), current_alerts (alert derivati), kc_hooks (Knowledge Collections future), plant_site (multi-plant), customer_exposure, production_schedule.",
   "type": "object",
   "required": ["type", "id", "spec_version", "x_basm_schema_version", "objects"],
   "additionalProperties": false,
@@ -26,8 +26,8 @@
     },
     "x_basm_schema_version": {
       "type": "string",
-      "const": "4.0-STIX-LITE",
-      "description": "Versione del modello BASM."
+      "enum": ["4.0-STIX-LITE", "4.1-STIX-LITE"],
+      "description": "Versione del modello BASM. 4.1 aggiunge neighbors_summary, current_alerts, kc_hooks, plant_site, customer_exposure, production_schedule."
     },
     "x_basm_created": {
       "$ref": "#/$defs/ISOTimestamp",
@@ -63,6 +63,20 @@
     "x_basm_graph_node": {
       "$ref": "#/$defs/GraphNode",
       "description": "Metriche del nodo nel grafo di rischio (centralità, blast radius, copertura MITRE)."
+    },
+    "x_basm_neighbors_summary": {
+      "type": "array",
+      "description": "Mini-riassunto degli asset adiacenti (vicini diretti nel grafo). Rende il bundle auto-contenuto anche senza caricare i bundle dei sistemi upstream/downstream.",
+      "items": { "$ref": "#/$defs/NeighborSummary" }
+    },
+    "x_basm_current_alerts": {
+      "type": "array",
+      "description": "Alert attivi derivati automaticamente dallo stato dei controlli (staleness, eccezioni in scadenza, CVE senza patch). Campo read-only calcolato dall'engine.",
+      "items": { "$ref": "#/$defs/CurrentAlert" }
+    },
+    "x_basm_kc_hooks": {
+      "$ref": "#/$defs/KCHooks",
+      "description": "Riferimenti alle Knowledge Collections esterne (policy aziendali, Qualys, ServiceNow, FW/router policy). Usati per arricchire il contesto RAG con dati non strutturati aggiornati dinamicamente."
     },
 
     "objects": {
@@ -214,7 +228,8 @@
         "patch_requires_downtime":   { "type": "boolean" },
         "last_patched":              { "$ref": "#/$defs/ISOTimestamp" },
         "update_policy":             { "type": "string", "enum": ["monthly", "quarterly", "biannual", "annual", "vendor-driven", "manual-only"] },
-        "compensating_control_ref":  { "type": "string", "description": "ID del course-of-action che compensa la mancata patch." }
+        "compensating_control_ref":  { "type": "string", "description": "ID del course-of-action che compensa la mancata patch." },
+        "qualys_vuln_refs":          { "type": "array", "items": { "type": "string" }, "description": "ID vulnerabilità in Qualys VMDR per ogni CVE noto (KC hook: qualys_collection). Es. ['QID-376246', 'QID-376247']." }
       }
     },
 
@@ -317,7 +332,9 @@
         "embedding_model": { "type": "string", "description": "Modello usato per l'embedding (es. 'text-embedding-3-large')." },
         "last_embedded":   { "type": ["string", "null"] },
         "embedding_valid": { "type": "boolean" },
-        "content_hash":    { "type": "string", "description": "Hash SHA-256 del content per rilevare invalidazioni." }
+        "content_hash":    { "type": "string", "description": "Hash SHA-256 del content per rilevare invalidazioni." },
+        "auto_generated":  { "type": "boolean", "description": "True se il chunk è generato automaticamente dai campi strutturati. False se scritto manualmente. I chunk auto-generati si invalidano automaticamente al cambio dei source_fields." },
+        "source_fields":   { "type": "array", "items": { "type": "string" }, "description": "JSON path dei campi strutturati da cui il chunk è derivato (per invalidazione automatica). Es. ['x_basm_bia.hourly_downtime_cost_eur', 'x_basm_bia.rto_hours']." }
       }
     },
 
@@ -432,6 +449,14 @@
           "type": "array",
           "items": { "$ref": "#/$defs/MitreReference" },
           "description": "Tecniche MITRE ATT&CK (o ATT&CK for ICS) coperte da questo controllo."
+        },
+        "policy_ref": {
+          "type": "string",
+          "description": "ID documento policy aziendale che richiede questo controllo (KC hook: policy_collection). Es. 'POL-CISO-OT-2025-001'."
+        },
+        "firewall_policy_ref": {
+          "type": "string",
+          "description": "ID regola FW/router che implementa o abilita questo controllo (KC hook: firewall_collection). Es. 'FW-RULE-OT-VLAN-042'."
         }
       }
     },
@@ -481,7 +506,8 @@
         "authentication_type":         { "type": "string" },
         "severance_impact":            { "type": "string", "description": "Descrizione dell'impatto se questa connessione venisse recisa o compromessa." },
         "last_validated":              { "$ref": "#/$defs/ISOTimestamp" },
-        "threat_tactics":              { "type": "array", "items": { "$ref": "#/$defs/MitreReference" } }
+        "threat_tactics":              { "type": "array", "items": { "$ref": "#/$defs/MitreReference" } },
+        "firewall_policy_ref":         { "type": "string", "description": "ID regola FW/router che governa questo edge (KC hook: firewall_collection). Es. 'FW-RULE-OT-HISTORIAN-135'." }
       }
     },
 
@@ -595,7 +621,9 @@
                         "rpo_hours":                   { "type": "number", "minimum": 0 },
                         "last_bcp_drill":               { "$ref": "#/$defs/ISOTimestamp" },
                         "bcp_drill_result":             { "$ref": "#/$defs/BcpDrillResult" },
-                        "board_notification_threshold": { "$ref": "#/$defs/ConfidenceScore" }
+                        "board_notification_threshold": { "$ref": "#/$defs/ConfidenceScore" },
+                        "production_schedule":          { "$ref": "#/$defs/ProductionSchedule" },
+                        "customer_exposure":            { "type": "array", "items": { "$ref": "#/$defs/CustomerExposure" }, "description": "Clienti downstream esposti a SLA breach in caso di fermo produzione." }
                       }
                     }
                   }
@@ -631,8 +659,9 @@
                 {
                   "type": "object",
                   "properties": {
-                    "x_basm_cmdb_id":  { "type": "string" },
-                    "x_basm_hostname": { "type": "string" },
+                    "x_basm_cmdb_id":    { "type": "string" },
+                    "x_basm_hostname":   { "type": "string" },
+                    "x_basm_plant_site": { "$ref": "#/$defs/PlantSite", "description": "Identificatore fisico e giurisdizionale dello stabilimento in cui è installato l'asset." },
                     "x_basm_ot": {
                       "type": "object",
                       "description": "Contesto OT/ICS. Compilare solo se asset_type ≠ IT.",
@@ -918,6 +947,138 @@
             }
           }
         }
+      }
+    },
+
+    "NeighborSummary": {
+      "type": "object",
+      "description": "Mini-riassunto di un asset adiacente nel grafo di rischio. Rende ogni bundle auto-contenuto per ragionamento su catene di impatto, senza richiedere il caricamento del bundle completo del vicino.",
+      "required": ["node_id", "asset_name", "criticality"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id":                  { "type": "string", "description": "App ID del vicino (corrisponde a x_basm_app_id o swid del bundle del vicino)." },
+        "asset_name":               { "type": "string" },
+        "asset_type":               { "$ref": "#/$defs/AssetType" },
+        "purdue_level":             { "$ref": "#/$defs/PurdueLevel" },
+        "criticality":              { "$ref": "#/$defs/CriticalityClass" },
+        "owner":                    { "type": "string" },
+        "business_process":         { "type": "string" },
+        "hourly_downtime_cost_eur": { "type": "number", "minimum": 0 },
+        "rto_hours":                { "type": "number", "minimum": 0 },
+        "relationship_to_asset":    { "type": "string", "description": "Descrizione funzionale della dipendenza da o verso questo asset." },
+        "bundle_ref":               { "type": "string", "description": "ID STIX del bundle BASM completo del vicino (se disponibile nel corpus)." }
+      }
+    },
+
+    "CurrentAlert": {
+      "type": "object",
+      "description": "Alert attivo derivato automaticamente dallo stato del bundle (staleness, eccezioni in scadenza, CVE senza patch). Campo calcolato dall'engine al momento della serializzazione.",
+      "required": ["alert_id", "severity", "category", "message", "generated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "alert_id":          { "type": "string", "pattern": "^ALERT-" },
+        "severity":          { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+        "category":          { "type": "string", "enum": ["staleness", "exception_expiring", "cve_unpatched", "control_red", "compliance_gap", "kc_outdated"] },
+        "message":           { "type": "string" },
+        "related_object_id": { "type": "string", "description": "ID STIX dell'oggetto BASM che ha generato l'alert." },
+        "generated_at":      { "$ref": "#/$defs/ISOTimestamp" },
+        "auto_resolved":     { "type": "boolean", "description": "True se l'alert si risolve automaticamente allo scadere di un TTL o eccezione." },
+        "auto_resolve_at":   { "type": ["string", "null"] }
+      }
+    },
+
+    "PlantSite": {
+      "type": "object",
+      "description": "Identificatore fisico e giurisdizionale dello stabilimento. Critico per ragionamento multi-plant (es. Interroll AG con siti in 10+ paesi) e compliance geografica.",
+      "required": ["site_code", "country"],
+      "additionalProperties": false,
+      "properties": {
+        "site_code":                { "type": "string", "description": "Codice univoco stabilimento (es. 'ACMEFAB-MIL-01', 'INTRL-CHN-SZ-01')." },
+        "country":                  { "type": "string", "description": "Paese ISO 3166-1 alpha-2 (es. 'IT', 'DE', 'CN', 'US', 'MX')." },
+        "city":                     { "type": "string" },
+        "regulatory_jurisdictions": { "type": "array", "items": { "type": "string" }, "description": "Regimi normativi applicabili (es. 'NIS2-IT', 'GDPR', 'CIRCIA', 'BSI-KritisV', 'PIPL-CN', 'IEC62443')." },
+        "plant_manager":            { "type": "string" },
+        "production_lines":         { "type": "array", "items": { "type": "string" }, "description": "Codici linee produzione presenti in questo stabilimento." }
+      }
+    },
+
+    "KCHooks": {
+      "type": "object",
+      "description": "Riferimenti alle Knowledge Collections (KC) esterne che arricchiranno il contesto RAG. Ogni KC è un corpus documentale aggiornato dinamicamente che Claude può interrogare via retrieval.",
+      "additionalProperties": false,
+      "properties": {
+        "policy_collection": {
+          "type": "object",
+          "description": "KC Policy Aziendali: manuali sicurezza, policy CISO, procedure operative, standard interni.",
+          "additionalProperties": false,
+          "properties": {
+            "collection_id": { "type": "string" },
+            "relevant_docs": { "type": "array", "items": { "type": "string" }, "description": "ID documenti policy rilevanti per questo asset (es. 'POL-CISO-OT-2025-001')." },
+            "last_synced":   { "type": ["string", "null"] }
+          }
+        },
+        "qualys_collection": {
+          "type": "object",
+          "description": "KC Vulnerability Management: report Qualys VMDR, QID score, remediation status, scan history.",
+          "additionalProperties": false,
+          "properties": {
+            "collection_id":       { "type": "string" },
+            "asset_qualys_id":     { "type": "string", "description": "ID asset in Qualys VMDR." },
+            "last_scan_date":      { "type": ["string", "null"] },
+            "open_critical_count": { "type": "integer", "minimum": 0 },
+            "open_high_count":     { "type": "integer", "minimum": 0 }
+          }
+        },
+        "servicenow_collection": {
+          "type": "object",
+          "description": "KC CMDB ServiceNow: asset lifecycle, contratti manutenzione, responsabili, ticket aperti, change request.",
+          "additionalProperties": false,
+          "properties": {
+            "collection_id": { "type": "string" },
+            "cmdb_sys_id":   { "type": "string", "description": "sys_id univoco asset in ServiceNow CMDB (equivale a x_basm_cmdb_id)." },
+            "open_tickets":  { "type": "integer", "minimum": 0 },
+            "last_synced":   { "type": ["string", "null"] }
+          }
+        },
+        "firewall_collection": {
+          "type": "object",
+          "description": "KC FW/Router Policy: ruleset Fortinet/Palo Alto/Cisco, NAT rules, ACL, zone policy, segmentazione OT.",
+          "additionalProperties": false,
+          "properties": {
+            "collection_id":      { "type": "string" },
+            "governing_fw_ids":   { "type": "array", "items": { "type": "string" }, "description": "ID apparati FW/router che governano il traffico verso questo asset (es. 'FORTIGATE-OT-L2-01')." },
+            "relevant_rule_ids":  { "type": "array", "items": { "type": "string" }, "description": "ID regole FW rilevanti per questo asset." },
+            "last_policy_audit":  { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+
+    "CustomerExposure": {
+      "type": "object",
+      "description": "Esposizione di un cliente downstream in caso di fermo produzione dell'asset (SLA breach, penali contrattuali).",
+      "required": ["customer_name", "annual_revenue_eur"],
+      "additionalProperties": false,
+      "properties": {
+        "customer_name":        { "type": "string" },
+        "annual_revenue_eur":   { "type": "number", "minimum": 0, "description": "Fatturato annuo con questo cliente a rischio in caso di interruzione." },
+        "sla_rto_hours":        { "type": "number", "minimum": 0, "description": "RTO garantito contrattualmente al cliente (ore)." },
+        "penalty_per_hour_eur": { "type": "number", "minimum": 0, "description": "Penale contrattuale per ogni ora di fermo oltre SLA." },
+        "contract_expiry":      { "type": ["string", "null"] }
+      }
+    },
+
+    "ProductionSchedule": {
+      "type": "object",
+      "description": "Parametri operativi della produzione per calcolo preciso del costo downtime (es. linee che non girano 7 giorni su 7).",
+      "additionalProperties": false,
+      "properties": {
+        "days_per_week":        { "type": "integer", "minimum": 1, "maximum": 7 },
+        "shifts_per_day":       { "type": "integer", "minimum": 1, "maximum": 3 },
+        "hours_per_shift":      { "type": "number", "minimum": 0 },
+        "units_per_hour":       { "type": "number", "minimum": 0 },
+        "revenue_per_unit_eur": { "type": "number", "minimum": 0 },
+        "utilization_pct":      { "$ref": "#/$defs/ConfidenceScore", "description": "Tasso medio di utilizzo della linea [0-1]." }
       }
     },
 
