@@ -66,17 +66,25 @@ REGOLE OBBLIGATORIE:
      o se ci sono CVE non patchate.
    - semantic_tags: Array di tag (10-20) ricavati da: asset_type, vendor, processo aziendale,
      tipo di minaccia più probabile, settore industriale.
-   - rag_chunks: Genera ESATTAMENTE 5 chunk con i seguenti topic standard:
+   - rag_chunks: Genera ESATTAMENTE 5 chunk con i seguenti topic standard.
+     FORMATO OBBLIGATORIO DEL CAMPO content: ogni statement deve iniziare con il prefisso
+     "[ASSET: {APP-ID}] [TIER: {criticality}] [TOPIC: {topic}]" seguito dal contenuto.
+     Usa "\n" per separare statement distinti all'interno della stessa stringa JSON.
+     Questo rende ogni riga auto-esplicativa anche se il retriever RAG la estrae isolata.
+
+     Esempio (APP-ID: SAP-S4HANA, Tier: Tier-1-Platinum):
+       "[ASSET: SAP-S4HANA] [TIER: Tier-1-Platinum] [TOPIC: Security Controls Status] [CTRL: CTRL-SAP-MFA] MFA: GREEN, confidence 0.95, fresh.\n[ASSET: SAP-S4HANA] [TIER: Tier-1-Platinum] [TOPIC: Security Controls Status] [CTRL: CTRL-SAP-BACKUP] Backup immutabile: GREEN, testato 2026-03-01."
+
      * chunk_id: "CHUNK-{APP-ID}-IDENTITY" — topic: "Identity & Business Role"
-       content: riassunto identità sistema, owner, processo, impatto economico
+       content (prefissato): sistema, owner, processo aziendale, impatto economico (€/ora, revenue at risk, RTO), produzione, clienti esposti
      * chunk_id: "CHUNK-{APP-ID}-OT" — topic: "OT/ICS Context & Safety" (o "IT Asset Context" se non OT)
-       content: dettagli hardware, purdue level, firmware, CVE, protocolli, safety impact
+       content (prefissato): purdue level, air gap, firmware + CVE aperte, protocolli, safety impact, IEC 62443, CMDB ID
      * chunk_id: "CHUNK-{APP-ID}-CONTROLS" — topic: "Security Controls Status"
-       content: elenco controlli con status (green/yellow/red), staleness, eccezioni attive
+       content (prefissato): una riga per controllo con [CTRL: ID] status (GREEN/YELLOW/RED), confidence, staleness; una riga per ogni ALERT attivo
      * chunk_id: "CHUNK-{APP-ID}-GRAPH" — topic: "Graph Topology & Blast Radius"
-       content: connessioni verso altri asset, protocolli, cifratura, blast radius stimato
+       content (prefissato): centralità, blast radius (nodi + €), una riga per connessione con asset destinazione, protocollo, porta, cifratura, ALERT se NON cifrato
      * chunk_id: "CHUNK-{APP-ID}-RISK" — topic: "Risk Quantification & Attack Scenarios"
-       content: FAIR risk annualizzato, scenari di attacco MITRE più probabili, gap di copertura
+       content (prefissato): FAIR risk annualizzato (€/anno), scenario MITRE più probabile con probabilità e impatto €, tattiche non coperte, azione immediata se rilevante
      Per ogni chunk: embedding_valid: false, auto_generated: true, source_fields: [lista campi usati]
 
 5. x_basm_maturity_scoring
